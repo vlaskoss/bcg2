@@ -1,7 +1,14 @@
 local ServerStorage = game:GetService("ServerStorage")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PlayersService = game:GetService("Players")
 
-local dataManager = require(ServerStorage.Server.Modules.DataManager)
+local modulesFolder = ServerStorage.Server.Modules
+local sharedModulesFolder = ReplicatedStorage.Shared.Modules
+
+local dataManager = require(modulesFolder.DataManager)
+local gammaNum = require(sharedModulesFolder.GammaNum)
+local gameUtils = require(sharedModulesFolder.GameUtils)
+
 local state
 local resultString
 local operationFunctions = {
@@ -27,9 +34,13 @@ return function (context, currency: string, operation: string, amount: number)
 		state = dataManager:RetrieveAmount(player, currency)
 		resultString = ""
 		if state == nil then
-			resultString = `{player.Name}'s currency modification failed (Currency does not exist).`
+			resultString = `{gameUtils:MakePossessive(player.Name)} currency modification failed (Currency does not exist).`
 		else
-			resultString = `{player.Name}'s {currency} balance is now {state}.`
+			if currency == "Clicks" then
+				resultString = `{gameUtils:MakePossessive(player.Name)} {currency} balance is now {gammaNum.toSuffix(state)}`
+			else
+				resultString = `{gameUtils:MakePossessive(player.Name)} {currency} balance is now {state}.`
+			end
 		end
 		table.insert(results, resultString)
 	end

@@ -17,7 +17,7 @@ dataInitEvent.OnClientEvent:Connect(function()
     Instance.new("Folder", script.Parent).Name = "SFX"
     local loadingSound = loadingSoundOrigin:Clone()
     loadingSound.Parent = script.Parent.SFX
-    loadingSound.Volume = 5
+    loadingSound.Volume = 7.5
     loadingSound:Play()
     task.wait(3)
     local bgSound = bgSoundOrigin:Clone()
