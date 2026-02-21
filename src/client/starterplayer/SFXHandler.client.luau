@@ -9,11 +9,16 @@ local sfxEvent = bindablesFolder.SFXEvent
 local stopSfxEvent = bindablesFolder.StopSFXEvent
 
 local bgSoundOrigin = soundsFolder.Background.BG
+local loadingSoundOrigin = soundsFolder.Interactive.LoadingSound
 
 local activeSounds = {}
 
 dataInitEvent.OnClientEvent:Connect(function()
     Instance.new("Folder", script.Parent).Name = "SFX"
+    local loadingSound = loadingSoundOrigin:Clone()
+    loadingSound.Parent = script.Parent.SFX
+    loadingSound.Volume = 1
+    loadingSound:Play()
     task.wait(3)
     local bgSound = bgSoundOrigin:Clone()
     bgSound.Parent = script.Parent.SFX

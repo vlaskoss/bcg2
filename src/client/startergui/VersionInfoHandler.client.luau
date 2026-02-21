@@ -12,8 +12,7 @@ local menuManager = require(modulesFolder.MenuManager)
 local mainUI = script.Parent.MainUI
 local mainFrame = mainUI.MainFrame
 local coverFrame = mainFrame.CoverFrame
-local versionFrame, betaFrame = mainFrame.VersionFrame, mainFrame.BetaFrame
-local betaFrameTitle, betaFrameDescription, betaFrameTimer = betaFrame.Title, betaFrame.Description, betaFrame.Timer
+local versionFrame = mainFrame.VersionFrame
 local buttonsFolder = mainFrame.ButtonFrame.Buttons
 local menusFolder = mainFrame.Menus
 local versionButton = mainFrame.VersionLabel
@@ -23,8 +22,6 @@ local buildLabel, uptimeLabel, versionLabel = versionFrame.BuildLabel, versionFr
 local dataInitialised = false
 local isOpen = false
 local debounce = false
-
-betaFrame.Visible = false
 
 local function tweenText(parent, value)
     for _, child in pairs(parent:GetDescendants()) do
@@ -82,32 +79,8 @@ dataInitEvent.OnClientEvent:Connect(function()
     coverFrame.Visible = false
     buildLabel.Text = "Build " .. game.PlaceVersion
     versionLabel.Text = "BCG (basic clicking game) - " .. gameVersion.FullName
-    betaFrameTimer.TextTransparency = 1
-    betaFrameTitle.TextTransparency = 1
-    betaFrameDescription.TextTransparency = 1
-    betaFrame.BackgroundTransparency = 1
     task.wait(5)
     dataInitialised = true
-    betaFrame.Visible = true
-    task.wait(0.5)
-    gameUtils:Tween(betaFrame, {BackgroundTransparency = 0}, 1)
-    gameUtils:Tween(betaFrameTimer, {TextTransparency = 0}, 1)
-    gameUtils:Tween(betaFrameTitle, {TextTransparency = 0}, 1)
-    gameUtils:Tween(betaFrameDescription, {TextTransparency = 0}, 1)
-    for i = 4, 1, -1 do
-        if i == 1 then
-            betaFrameTimer.Text = "This menu will automatically disappear in 1 second"
-        else
-            betaFrameTimer.Text = "This menu will automatically disappear in " .. i .. " seconds"
-        end
-        task.wait(1)
-    end
-    gameUtils:Tween(betaFrame, {BackgroundTransparency = 1}, 1)
-    gameUtils:Tween(betaFrameTimer, {TextTransparency = 1}, 1)
-    gameUtils:Tween(betaFrameTitle, {TextTransparency = 1}, 1)
-    gameUtils:Tween(betaFrameDescription, {TextTransparency = 1}, 1)
-    task.wait(1)
-    betaFrame:Destroy()
 end)
 
 coverFrame.InputBegan:Connect(function(input)

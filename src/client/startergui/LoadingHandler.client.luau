@@ -4,12 +4,9 @@ local PlayersService = game:GetService("Players")
 local TestService = game:GetService("TestService")
 
 local sharedFolder = ReplicatedStorage.Shared
-local modulesFolder, remotesFolder, bindablesFolder, soundsFolder = sharedFolder.Modules, sharedFolder.Remotes, sharedFolder.Bindables, sharedFolder.Sounds
+local modulesFolder, remotesFolder = sharedFolder.Modules, sharedFolder.Remotes
 
 local dataInitEvent = remotesFolder.DataInitEvent
-local sfxEvent = bindablesFolder.SFXEvent
-
-local loadingSound = soundsFolder.Interactive.LoadingSound
 
 local gameVersion = require(modulesFolder.GameVersion)
 local gameUtils = require(modulesFolder.GameUtils)
@@ -95,11 +92,9 @@ gameUtils:Tween(versionLabel, {TextTransparency = 0}, 0.5, 0.5)
 task.spawn(timeoutCheck)
 
 dataInitEvent.OnClientEvent:Connect(function(data)
-    sfxEvent:Fire(loadingSound, 0.25)
     dataInitialised = true
     print("------------------DATA INITIALISED------------------")
-    print("[LoadingHandler]: Data initalised, waiting for SFX")
-    task.wait(1.5)
+    print("[LoadingHandler]: Data initalised")
     loadingLabel.Text = "data initalised!"
     task.wait(1)
     gameUtils:Tween(loadingLabel, {TextTransparency = 1}, 0.5, 0, true)
