@@ -12,14 +12,8 @@ local upgradeEvent = remotesFolder.UpgradeEvent
 
 local dataManager = require(modulesFolder.DataManager)
 local upgradeConfig = require(sharedModulesFolder.UpgradeConfig)
+local gameUtils = require(sharedModulesFolder.GameUtils)
 local gammaNum = require(sharedModulesFolder.GammaNum)
-
-local function ensureGammaNum(value)
-    if typeof(value) == "buffer" then return value end
-    if typeof(value) == "number" then return gammaNum.fromNumber(value) end
-    if typeof(value) == "table" and value.toSuffix then return value end
-    return gammaNum.fromNumber(0)
-end
 
 local function getUpgradeCost(config, tier)
     if config.CostFormula then
@@ -55,7 +49,7 @@ upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
         local finalCostReduction = gammaNum.div(gammaNum.sub(gammaNum.fromNumber(100), gammaNum.fromNumber(levelCostReduction)), gammaNum.fromNumber(100))
         cost = gammaNum.mul(cost, finalCostReduction)
     end
-    local playerClicks = ensureGammaNum(dataManager:RetrieveAmount(player, "Clicks")) 
+    local playerClicks = gameUtils:EnsureGammaNum(dataManager:RetrieveAmount(player, "Clicks")) 
 
     if gammaNum.gte(playerClicks, cost) then 
         if config.StatType == "Level" then

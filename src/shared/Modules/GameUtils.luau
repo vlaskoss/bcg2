@@ -87,4 +87,11 @@ function GameUtils:FormatNum(value)
     return result
 end
 
+function GameUtils:EnsureGammaNum(value)
+    if typeof(value) == "buffer" then return value end
+    if typeof(value) == "number" then return gammaNum.fromNumber(value) end
+    if typeof(value) == "table" and value.toSuffix then return value end
+    return gammaNum.fromNumber(0)
+end
+
 return GameUtils

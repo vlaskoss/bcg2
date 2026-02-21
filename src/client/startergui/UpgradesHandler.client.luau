@@ -38,12 +38,6 @@ local function flattenInto(target, source)
     end
 end
 
-local function ensureGammaNum(value)
-    if typeof(value) == "buffer" then return value end
-    if typeof(value) == "number" then return gammaNum.fromNumber(value) end
-    if typeof(value) == "table" and value.toSuffix then return value end
-    return gammaNum.fromNumber(0)
-end
 
 local function getCost(config, level)
     if config.CostFormula then
@@ -56,11 +50,11 @@ local function getCost(config, level)
     if config.Type == "Tiered" and config.Tiers then
         local tier = config.Tiers[level + 1]
         if tier then
-            return ensureGammaNum(tier.Cost)
+            return gameUtils:EnsureGammaNum(tier.Cost)
         end
     end
     
-    return ensureGammaNum(config.Cost or 0)
+    return gameUtils:EnsureGammaNum(config.Cost or 0)
 end
 
 local function updateUI(upgradeUI, upgradeKey, data)
@@ -126,7 +120,7 @@ local function createUpgradeUI(upgradeKey, data)
     upgradeUI.PurchaseButton.MouseButton1Down:Connect(function()
         local currentLevel = dataCache[data.RelatedStat] or 0
         local nextCost = getCost(data, currentLevel)
-        local currentClicks = ensureGammaNum(dataCache.Clicks)
+        local currentClicks = gameUtils:EnsureGammaNum(dataCache.Clicks)
         
         if upgradeKey == "Level" then
             local finalCostReduction = gammaNum.div(gammaNum.sub(gammaNum.fromNumber(100), gammaNum.fromNumber(dataCache.ReduceLevelCost)), gammaNum.fromNumber(100))
