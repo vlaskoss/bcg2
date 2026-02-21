@@ -52,7 +52,10 @@ local function toggleFrame()
                 autoClickButton.Interactable = false
                 clickButton.Interactable = false
                 menuManager:DisableAllButtons(buttonsFolder)
-                menuManager:CloseAllMenus(menusFolder)
+                if menuManager:IsMenuOpen(menusFolder) then
+                    menuManager:CloseAllMenus(menusFolder)
+                    task.wait(0.35)
+                end
                 versionFrame.Visible = true
                 coverFrame.Visible = true
                 tweenText(versionFrame, 0)
@@ -95,7 +98,7 @@ versionButton.MouseButton1Click:Connect(toggleFrame)
 
 while task.wait(1) do
     if dataInitialised == true then
-        local uptime = gameUtils:GetASCII()
+        local uptime = gameUtils:GetUptime()
         uptimeLabel.Text = "Server uptime: "  .. uptime
     end
 end

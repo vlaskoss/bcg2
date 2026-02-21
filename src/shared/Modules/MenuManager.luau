@@ -121,4 +121,14 @@ function MenuManager:SetupButton(button, targetFrame)
 	end)
 end
 
+function MenuManager:IsMenuOpen(menusFolder)
+    if not menusFolder then return end
+    for _, menu in pairs(menusFolder:GetChildren()) do
+        if menu:IsA("Frame") then
+            if menu.Visible then
+                return menu.Visible
+            end
+        end
+    end
+end
 return MenuManager
