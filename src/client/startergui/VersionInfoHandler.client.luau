@@ -1,7 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local sharedFolder = ReplicatedStorage.Shared
-local modulesFolder, remotesFolder, bindablesFolder, soundsFolder = sharedFolder.Modules, sharedFolder.Remotes, sharedFolder.Bindables, sharedFolder.Sounds
+local modulesFolder, remotesFolder, bindablesFolder = sharedFolder.Modules, sharedFolder.Remotes, sharedFolder.Bindables
 
 local dataInitEvent = remotesFolder.DataInitEvent
 

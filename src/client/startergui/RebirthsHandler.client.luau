@@ -6,7 +6,7 @@ local modulesFolder, remotesFolder, bindablesFolder, soundsFolder = sharedFolder
 local dataInitEvent = remotesFolder.DataInitEvent
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
 local rebirthEvent = remotesFolder.RebirthEvent
-local SFXEvent = bindablesFolder.SFXEvent
+local sfxEvent = bindablesFolder.SFXEvent
 
 local mainFrame = script.Parent.MainUI.MainFrame
 local rebirthsFrame = mainFrame.Menus.RebirthsFrame
@@ -53,6 +53,6 @@ end)
 rebirthButton.MouseButton1Click:Connect(function()
     if currentLevel >= calcLevelRequired(rebirthsAmount) then
         rebirthEvent:FireServer()
-        SFXEvent:Fire(rebirthSound, 1, false)
+        sfxEvent:Fire(rebirthSound, 1, false)
     end
 end)
