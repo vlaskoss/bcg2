@@ -4,10 +4,13 @@ local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local modulesFolder = ServerStorage.Server.Modules
-local clickEvent = ReplicatedStorage.Shared.Remotes.ClickEvent
+local remotesFolder = ReplicatedStorage.Shared.Remotes
+
 local dataManager = require(modulesFolder.DataManager)
 local debounceManager = require(modulesFolder.DebounceManager)
 local clickCalculationManager = require(modulesFolder.ClickCalculationManager)
+
+local clickEvent = remotesFolder.ClickEvent
 
 clickEvent.OnServerEvent:Connect(function(player)
     if not player or not player.Parent then return end

@@ -4,15 +4,17 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PlayersService = game:GetService("Players")
 local ServerStorage = game:GetService("ServerStorage")
 
-local serverModulesFolder = ServerStorage.Server.Modules
+local serverFolder = ServerStorage.Server
+local modulesFolder, bindablesFolder = serverFolder.Modules, serverFolder.BindableEvents
+local remotesFolder = ReplicatedStorage.Shared.Remotes
 
-local autoClickManager = require(serverModulesFolder.AutoClickManager)
-local dataManager = require(serverModulesFolder.DataManager)
-local clickCalculationManager = require(serverModulesFolder.ClickCalculationManager)
+local autoClickManager = require(modulesFolder.AutoClickManager)
+local dataManager = require(modulesFolder.DataManager)
+local clickCalculationManager = require(modulesFolder.ClickCalculationManager)
 
-local autoClickEvent = ReplicatedStorage.Shared.Remotes.AutoClickEvent
-local clickFXEvent = ReplicatedStorage.Shared.Remotes.ClickFXEvent
-local dataUpdateBindable = ServerStorage.Server.BindableEvents.DataUpdateBindable
+local autoClickEvent = remotesFolder.AutoClickEvent
+local clickFXEvent = remotesFolder.ClickFXEvent
+local dataUpdateBindable = bindablesFolder.DataUpdateBindable
 
 
 local function runAutoClicker(player, level)

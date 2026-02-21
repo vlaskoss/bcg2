@@ -1,12 +1,16 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 
-local rebirthEvent = ReplicatedStorage.Shared.Remotes.RebirthEvent
+local serverFolder, sharedFolder = ServerStorage.Server, ReplicatedStorage.Shared
+local remotesFolder, sharedModulesFolder = sharedFolder.Remotes, sharedFolder.Modules
+local modulesFolder = serverFolder.Modules
 
-local dataManager = require(ServerStorage.Server.Modules.DataManager)
-local upgradeConfig = require(ReplicatedStorage.Shared.Modules.UpgradeConfig)
-local saveTemplate = require(ServerStorage.Server.Modules.SaveTemplate)
-local gammaNum = require(ReplicatedStorage.Shared.Modules.GammaNum)
+local rebirthEvent = remotesFolder.RebirthEvent
+
+local dataManager = require(modulesFolder.DataManager)
+local saveTemplate = require(modulesFolder.SaveTemplate)
+local upgradeConfig = require(sharedModulesFolder.UpgradeConfig)
+local gammaNum = require(sharedModulesFolder.GammaNum)
 
 local function calcLevelRequired(currentRebirths)
     return math.round(100 * (1.25 ^ currentRebirths))
@@ -28,7 +32,5 @@ rebirthEvent.OnServerEvent:Connect(function(player)
                 end
             end
         end
-
-
     end
 end)

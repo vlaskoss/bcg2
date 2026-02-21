@@ -5,11 +5,13 @@ local PlayersService = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
 
 local serverFolder = ServerStorage.Server
-local clickCalculationManager = require(serverFolder.Modules.ClickCalculationManager)
-local multiplierConfig = require(serverFolder.Modules.MultiplierConfig)
+local modulesFolder, bindablesFolder = serverFolder.Modules, serverFolder.BindableEvents
 
-local dataInitBindable = serverFolder.BindableEvents.DataInitBindable
-local dataUpdateBindable = serverFolder.BindableEvents.DataUpdateBindable
+local clickCalculationManager = require(modulesFolder.ClickCalculationManager)
+local multiplierConfig = require(modulesFolder.MultiplierConfig)
+
+local dataInitBindable = bindablesFolder.DataInitBindable
+local dataUpdateBindable = bindablesFolder.DataUpdateBindable
 
 dataInitBindable.Event:Connect(function(player)
     clickCalculationManager:InitialisePlayer(player)

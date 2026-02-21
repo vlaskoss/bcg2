@@ -1,31 +1,17 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 
-local dataUpdateBindable = ServerStorage.Server.BindableEvents.DataUpdateBindable
+local serverFolder, sharedFolder = ServerStorage.Server, ReplicatedStorage.Shared
+local sharedModulesFolder = sharedFolder.Modules
+local bindablesFolder = serverFolder.BindableEvents
 
-local gammaNum = require(ReplicatedStorage.Shared.Modules.GammaNum)
-local utils = require(ReplicatedStorage.Shared.Modules.Utils)
+local dataUpdateBindable = bindablesFolder.DataUpdateBindable
+
+local gameUtils = require(sharedModulesFolder.GameUtils)
+local gammaNum = require(sharedModulesFolder.GammaNum)
 
 local DataManager = {}
 DataManager.Profiles = {}
-
-local function formatNum(value)
-    if not value then return "0" end
-    local s, l, e = gammaNum.totuple(value)
-    -- small numbers
-    if l == 0 and e < 1000 then
-        return tostring(math.floor(s * e))
-    end
-    -- big numbers >1k
-    local oldDigits = gammaNum.DefaultDigits
-    gammaNum.DefaultDigits = 2 
-    local result = gammaNum.toSuffix(value)
-    -- cleanup to 2 decimal places
-    result = string.gsub(result, "(%d+%.%d%d)%d+", "%1")
-    
-    gammaNum.DefaultDigits = oldDigits
-    return result
-end
 
 local function checkAndUpdateLeaderstat(dataProfile: table, player: Player, currency: string)
 	if player.leaderstats then
@@ -33,7 +19,7 @@ local function checkAndUpdateLeaderstat(dataProfile: table, player: Player, curr
 		if leaderstat then
 			local value = dataProfile.Data[currency]
 			if currency == "Clicks" and (typeof(value) == "buffer" or (typeof(value) == "table" and value.toSuffix)) then
-				leaderstat.Value = formatNum(value)
+				leaderstat.Value = gameUtils:FormatNum(value)
 			else
 				leaderstat.Value = value
 			end
@@ -119,7 +105,7 @@ function DataManager:SetCurrency(player: Player, currency: string, amount: numbe
 	checkAndUpdateLeaderstat(profile, player, currency)
 	dataUpdateBindable:Fire(profile.Data, player, currency, "currency")
 	if amount == 0 or amount == nil then
-		warn(`[DataManager]: {utils:MakePossessive(player.Name)} {currency} balance has been cleared.`)
+		warn(`[DataManager]: {gameUtils:MakePossessive(player.Name)} {currency} balance has been cleared.`)
 	end
 end
 

@@ -3,20 +3,19 @@ debug.setmemorycategory("Upgrades")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 
-local upgradeFormulas = ReplicatedStorage.Shared.Modules.UpgradeFormulas  
-local upgradeEvent = ReplicatedStorage.Shared.Remotes.UpgradeEvent
-local upgradeConfig = require(ReplicatedStorage.Shared.Modules.UpgradeConfig)
-local dataManager = require(ServerStorage.Server.Modules.DataManager)
-local gammaNum = require(ReplicatedStorage.Shared.Modules.GammaNum)
+local serverFolder, sharedFolder = ServerStorage.Server, ReplicatedStorage.Shared
+local remotesFolder, sharedModulesFolder = sharedFolder.Remotes, sharedFolder.Modules
+local modulesFolder = serverFolder.Modules
 
-local function ensureGammaNum(value)
-    if typeof(value) == "buffer" then return value end
-    if typeof(value) == "number" then return gammaNum.fromNumber(value) end
-    if typeof(value) == "table" and value.toSuffix then return value end
-    return gammaNum.fromNumber(0)
-end
+local upgradeFormulas = sharedModulesFolder.UpgradeFormulas
+local upgradeEvent = remotesFolder.UpgradeEvent
 
-local function getUpgradeCost(config, tier, costReductionlevel)
+local dataManager = require(modulesFolder.DataManager)
+local upgradeConfig = require(sharedModulesFolder.UpgradeConfig)
+local gameUtils = require(sharedModulesFolder.GameUtils)
+local gammaNum = require(sharedModulesFolder.GammaNum)
+
+local function getUpgradeCost(config, tier)
     if config.CostFormula then
         local formulaModule = upgradeFormulas:FindFirstChild(config.CostFormula)
         if formulaModule then
@@ -50,7 +49,7 @@ upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
         local finalCostReduction = gammaNum.div(gammaNum.sub(gammaNum.fromNumber(100), gammaNum.fromNumber(levelCostReduction)), gammaNum.fromNumber(100))
         cost = gammaNum.mul(cost, finalCostReduction)
     end
-    local playerClicks = ensureGammaNum(dataManager:RetrieveAmount(player, "Clicks")) 
+    local playerClicks = gameUtils:EnsureGammaNum(dataManager:RetrieveAmount(player, "Clicks")) 
 
     if gammaNum.gte(playerClicks, cost) then 
         if config.StatType == "Level" then

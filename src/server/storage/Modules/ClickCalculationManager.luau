@@ -2,11 +2,14 @@ local ServerStorage = game:GetService("ServerStorage")
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local multiplierFormulas = ServerStorage.Server.Modules.MultiplierFormulas
-local multiplierConfig = require(ServerStorage.Server.Modules.MultiplierConfig)
-local dataManager = require(ServerStorage.Server.Modules.DataManager)
-local utils = require(ReplicatedStorage.Shared.Modules.Utils)
-local gammaNum = require(ReplicatedStorage.Shared.Modules.GammaNum)
+local serverFolder, sharedFolder = ServerStorage.Server, ReplicatedStorage.Shared
+local modulesFolder, sharedModulesFolder = serverFolder.Modules, sharedFolder.Modules
+local multiplierFormulas = modulesFolder.MultiplierFormulas
+
+local multiplierConfig = require(modulesFolder.MultiplierConfig)
+local dataManager = require(modulesFolder.DataManager)
+local gameUtils = require(sharedModulesFolder.GameUtils)
+local gammaNum = require(sharedModulesFolder.GammaNum)
 
 local ClickCalculationManager = {}
 ClickCalculationManager.PlayerMultipliers = {}
@@ -19,7 +22,6 @@ local function getMultiplierFromFormula(config, relatedStat)
         end
     end
 end
-
 
 local function hasGamepass(player, gamepassId)
     local success, owns = pcall(function()
@@ -124,7 +126,7 @@ function ClickCalculationManager:UpdateMultiplier(player)
         Total = totalMultiplier
     }    
     
-    print(`[ClickCalculationManager]: {utils:MakePossessive(player.Name)} multiplier has been updated to {gammaNum.toSuffix(totalMultiplier)}`)
+    print(`[ClickCalculationManager]: {gameUtils:MakePossessive(player.Name)} multiplier has been updated to {gammaNum.toSuffix(totalMultiplier)}`)
 end
 
 function ClickCalculationManager:GetMultiplier(player)

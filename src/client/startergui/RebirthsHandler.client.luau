@@ -1,21 +1,27 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local remotesFolder = ReplicatedStorage.Shared.Remotes
+local sharedFolder = ReplicatedStorage.Shared
+local modulesFolder, remotesFolder, bindablesFolder, soundsFolder = sharedFolder.Modules, sharedFolder.Remotes, sharedFolder.Bindables, sharedFolder.Sounds
 
 local dataInitEvent = remotesFolder.DataInitEvent
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
 local rebirthEvent = remotesFolder.RebirthEvent
+local sfxEvent = bindablesFolder.SFXEvent
 
-local rebirthsFrame = script.Parent.MainUI.MainFrame.Menus.RebirthsFrame
+local mainFrame = script.Parent.MainUI.MainFrame
+local rebirthsFrame = mainFrame.Menus.RebirthsFrame
 local eligibilityLabel = rebirthsFrame.EligibilityLabel
 local levelLabel = rebirthsFrame.LevelLabel
 local rebirthButton = rebirthsFrame.RebirthButton
+
+local rebirthSound = soundsFolder.Interactive.RebirthSound
+
+local gameUtils = require(modulesFolder.GameUtils)
 
 local currentLevel
 local rebirthsAmount
 
 rebirthButton.Visible = false
-local utils = require(ReplicatedStorage.Shared.Modules.Utils)
 
 local function calcLevelRequired(currentRebirths)
     return math.round(100 * (1.25 ^ currentRebirths))
@@ -47,5 +53,6 @@ end)
 rebirthButton.MouseButton1Click:Connect(function()
     if currentLevel >= calcLevelRequired(rebirthsAmount) then
         rebirthEvent:FireServer()
+        sfxEvent:Fire(rebirthSound, 1, false)
     end
 end)

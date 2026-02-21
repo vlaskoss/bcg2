@@ -5,7 +5,7 @@ local sharedFolder = ReplicatedStorage.Shared
 local soundsFolder = sharedFolder.Sounds.sixseven
 
 local dataUpdateEvent = sharedFolder.Remotes.DataUpdateEvent
-local SFXEvent = sharedFolder.Bindables.SFXEvent
+local sfxEvent = sharedFolder.Bindables.SFXEvent
 local stopSFXEvent = sharedFolder.Bindables.StopSFXEvent
 
 local gammaNum = require(sharedFolder.Modules.GammaNum)
@@ -62,13 +62,13 @@ dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
     if debounce == false then
         if updatedCurrency == "Clicks" then
             if gammaNum.eq(data[updatedCurrency], 67) then
-                SFXEvent:Fire(soundsFolder.sixseven, 10, true, soundsFolder.sixseven.Name)
+                sfxEvent:Fire(soundsFolder.sixseven, 10, true, soundsFolder.sixseven.Name)
                task.wait(2)
                print("[67Handler]: SIX SEVENNNNN!!!")
                for i,v in pairs(soundsFolder:GetChildren()) do
                     task.wait()
                     task.spawn(function()
-                        SFXEvent:Fire(v, 10, true, v.Name)
+                        sfxEvent:Fire(v, 10, true, v.Name)
                     end)
                 end
                 for i=1, 1000 do

@@ -1,4 +1,3 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 return {
     ["Rebirths"] = {
         Type = "Rebirth",
