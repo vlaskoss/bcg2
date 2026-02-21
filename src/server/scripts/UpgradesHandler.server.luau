@@ -3,11 +3,16 @@ debug.setmemorycategory("Upgrades")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 
-local upgradeFormulas = ReplicatedStorage.Shared.Modules.UpgradeFormulas  
-local upgradeEvent = ReplicatedStorage.Shared.Remotes.UpgradeEvent
-local upgradeConfig = require(ReplicatedStorage.Shared.Modules.UpgradeConfig)
-local dataManager = require(ServerStorage.Server.Modules.DataManager)
-local gammaNum = require(ReplicatedStorage.Shared.Modules.GammaNum)
+local serverFolder, sharedFolder = ServerStorage.Server, ReplicatedStorage.Shared
+local remotesFolder, sharedModulesFolder = sharedFolder.Remotes, sharedFolder.Modules
+local modulesFolder = serverFolder.Modules
+
+local upgradeFormulas = sharedModulesFolder.UpgradeFormulas
+local upgradeEvent = remotesFolder.UpgradeEvent
+
+local dataManager = require(modulesFolder.DataManager)
+local upgradeConfig = require(sharedModulesFolder.UpgradeConfig)
+local gammaNum = require(sharedModulesFolder.GammaNum)
 
 local function ensureGammaNum(value)
     if typeof(value) == "buffer" then return value end
@@ -16,7 +21,7 @@ local function ensureGammaNum(value)
     return gammaNum.fromNumber(0)
 end
 
-local function getUpgradeCost(config, tier, costReductionlevel)
+local function getUpgradeCost(config, tier)
     if config.CostFormula then
         local formulaModule = upgradeFormulas:FindFirstChild(config.CostFormula)
         if formulaModule then

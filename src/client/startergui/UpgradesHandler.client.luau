@@ -1,24 +1,34 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local remotesFolder = ReplicatedStorage.Shared.Remotes
-local upgradesFrame = script.Parent.MainUI.MainFrame.Menus.UpgradesFrame.Holder
-local upgradeTemplate = script.Parent.UpgradeTemplate
-local formulaFolder = ReplicatedStorage.Shared.Modules.UpgradeFormulas 
+local sharedFolder = ReplicatedStorage.Shared
+local modulesFolder, remotesFolder, bindablesFolder, soundsFolder = sharedFolder.Modules, sharedFolder.Remotes, sharedFolder.Bindables, sharedFolder.Sounds
 
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
 local dataInitEvent = remotesFolder.DataInitEvent
 local upgradeEvent = remotesFolder.UpgradeEvent
-local upgradeConfig = require(ReplicatedStorage.Shared.Modules.UpgradeConfig) 
-local gammaNum = require(ReplicatedStorage.Shared.Modules.GammaNum)
+local sfxEvent = bindablesFolder.SFXEvent
+
+local purchaseSound = soundsFolder.Interactive.PurchaseSuccess
+local errorSound = soundsFolder.Interactive.PurchaseUnsuccessful
+
+local upgradeConfig = require(modulesFolder.UpgradeConfig)
+local gameUtils = require(modulesFolder.GameUtils)
+local gammaNum = require(modulesFolder.GammaNum)
+
+local mainFrame = script.Parent.MainUI.MainFrame
+local upgradesFrame = mainFrame.Menus.UpgradesFrame.Holder
+local upgradeTemplate = script.Parent.UpgradeTemplate
+
+local formulaFolder = modulesFolder.UpgradeFormulas
 
 local dataInitialised = false 
 local dataCache = {}
 
-local NESTED_TABLES = { Upgrades = true, Statistics = true, Settings = true }
+local nestedTables = {Upgrades = true, Statistics = false, Settings = false}
 
 local function flattenInto(target, source)
     for key, value in pairs(source) do
-        if NESTED_TABLES[key] and type(value) == "table" then
+        if nestedTables[key] and type(value) == "table" then
             for innerKey, innerValue in pairs(value) do
                 target[innerKey] = innerValue
             end
@@ -26,24 +36,6 @@ local function flattenInto(target, source)
             target[key] = value
         end
     end
-end
-
-local function formatNum(value)
-    if not value then return "0" end
-    local s, l, e = gammaNum.totuple(value)
-    -- small numbers
-    if l == 0 and e < 1000 then
-        return tostring(math.floor(s * e))
-    end
-    -- big numbers >1k
-    local oldDigits = gammaNum.DefaultDigits
-    gammaNum.DefaultDigits = 2 
-    local result = gammaNum.toSuffix(value)
-    -- cleanup to 2 decimal places
-    result = string.gsub(result, "(%d+%.%d%d)%d+", "%1")
-    
-    gammaNum.DefaultDigits = oldDigits
-    return result
 end
 
 local function ensureGammaNum(value)
@@ -116,7 +108,7 @@ local function updateUI(upgradeUI, upgradeKey, data)
     end
 
     upgradeUI.UpgradeNameLabel.Text = finalName
-    upgradeUI.CostLabel.Text = isMaxed and "MAXED" or "Cost: " .. formatNum(nextCost) .. " clicks"
+    upgradeUI.CostLabel.Text = isMaxed and "MAXED" or "Cost: " .. gameUtils:FormatNum(nextCost) .. " clicks"
     upgradeUI.InformationLabel.Text = displayDescription or "no description available :("
     upgradeUI.PurchaseButton.Visible = not isMaxed
 end
@@ -142,11 +134,10 @@ local function createUpgradeUI(upgradeKey, data)
         end
         if gammaNum.gte(currentClicks, nextCost) then
             upgradeEvent:FireServer(upgradeKey)
-
+            sfxEvent:Fire(purchaseSound, 1, false)
             dataCache[data.RelatedStat] = currentLevel + 1
             dataCache.Clicks = gammaNum.sub(currentClicks, nextCost)
             updateUI(upgradeUI, upgradeKey, data)
-            -- upgrade request sent and ui updated optimistically
             if upgradeKey == "ReduceLevelCost" then
                 local levelFrame = upgradesFrame:FindFirstChild("Level")
                 local levelConfig = upgradeConfig["Level"]
@@ -154,6 +145,13 @@ local function createUpgradeUI(upgradeKey, data)
                     updateUI(levelFrame, "Level", levelConfig)
                 end
             end
+        else
+            sfxEvent:Fire(errorSound, 1, false)
+            upgradeUI.PurchaseButton.Text = "no money :("
+            upgradeUI.PurchaseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            task.wait(0.5)
+            upgradeUI.PurchaseButton.Text = "Purchase"
+            upgradeUI.PurchaseButton.BackgroundColor3 = Color3.fromRGB(53, 136, 9)
         end
     end)
 end
@@ -186,7 +184,7 @@ dataUpdateEvent.OnClientEvent:Connect(function(newData, updatedStat, updateType)
 
     if typeof(newData) == "table" then
         for key, value in pairs(newData) do
-            if NESTED_TABLES[key] and type(value) == "table" then
+            if nestedTables[key] and type(value) == "table" then
                 for innerKey, innerValue in pairs(value) do
                     dataCache[innerKey] = innerValue
                 end

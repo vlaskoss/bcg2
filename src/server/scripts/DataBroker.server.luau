@@ -1,16 +1,18 @@
-debug.setmemorycategory("DataBroker")
+debug.setmemorycategory("Data")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 
-local remotesFolder = ReplicatedStorage.Shared.Remotes
+
 local serverFolder = ServerStorage.Server
+local modulesFolder, bindablesFolder = serverFolder.Modules, serverFolder.BindableEvents
+local remotesFolder = ReplicatedStorage.Shared.Remotes
 
 local remoteDataFunction = remotesFolder.RetrieveData
-local dataUpdateBindable = serverFolder.BindableEvents.DataUpdateBindable
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
+local dataUpdateBindable = bindablesFolder.DataUpdateBindable
 
-local dataManager = require(serverFolder.Modules.DataManager)
+local dataManager = require(modulesFolder.DataManager)
 
 dataUpdateBindable.Event:Connect(function(data, player, updatedCurrency, type)
     dataUpdateEvent:FireClient(player, data, updatedCurrency, type)

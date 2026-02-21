@@ -1,26 +1,24 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
+
+local sharedFolder = ReplicatedStorage.Shared
+local modulesFolder, remotesFolder, bindablesFolder, soundsFolder = sharedFolder.Modules, sharedFolder.Remotes, sharedFolder.Bindables, sharedFolder.Sounds
+
+local dataInitEvent = remotesFolder.DataInitEvent
+
+local gameUtils = require(modulesFolder.GameUtils)
+local gameVersion = require(modulesFolder.GameVersion)
+local menuManager = require(modulesFolder.MenuManager)
 
 local mainUI = script.Parent.MainUI
 local mainFrame = mainUI.MainFrame
 local coverFrame = mainFrame.CoverFrame
-local versionFrame = mainFrame.VersionFrame
-local betaFrame = mainFrame.BetaFrame
+local versionFrame, betaFrame = mainFrame.VersionFrame, mainFrame.BetaFrame
 local betaFrameTitle, betaFrameDescription, betaFrameTimer = betaFrame.Title, betaFrame.Description, betaFrame.Timer
 local buttonsFolder = mainFrame.ButtonFrame.Buttons
 local menusFolder = mainFrame.Menus
 local versionButton = mainFrame.VersionLabel
 local clickButton, autoClickButton = mainUI.ClickButton, mainUI.AutoClickButton
-
-local buildLabel = versionFrame.BuildLabel
-local uptimeLabel = versionFrame.UptimeLabel
-local versionLabel = versionFrame.VersionLabel
-
-local gameVersion = require(ReplicatedStorage.Shared.Modules.GameVersion)
-local serverUptime = require(ReplicatedStorage.Shared.Modules.ServerUptime)
-local menuManager = require(ReplicatedStorage.Shared.Modules.MenuManager)
-
-local dataInitEvent = ReplicatedStorage.Shared.Remotes.DataInitEvent
+local buildLabel, uptimeLabel, versionLabel = versionFrame.BuildLabel, versionFrame.UptimeLabel, versionFrame.VersionLabel
 
 local dataInitialised = false
 local isOpen = false
@@ -28,19 +26,10 @@ local debounce = false
 
 betaFrame.Visible = false
 
-local function tween(obj, goal, duration, delay: number?)
-    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut, 0, false, delay or 0)
-    local newTween = TweenService:Create(obj, tweenInfo, goal)
-    newTween:Play()
-    newTween.Completed:Connect(function()
-        newTween:Destroy()
-    end)
-return newTween end
-
 local function tweenText(parent, value)
     for _, child in pairs(parent:GetDescendants()) do
         if child:IsA("TextLabel") then
-            tween(child, {TextTransparency = value}, 0.3)
+            gameUtils:Tween(child, {TextTransparency = value}, 0.3)
         end
     end
 end
@@ -53,10 +42,10 @@ local function toggleFrame()
                 autoClickButton.Interactable = true
                 clickButton.Interactable = true
                 menuManager:EnableAllButtons(buttonsFolder)
-                local mainTween = tween(versionFrame, {BackgroundTransparency = 1}, 0.3)
-                tween(clickButton, {BackgroundTransparency = 0, ImageTransparency = 0}, 0.3)
-                tween(autoClickButton, {BackgroundTransparency = 0, TextTransparency = 0}, 0.3)
-                tween(coverFrame, {BackgroundTransparency = 1}, 0.3)
+                local mainTween = gameUtils:Tween(versionFrame, {BackgroundTransparency = 1}, 0.3)
+                gameUtils:Tween(clickButton, {BackgroundTransparency = 0, ImageTransparency = 0}, 0.3)
+                gameUtils:Tween(autoClickButton, {BackgroundTransparency = 0, TextTransparency = 0}, 0.3)
+                gameUtils:Tween(coverFrame, {BackgroundTransparency = 1}, 0.3)
                 tweenText(versionFrame, 1)
                 mainTween.Completed:Connect(function()
                     versionFrame.Visible = false
@@ -70,10 +59,10 @@ local function toggleFrame()
                 versionFrame.Visible = true
                 coverFrame.Visible = true
                 tweenText(versionFrame, 0)
-                tween(versionFrame, {BackgroundTransparency = 0}, 0.3)
-                tween(clickButton, {BackgroundTransparency = 1, ImageTransparency = 1}, 0.3)
-                tween(autoClickButton, {BackgroundTransparency = 1, TextTransparency = 1}, 0.3)
-                tween(coverFrame, {BackgroundTransparency = 0.1}, 0.3)
+                gameUtils:Tween(versionFrame, {BackgroundTransparency = 0}, 0.3)
+                gameUtils:Tween(clickButton, {BackgroundTransparency = 1, ImageTransparency = 1}, 0.3)
+                gameUtils:Tween(autoClickButton, {BackgroundTransparency = 1, TextTransparency = 1}, 0.3)
+                gameUtils:Tween(coverFrame, {BackgroundTransparency = 0.1}, 0.3)
             end
             isOpen = not isOpen
             task.wait(0.5)
@@ -101,10 +90,10 @@ dataInitEvent.OnClientEvent:Connect(function()
     dataInitialised = true
     betaFrame.Visible = true
     task.wait(0.5)
-    tween(betaFrame, {BackgroundTransparency = 0}, 1)
-    tween(betaFrameTimer, {TextTransparency = 0}, 1)
-    tween(betaFrameTitle, {TextTransparency = 0}, 1)
-    tween(betaFrameDescription, {TextTransparency = 0}, 1)
+    gameUtils:Tween(betaFrame, {BackgroundTransparency = 0}, 1)
+    gameUtils:Tween(betaFrameTimer, {TextTransparency = 0}, 1)
+    gameUtils:Tween(betaFrameTitle, {TextTransparency = 0}, 1)
+    gameUtils:Tween(betaFrameDescription, {TextTransparency = 0}, 1)
     for i = 4, 1, -1 do
         if i == 1 then
             betaFrameTimer.Text = "This menu will automatically disappear in 1 second"
@@ -113,10 +102,10 @@ dataInitEvent.OnClientEvent:Connect(function()
         end
         task.wait(1)
     end
-    tween(betaFrame, {BackgroundTransparency = 1}, 1)
-    tween(betaFrameTimer, {TextTransparency = 1}, 1)
-    tween(betaFrameTitle, {TextTransparency = 1}, 1)
-    tween(betaFrameDescription, {TextTransparency = 1}, 1)
+    gameUtils:Tween(betaFrame, {BackgroundTransparency = 1}, 1)
+    gameUtils:Tween(betaFrameTimer, {TextTransparency = 1}, 1)
+    gameUtils:Tween(betaFrameTitle, {TextTransparency = 1}, 1)
+    gameUtils:Tween(betaFrameDescription, {TextTransparency = 1}, 1)
     task.wait(1)
     betaFrame:Destroy()
 end)
@@ -133,7 +122,7 @@ versionButton.MouseButton1Click:Connect(toggleFrame)
 
 while task.wait(1) do
     if dataInitialised == true then
-        local uptime = serverUptime:Get()
+        local uptime = gameUtils:GetASCII()
         uptimeLabel.Text = "Server uptime: "  .. uptime
     end
 end

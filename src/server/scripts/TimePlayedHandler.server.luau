@@ -2,10 +2,14 @@ debug.setmemorycategory("Stats")
 
 local PlayersService = game:GetService("Players")
 local ServerStorage = game:GetService("ServerStorage")
-local dataManager = require(ServerStorage.Server.Modules.DataManager)
 
-local bindableEventsFolder = ServerStorage.Server.BindableEvents
-local dataInitBindable = bindableEventsFolder.DataInitBindable
+local serverFolder = ServerStorage.Server
+local modulesFolder, bindablesFolder = serverFolder.Modules, serverFolder.BindableEvents
+
+local dataInitBindable = bindablesFolder.DataInitBindable
+
+local dataManager = require(modulesFolder.DataManager)
+
 local joinTimestamps = {}
 
 PlayersService.PlayerAdded:Connect(function(player)
@@ -17,7 +21,6 @@ dataInitBindable.Event:Connect(function(player)
     if not profile then return end
 
     local joinTime = joinTimestamps[player.UserId] or os.time()
-
     local startingTime = dataManager:GetStatistic(player, "TotalTime") or 0
 
     task.spawn(function()

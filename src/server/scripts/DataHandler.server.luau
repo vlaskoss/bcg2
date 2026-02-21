@@ -1,46 +1,23 @@
 debug.setmemorycategory("Data")
 
--- Services
 local PlayersService = game:GetService("Players")
 local ServerStorage = game:GetService("ServerStorage")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local modulesFolder = ServerStorage.Server.Modules
-local sharedModulesFolder = ReplicatedStorage.Shared.Modules
+local serverFolder, sharedFolder = ServerStorage.Server, ReplicatedStorage.Shared
+local modulesFolder, bindablesFolder = serverFolder.Modules, serverFolder.BindableEvents
+local remotesFolder, sharedModulesFolder = sharedFolder.Remotes, sharedFolder.Modules
 
-local remotesFolder = ReplicatedStorage.Shared.Remotes
-local bindableEventsFolder = ServerStorage.Server.BindableEvents
+local dataInitEvent = remotesFolder.DataInitEvent
+local dataInitBindable = bindablesFolder.DataInitBindable
 
 local profileStore = require(modulesFolder.ProfileStore)
 local profileTemplate = require(modulesFolder.SaveTemplate)
 local dataManager = require(modulesFolder.DataManager)
 local debounceManager = require(modulesFolder.DebounceManager)
-
 local gammaNum = require(sharedModulesFolder.GammaNum)
-local utils = require(sharedModulesFolder.Utils)
-
-local dataInitEvent = remotesFolder.DataInitEvent
-local dataInitBindable = bindableEventsFolder.DataInitBindable
-
-local function formatNum(value)
-    if not value then return "0" end
-    local s, l, e = gammaNum.totuple(value)
-    -- small numbers
-    if l == 0 and e < 1000 then
-        return tostring(math.floor(s * e))
-    end
-    -- big numbers >1k
-    local oldDigits = gammaNum.DefaultDigits
-    gammaNum.DefaultDigits = 2 
-    local result = gammaNum.toSuffix(value)
-    -- cleanup to 2 decimal places
-    result = string.gsub(result, "(%d+%.%d%d)%d+", "%1")
-    
-    gammaNum.DefaultDigits = oldDigits
-    return result
-end
-
+local gameUtils = require(sharedModulesFolder.GameUtils)
 
 local function GetStoreName()
 	return RunService:IsStudio() and "Test" or "PlayerStore"
@@ -53,7 +30,7 @@ local function SetandCreateLeaderstat(leaderstatName : string, dataProfile, lead
 	if typeof(value) == "buffer" or (typeof(value) == "table" and value.toSuffix) then
 		local leaderstat = Instance.new("StringValue")
 		leaderstat.Name = leaderstatName
-		leaderstat.Value = formatNum(value)
+		leaderstat.Value = gameUtils:FormatNum(value)
 		leaderstat.Parent = leaderstatsFolder
 	else
 		local leaderstat = Instance.new("NumberValue")
@@ -99,7 +76,7 @@ local function PlayerAdded(player: Player)
 		if player.Parent == PlayersService then
 			dataManager.Profiles[player] = profile
 			Initalise(player, profile)
-			print(`[DataHandler]: {utils:MakePossessive(player.Name)} ({player.UserId}) data loaded successfully!`)
+			print(`[DataHandler]: {gameUtils:MakePossessive(player.Name)} ({player.UserId}) data loaded successfully!`)
 			dataInitEvent:FireClient(player, profile.Data)
 			dataInitBindable:Fire(player)
 			
