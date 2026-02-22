@@ -51,7 +51,7 @@ return {
         Cost = gammaNum.fromNumber(500),
         DisplayName = "The Long Game",
         Description = "Multiplies your clicks based on your playtime",
-        IsPermanent = false
+        IsPermanent = true
     },
     ["ReduceLevelCost"] = {
         Type = "Tiered",
@@ -62,7 +62,7 @@ return {
         CostFormula = "ReduceLevelCost",
         DisplayName = "Deflation",
         Description = "Reduces level cost by 0.01x (additive) per upgrade",
-        IsPermanent = false
+        IsPermanent = true
     },
     ["DoubleClicks"] = {
         Type = "Single",

@@ -17,7 +17,7 @@ dataInitBindable.Event:Connect(function(player)
     clickCalculationManager:InitialisePlayer(player)
 end)
 
-dataUpdateBindable.Event:Connect(function(data, player, updatedCurrency)
+dataUpdateBindable.Event:Connect(function(player, data, updatedCurrency)
     for sourceName, config in pairs(multiplierConfig) do
         local shouldUpdate = false
 

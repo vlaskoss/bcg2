@@ -62,7 +62,7 @@ function GameUtils:GetASCII()
 end
 
 function GameUtils:MakePossessive(username)
-    if string.sub(username, -1) then
+    if string.sub(username, -1) == "s" then
         return username .. "'"
     else
         return username .. "'s"
