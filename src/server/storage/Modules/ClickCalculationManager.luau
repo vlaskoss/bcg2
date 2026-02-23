@@ -1,157 +1,232 @@
-local ServerStorage = game:GetService("ServerStorage")
-local MarketplaceService = game:GetService("MarketplaceService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+--[[
+    ClickCalculationManager.luau
+    ─────────────────────────────────────────────────────────────────────────────
+    Owns per-player multiplier state and exposes clean public methods.
 
-local serverFolder, sharedFolder = ServerStorage.Server, ReplicatedStorage.Shared
-local modulesFolder, sharedModulesFolder = serverFolder.Modules, sharedFolder.Modules
-local multiplierFormulas = modulesFolder.MultiplierFormulas
+    Calculation pipeline
+    ─────────────────────
+    1. For every "Base" config entry  → evaluate → SUM  them  → baseTotal
+    2. For every "Final" config entry → evaluate → PRODUCT them → finalTotal
+    3. clickValue = floor( baseTotal * finalTotal )
+
+    Adding a new multiplier type
+    ──────────────────────────────
+    1. Add a handler inside the `Handlers` table below.
+    2. Define the config shape in MultiplierConfig (see its docs).
+    That's it – no changes needed anywhere else.
+--]]
+
+local ServerStorage    = game:GetService("ServerStorage")
+local MarketplaceService = game:GetService("MarketplaceService")
+local ReplicatedStorage  = game:GetService("ReplicatedStorage")
+
+local serverFolder       = ServerStorage.Server
+local sharedFolder       = ReplicatedStorage.Shared
+local modulesFolder      = serverFolder.Modules
+local sharedModulesFolder = sharedFolder.Modules
 
 local multiplierConfig = require(modulesFolder.MultiplierConfig)
-local dataManager = require(modulesFolder.DataManager)
-local gameUtils = require(sharedModulesFolder.GameUtils)
-local gammaNum = require(sharedModulesFolder.GammaNum)
+local dataManager      = require(modulesFolder.DataManager)
+local gameUtils        = require(sharedModulesFolder.GameUtils)
+local gammaNum         = require(sharedModulesFolder.GammaNum)
 
-local ClickCalculationManager = {}
-ClickCalculationManager.PlayerMultipliers = {}
+-- ─── helpers ────────────────────────────────────────────────────────────────
 
-local function getMultiplierFromFormula(config, relatedStat)
-    if config.MultiplierFormula then
-        local formulaModule = multiplierFormulas:FindFirstChild(config.MultiplierFormula)
-        if formulaModule then
-            return require(formulaModule)(relatedStat)
-        end
+local function toGamma(value)
+    if typeof(value) == "number" then
+        return gammaNum.fromNumber(value)
     end
+    -- already a GammaNum (buffer or table with .toSuffix)
+    return value
 end
+
+local ZERO = gammaNum.fromNumber(0)
+local ONE  = gammaNum.fromNumber(1)
+
+local function gammaAdd(a, b) return gammaNum.add(a, b) end
+local function gammaMul(a, b) return gammaNum.mul(a, b) end
+local function gammaPow(a, b) return gammaNum.pow(a, b) end
 
 local function hasGamepass(player, gamepassId)
-    local success, owns = pcall(function()
-        return MarketplaceService:UserOwnsGamePassAsync(player.UserId, gamepassId)
-    end)
-    return success and owns
+    local ok, owns = pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, gamepassId)
+    return ok and owns
 end
 
-local function checkGammaNum(value)
-    if typeof(value) == "buffer" then
-        return value 
-    elseif typeof(value) == "number" then
-        return gammaNum.fromNumber(value)
-    elseif typeof(value) == "table" and value.toSuffix then
-        return value 
+-- ─── type handlers ──────────────────────────────────────────────────────────
+--
+-- Each handler receives (player, config) and returns a GammaNum contribution.
+-- Return nil to mean "no contribution" (treated as identity for the category).
+
+local Handlers = {}
+
+-- Always-on flat value.
+function Handlers.Flat(player, config)
+    return toGamma(config.Value or 0)
+end
+
+function Handlers.TimePlayed(player, config)
+    if config.RequiredUpgrade then
+        local tier = dataManager:GetUpgrade(player, config.RequiredUpgrade)
+        if not tier or tier < 1 then return nil end
+    end
+
+    local time = dataManager:GetStatistic(player, config.Stat)  -- was RetrieveAmount
+    if not time then return nil end
+
+    local t        = toGamma(time)
+    local sqrtTime = gammaPow(t, toGamma(0.5))
+    local scaled   = gammaNum.div(sqrtTime, toGamma(30))
+    return gammaAdd(scaled, ONE)
+end
+
+-- Linear: stat * ValuePerUnit
+function Handlers.PerStat(player, config)
+    local stat = dataManager:RetrieveAmount(player, config.Stat)
+    if not stat then return nil end
+    local value = gammaNum.mul(toGamma(stat), toGamma(config.ValuePerUnit or 1))
+    if config.Offset then
+        value = gammaAdd(value, toGamma(config.Offset))
+    end
+    return value
+end
+
+-- Upgrade tier → value via Steps table (preferred) or BaseValue + tier*ValuePerTier.
+function Handlers.PerUpgrade(player, config)
+    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+    if not tier then return nil end
+
+    local value
+    if config.Steps then
+        value = config.Steps[tier] or config.Steps[0] or 0
     else
-        return gammaNum.fromNumber(1)
+        local base  = config.BaseValue    or 0
+        local slope = config.ValuePerTier or 0
+        value = base + tier * slope
     end
+
+    -- a Final source returning 0 would wipe everything — treat as no contribution
+    if value == 0 then return nil end
+
+    return toGamma(value)
 end
 
-local function calcMultiplier(player, multiName, config)
-    if config.Type == "Gamepass" then
-        if hasGamepass(player, config.GamepassId) then
-            return gammaNum.fromNumber(config.Multiplier)
-        end
+-- Gamepass flat bonus.
+function Handlers.Gamepass(player, config)
+    if hasGamepass(player, config.GamepassId) then
+        return toGamma(config.Value or 1)
+    end
+    return nil
+end
 
-    elseif config.Type == "Currency" then
-        local currency = dataManager:RetrieveAmount(player, config.RelatedStat) 
-        if currency then
-            return checkGammaNum(config.Multiplier)
-        end
+-- Exponential rebirth scaling: MultiplierPerRebirth ^ rebirths
+-- Returns 1 when rebirths = 0 (safe identity).
+function Handlers.Rebirth(player, config)
+    local rebirths = dataManager:RetrieveAmount(player, "Rebirths")
 
-    elseif config.Type == "Upgrade" then
-        local currency = dataManager:GetUpgrade(player, config.RelatedStat)
-        if currency then
-            local multiplier = checkGammaNum(config.Multiplier)
-            local currencyNum = checkGammaNum(currency)
-            return gammaNum.pow(multiplier, currencyNum)
-        end
-    
-    elseif config.Type == "Statistic" then
-        local required = dataManager:GetUpgrade(player, config.RequiredStat)
-        local statistic = dataManager:GetStatistic(player, config.RelatedStat)
-        if required >= 1 then
-            if statistic then
-                return getMultiplierFromFormula(config, statistic)
-            end
-        end
-    
-    elseif config.Type == "Level" then
-        local level = dataManager:RetrieveAmount(player, "Level")
-        if level then
-            local levelNum = checkGammaNum(level)
-            local perLevel = gammaNum.fromNumber(config.MultiplierPerLevel)
-            local levelMulti = gammaNum.mul(levelNum, perLevel)
-            return levelMulti
-        end
+    -- no data or zero rebirths → identity (1x), not 0
+    if not rebirths or rebirths == 0 then return ONE end
 
-    elseif config.Type == "Rebirth" then
-        local rebirths = dataManager:RetrieveAmount(player, "Rebirths")
-        if rebirths then
-            local rebirthNum = checkGammaNum(rebirths)
-            local perLevel = gammaNum.fromNumber(config.MultiplierPerLevel)
-            local levelMulti = gammaNum.pow(perLevel, rebirthNum)
-            if gammaNum.eq(rebirthNum, gammaNum.fromNumber(0)) then
-                return gammaNum.fromNumber(1)
-            end
-            return levelMulti
+    local base  = toGamma(config.MultiplierPerRebirth or 2)
+    local expnt = toGamma(rebirths)
+
+    if gammaNum.eq(expnt, ZERO) then return ONE end
+    return gammaPow(base, expnt)
+end
+
+-- ─── core calculation ────────────────────────────────────────────────────────
+
+local function evaluateSource(player, config)
+    local handler = Handlers[config.Type]
+    if not handler then
+        warn("[ClickCalculationManager]: Unknown Type '" .. tostring(config.Type) .. "' – skipping")
+        return nil
+    end
+    local ok, result = pcall(handler, player, config)
+    if not ok then
+        warn("[ClickCalculationManager]: Handler error for Type '" .. tostring(config.Type) .. "': " .. tostring(result))
+        return nil
+    end
+    return result
+end
+
+local function buildTotals(player)
+    local baseTotal  = ZERO
+    local finalTotal = ONE
+
+    for sourceName, config in pairs(multiplierConfig) do
+        local value = evaluateSource(player, config)
+
+        if config.Category == "Base" then
+            -- nil / missing → 0 contribution to sum
+            baseTotal = gammaAdd(baseTotal, value or ZERO)
+
+        elseif config.Category == "Final" then
+            -- nil / missing → 1 contribution to product (identity)
+            finalTotal = gammaMul(finalTotal, value or ONE)
+
         else
-            return gammaNum.fromNumber(1)
-        end
-    end
-    return gammaNum.fromNumber(1)
-end
-
-function ClickCalculationManager:UpdateMultiplier(player)
-    local baseMultiplier = gammaNum.fromNumber(0)
-    local finalMultiplier = gammaNum.fromNumber(1)
-
-
-    for sourceName, config in pairs(multiplierConfig) do
-        if config.Category == "Base" or not config.Category then
-            local sourceMulti = calcMultiplier(player, sourceName, config)
-            sourceMulti = checkGammaNum(sourceMulti)
-            baseMultiplier = gammaNum.add(baseMultiplier, sourceMulti)
+            warn("[ClickCalculationManager]: Unknown Category '" .. tostring(config.Category) .. "' on source '" .. sourceName .. "' – skipping")
         end
     end
 
-    for sourceName, config in pairs(multiplierConfig) do
-        if config.Category == "Final" then
-            local sourceMulti = calcMultiplier(player, sourceName, config)
-            sourceMulti = checkGammaNum(sourceMulti)
-            finalMultiplier = gammaNum.mul(finalMultiplier, sourceMulti)
-        end
-    end  
-
-    local totalMultiplier = gammaNum.mul(baseMultiplier, finalMultiplier)
-
-    self.PlayerMultipliers[player.UserId] = {
-        Base = baseMultiplier,
-        Final = finalMultiplier,
-        Total = totalMultiplier
-    }    
-    
-    print(`[ClickCalculationManager]: {gameUtils:MakePossessive(player.Name)} multiplier has been updated to {gammaNum.toSuffix(totalMultiplier)}`)
+    return baseTotal, finalTotal
 end
 
-function ClickCalculationManager:GetMultiplier(player)
-    local data = self.PlayerMultipliers[player.UserId]
-    if data and data.Total then
-        return data.Total
-    end
-    return gammaNum.fromNumber(1)
-end
+-- ─── public API ─────────────────────────────────────────────────────────────
 
-function ClickCalculationManager:Calculate(player, baseAmount)
-    local multiplier = self:GetMultiplier(player)
-    local base = checkGammaNum(baseAmount)
-    
-    local result = gammaNum.mul(base, multiplier)
-    
-    return gammaNum.floor(result)
-end
+local ClickCalculationManager = {}
+ClickCalculationManager._cache = {}   -- [userId] = { Base, Final, Total }
 
 function ClickCalculationManager:InitialisePlayer(player)
     self:UpdateMultiplier(player)
 end
 
 function ClickCalculationManager:RemovePlayer(player)
-    self.PlayerMultipliers[player.UserId] = nil
+    self._cache[player.UserId] = nil
+end
+
+function ClickCalculationManager:UpdateMultiplier(player)
+    local baseTotal, finalTotal = buildTotals(player)
+    local total = gammaMul(baseTotal, finalTotal)
+
+    self._cache[player.UserId] = {
+        Base  = baseTotal,
+        Final = finalTotal,
+        Total = total,
+    }
+
+    print(string.format(
+        "[ClickCalculationManager]: %s multiplier → Base %s × Final %s = %s",
+        gameUtils:MakePossessive(player.Name),
+        gammaNum.toSuffix(baseTotal),
+        gammaNum.toSuffix(finalTotal),
+        gammaNum.toSuffix(total)
+    ))
+end
+
+-- Returns the cached Total GammaNum (defaults to 1 if not yet computed).
+function ClickCalculationManager:GetMultiplier(player)
+    local data = self._cache[player.UserId]
+    return (data and data.Total) or ONE
+end
+
+-- Returns just the base portion (useful for UI breakdowns).
+function ClickCalculationManager:GetBaseMultiplier(player)
+    local data = self._cache[player.UserId]
+    return (data and data.Base) or ZERO
+end
+
+-- Returns just the final-multiplier portion.
+function ClickCalculationManager:GetFinalMultiplier(player)
+    local data = self._cache[player.UserId]
+    return (data and data.Final) or ONE
+end
+
+-- Applies the cached multiplier to a base click amount.
+function ClickCalculationManager:Calculate(player, baseAmount)
+    local multiplier = self:GetMultiplier(player)
+    local base       = toGamma(baseAmount)
+    return gammaNum.floor(gammaMul(base, multiplier))
 end
 
 return ClickCalculationManager
