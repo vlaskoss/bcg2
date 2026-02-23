@@ -64,44 +64,19 @@ return {
         Description = "Reduces level cost by 0.01x (additive) per upgrade",
         IsPermanent = true
     },
-    ["DoubleClicks"] = {
-        Type = "Single",
-        Priority = 5,
+    ["ClickMultiplier"] = {
+        Type = "Tiered",
+        MaxTier = 4,
+        Priority = 9,
         StatType = "Upgrade",
-        RelatedStat = "DoubleClicks",
-        Cost = gammaNum.fromNumber(100),
-        DisplayName = "2x Clicks",
-        Description = "A small multiplier",
+        RelatedStat = "ClickMultiplier",
+        Tiers = {
+            [1] = {DisplayName = "2x Clicks", Description = "A small multiplier"},
+            [2] = {DisplayName = "3x Clicks", Description = "A healthy multiplier"},
+            [3] = {DisplayName = "4x Clicks", Description = "A big multiplier"},
+            [4] = {DisplayName = "5x Clicks", Description = "A huge multiplier"},
+        },
+        CostFormula = "ClickMultiplierCost",
         IsPermanent = false
-    },
-    ["TripleClicks"] = {
-        Type = "Single",
-        Priority = 6,
-        StatType = "Upgrade",
-        RelatedStat = "TripleClicks",
-        Cost = gammaNum.fromNumber(10000),
-        DisplayName = "3x Clicks",
-        Description = "A healthy multiplier",
-        IsPermanent = false
-    },
-    ["QuadrupleClicks"] = {
-        Type = "Single",
-        Priority = 7,
-        StatType = "Upgrade",
-        RelatedStat = "QuadrupleClicks",
-        Cost = gammaNum.fromNumber(100000),
-        DisplayName = "4x Clicks",
-        Description = "A big multiplier",
-        IsPermanent = false
-    },
-    ["QuintupleClicks"] = {
-        Type = "Single",
-        Priority = 8,
-        StatType = "Upgrade",
-        RelatedStat = "QuintupleClicks",
-        Cost = gammaNum.fromNumber(1000000),
-        DisplayName = "5x Clicks",
-        Description = "A huge multiplier",
-        IsPermanent = false
-    },
+    }
 }

@@ -101,6 +101,10 @@ local function updateUI(upgradeUI, upgradeKey, data)
         finalName = data.DisplayName or upgradeKey
     end
 
+    if data.IsPermanent then
+        displayDescription = displayDescription .. " [PERMANENT]"
+    end
+
     upgradeUI.UpgradeNameLabel.Text = finalName
     upgradeUI.CostLabel.Text = isMaxed and "MAXED" or "Cost: " .. gameUtils:FormatNum(nextCost) .. " clicks"
     upgradeUI.InformationLabel.Text = displayDescription or "no description available :("
