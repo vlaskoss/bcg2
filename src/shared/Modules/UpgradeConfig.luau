@@ -105,13 +105,12 @@ return {
         Priority    = 3,
         StatType    = "Upgrade",
         RelatedStat = "TimePlayed",
-        Cost        = gammaNum.fromNumber(500),
+        Cost        = gammaNum.fromNumber(5000),
         DisplayName = "The Long Game",
         Description = "Multiplies your clicks based on your total playtime.",
         IsPermanent = true,
         RequiredUpgrade = "ClickMultiplier",
         RequiredUpgradeTier = 2,
-        -- no RequiredUpgrade → always visible
     },
     ["ReduceLevelCost"] = {
         Type        = "Tiered",
@@ -123,7 +122,7 @@ return {
         DisplayName = "Deflation",
         Description = "Reduces level cost by 0.01x (additive) per tier.",
         IsPermanent = true,
-        RequiredLevel = 5,
+        RequiredLevel = 15,
     },
 
     ["ClickMultiplier"] = {
@@ -141,6 +140,19 @@ return {
             [4] = { DisplayName = "5x Clicks", Description = "A huge multiplier." },
         },
         RequiredLevel = 2,
+    },
+
+    ["BaseBoost"] = {
+        Type        = "Tiered",
+        MaxTier     = 5,
+        Priority    = 6,
+        StatType    = "Upgrade",
+        RelatedStat = "BaseBoost",
+        CostFormula = "BaseBoostCost",
+        DisplayName = "Back to Basics",
+        Description = "+10 base clicks per tier.",
+        IsPermanent = false,
+        RequiredLevel = 10,
     },
     --[[
         EXAMPLE: upgrade locked behind another upgrade

@@ -63,6 +63,13 @@ return {
         ValuePerUnit = 1,  -- level 1 = 1, level 2 = 2, level 3 = 3
     },
 
+    ["BaseBoost"] = {
+        Type         = "PerUpgrade",
+        Category     = "Base",
+        Upgrade      = "BaseBoost",
+        ValuePerTier =  10
+    },
+
     ---------------------------------------------------------------------------
     -- FINAL multipliers  (multiplied together and applied to the base total)
     ---------------------------------------------------------------------------

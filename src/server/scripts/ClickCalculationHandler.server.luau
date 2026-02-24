@@ -23,6 +23,7 @@ local STAT_TRIGGERS = {}
 
 STAT_TRIGGERS["TotalTime"] = true
 STAT_TRIGGERS["TimePlayed"] = true
+STAT_TRIGGERS["BaseBoost"] = true
 
 for _, config in pairs(multiplierConfig) do
     if config.Stat    then STAT_TRIGGERS[config.Stat]    = true end
