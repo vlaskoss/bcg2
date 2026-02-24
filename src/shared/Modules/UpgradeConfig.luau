@@ -36,8 +36,16 @@
 
     RequiredUpgrade  (string | nil)
                    If set, the player must own at least tier 1 of this upgrade
-                   before this upgrade appears/is purchasable.
+                   (or the tier specified by RequiredUpgradeTier) before this
+                   upgrade appears/is purchasable.
                    Example: RequiredUpgrade = "TimePlayed"
+
+    RequiredUpgradeTier  (number | nil)
+                   Works together with RequiredUpgrade. When set, the referenced
+                   upgrade must be at THIS tier or higher (instead of the default
+                   of >= 1). Ignored if RequiredUpgrade is not also set.
+                   Example: RequiredUpgrade = "AutoClicker", RequiredUpgradeTier = 5
+                            → hidden until the player owns AutoClicker tier 5+
 
     RequiredLevel    (number | nil)
                    Player's Level stat must be >= this value to unlock.
@@ -101,7 +109,8 @@ return {
         DisplayName = "The Long Game",
         Description = "Multiplies your clicks based on your total playtime.",
         IsPermanent = true,
-        RequiredLevel = 5,
+        RequiredUpgrade = "ClickMultiplier",
+        RequiredUpgradeTier = 2,
         -- no RequiredUpgrade → always visible
     },
     ["ReduceLevelCost"] = {
@@ -133,7 +142,6 @@ return {
         },
         RequiredLevel = 2,
     },
-
     --[[
         EXAMPLE: upgrade locked behind another upgrade
 

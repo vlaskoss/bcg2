@@ -88,8 +88,9 @@ end
 -- Returns true if the local dataCache satisfies all unlock requirements.
 local function meetsRequirements(config)
     if config.RequiredUpgrade then
+        local minTier = config.RequiredUpgradeTier or 1
         local reqTier = dataCache[config.RequiredUpgrade] or 0
-        if reqTier < 1 then return false end
+        if reqTier < minTier then return false end
     end
     if config.RequiredLevel then
         local level = dataCache["Level"] or 0
@@ -250,7 +251,7 @@ local function refreshCard(upgradeKey, config)
                 dataCache.Clicks              = gammaNum.sub(currentClicks, cost)
                 updateUI(upgradeUI, upgradeKey, config)
 
-                -- Refresh any upgrade whose unlock depends on this one
+                -- Refresh any upgrade whose unlock depends on this one (at any tier threshold)
                 for otherKey, otherConfig in pairs(upgradeConfig) do
                     if otherConfig.RequiredUpgrade == upgradeKey then
                         refreshCard(otherKey, otherConfig)

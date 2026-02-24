@@ -54,11 +54,12 @@ end
 
 -- Returns true if the player meets all unlock requirements for this upgrade.
 local function meetsRequirements(player, config)
-    -- RequiredUpgrade: another upgrade must be at tier >= 1
+    -- RequiredUpgrade: another upgrade must be at tier >= RequiredUpgradeTier (default 1)
     if config.RequiredUpgrade then
+        local minTier = config.RequiredUpgradeTier or 1
         local reqTier = dataManager:GetUpgrade(player, config.RequiredUpgrade)
-        if not reqTier or reqTier < 1 then
-            return false, "locked behind " .. config.RequiredUpgrade
+        if not reqTier or reqTier < minTier then
+            return false, "locked behind " .. config.RequiredUpgrade .. " tier " .. minTier
         end
     end
 
