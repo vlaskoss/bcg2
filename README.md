@@ -17,3 +17,5 @@ rojo serve
 For more help, check out [the Rojo documentation](https://rojo.space/docs).
 
 SIX SEVEN!
+
+All commits made using Claude, an artifical intelligence software, are marked.

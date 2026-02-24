@@ -132,31 +132,33 @@ end
 
 -- Fades a newly created upgrade card from fully transparent to its designed values.
 local function fadeInCard(upgradeUI)
-    -- Snapshot the target (designed) transparency values first.
+    -- Define what "fully visible" looks like for each property
+    local function getGoal(obj, prop)
+        if prop == "TextTransparency" then return 0 end
+        if prop == "ImageTransparency" then return 0 end
+        if prop == "BackgroundTransparency" then
+            -- Preserve intentionally transparent backgrounds (labels etc.)
+            -- Only make opaque if it has a visible background color intended to show
+            if obj:IsA("TextButton") or obj:IsA("ImageButton") or obj:IsA("ImageLabel") then
+                return 0
+            end
+            return 1 -- frames/labels with no background stay transparent
+        end
+        return 0
+    end
+
     local targets = collectTransparencies(upgradeUI)
     local tweens  = {}
 
     for _, entry in ipairs(targets) do
-        local target = entry.obj
-        local prop   = entry.prop
-        local goalValue = target[prop]   -- current value = the designed value
-
-        -- Force fully transparent to start
-        target[prop] = 1
-
-        local tween = TweenService:Create(target, fadeTweenInfo, { [prop] = goalValue })
-        tweens[#tweens + 1] = tween
+        local goal = getGoal(entry.obj, entry.prop)
+        entry.obj[entry.prop] = 1
+        if goal < 1 then -- no point tweening 1 -> 1
+            tweens[#tweens + 1] = TweenService:Create(entry.obj, fadeTweenInfo, { [entry.prop] = goal })
+        end
     end
 
-    -- Also fade in the card's own BackgroundTransparency
-    local cardGoal = upgradeUI.BackgroundTransparency
-    upgradeUI.BackgroundTransparency = 1
-    local cardTween = TweenService:Create(upgradeUI, fadeTweenInfo, { BackgroundTransparency = cardGoal })
-    tweens[#tweens + 1] = cardTween
-
-    for _, tween in ipairs(tweens) do
-        tween:Play()
-    end
+    for _, tween in ipairs(tweens) do tween:Play() end
 end
 
 local function getDisplayName(config, upgradeKey, nextTier, maxed)
