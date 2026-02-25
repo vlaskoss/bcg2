@@ -81,7 +81,12 @@ return {
             [1] = 2,   
             [2] = 3, 
             [3] = 4,
-            [4] = 5 
+            [4] = 5,
+            [5] = 6,
+            [6] = 7,
+            [7] = 8,
+            [8] = 9,
+            [9] = 10,
         },
     
     },
@@ -90,20 +95,12 @@ return {
     Type            = "TimePlayed",
     Category        = "Final",
     Stat            = "TotalTime",
-    RequiredUpgrade = "TimePlayed",  -- must be tier >= 1 to activate
+    RequiredUpgrade = "TimePlayed", 
     },
 
     ["RebirthMultiplier"] = {
         Type                 = "Rebirth",
         Category             = "Final",
-        MultiplierPerRebirth = 2,   -- 2^rebirths  →  0→1x, 1→2x, 2→4x, 3→8x
+        MultiplierPerRebirth = 2,   -- 2^rebirths
     },
-
-    -- Example: a stat-based final multiplier (e.g. time played)
-    -- ["TimePlayedMultiplier"] = {
-    --     Type         = "PerStat",
-    --     Category     = "Final",
-    --     Stat         = "TotalTimePlayed",
-    --     ValuePerUnit = 0.001,   -- tiny per-second bonus, add 1 below in manager
-    -- },
 }

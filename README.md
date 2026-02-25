@@ -18,4 +18,4 @@ For more help, check out [the Rojo documentation](https://rojo.space/docs).
 
 SIX SEVEN!
 
-All commits made using Claude, an artifical intelligence software, are marked.
+All commits made using Claude, an artifical intelligence software, are marked on commits with "claude:" prepending the commit information.
