@@ -55,7 +55,7 @@ PlayersService.PlayerRemoving:Connect(function(player)
     autoClickManager:StopAutoClick(player.UserId)
 end)
 
-dataUpdateBindable.Event:Connect(function(data, player, updatedCurrency)
+dataUpdateBindable.Event:Connect(function(player, data, updatedCurrency)
     if updatedCurrency == "AutoClicker" then
         if autoClickManager:IsAutoClicking(player.UserId) then
             autoClickManager:StopAutoClick(player.UserId)

@@ -53,7 +53,7 @@ function DataManager:AddCurrency(player: Player, currency: string, amount: numbe
 		profile.Data[currency] += amount
 	end
 	checkAndUpdateLeaderstat(profile, player, currency)
-	dataUpdateBindable:Fire(profile.Data, player, currency, "currency")
+	dataUpdateBindable:Fire(player, profile.Data, currency, "currency")
 end
 
 function DataManager:DeductCurrency(player: Player, currency: string, amount: number)
@@ -69,7 +69,7 @@ function DataManager:DeductCurrency(player: Player, currency: string, amount: nu
 		profile.Data[currency] -= amount
 	end
 	checkAndUpdateLeaderstat(profile, player, currency)
-	dataUpdateBindable:Fire(profile.Data, player, currency, "currency")
+	dataUpdateBindable:Fire(player, profile.Data, currency, "currency")
 end
 
 function DataManager:MultiplyCurrency(player: Player, currency: string, amount: number)
@@ -85,7 +85,7 @@ function DataManager:MultiplyCurrency(player: Player, currency: string, amount: 
 		profile.Data[currency] *= amount
 	end
 	checkAndUpdateLeaderstat(profile, player, currency)
-	dataUpdateBindable:Fire(profile.Data, player, currency, "currency")
+	dataUpdateBindable:Fire(player, profile.Data, currency, "currency")
 end
 
 function DataManager:SetCurrency(player: Player, currency: string, amount: number)
@@ -103,7 +103,7 @@ function DataManager:SetCurrency(player: Player, currency: string, amount: numbe
 		profile.Data[currency] = amount
 	end
 	checkAndUpdateLeaderstat(profile, player, currency)
-	dataUpdateBindable:Fire(profile.Data, player, currency, "currency")
+	dataUpdateBindable:Fire(player, profile.Data, currency, "currency")
 	if amount == 0 or amount == nil then
 		warn(`[DataManager]: {gameUtils:MakePossessive(player.Name)} {currency} balance has been cleared.`)
 	end
@@ -133,7 +133,7 @@ function DataManager:SetUpgrade(player, upgrade, value)
 	if not profile then warn("[DataManager]: Player data profile does not exist.") return end
 	if not profile.Data.Upgrades then warn("[DataManager]: Upgrades data does not exist.") return end
 	profile.Data.Upgrades[upgrade] = value
-	dataUpdateBindable:Fire(profile.Data, player, upgrade, "upgrade")
+	dataUpdateBindable:Fire(player, profile.Data, upgrade, "upgrade")
 end
 
 function DataManager:GetSetting(player, setting)
@@ -148,7 +148,7 @@ function DataManager:SetSetting(player, setting, value)
 	if not profile then warn("[DataManager]: Player data profile does not exist.") return end
 	if not profile.Data.Settings then warn("[DataManager]: Upgrades data does not exist.") return end
 	profile.Data.Settings[setting] = value
-	dataUpdateBindable:Fire(profile.Data, player, setting, "setting")
+	dataUpdateBindable:Fire(player, profile.Data, setting, "setting")
 end
 
 function DataManager:GetStatistic(player, stat)
@@ -160,7 +160,7 @@ end
 
 function DataManager:SetStatistic(player, stat, value)
 	local profile = self.Profiles[player]
-	dataUpdateBindable:Fire(profile.Data, player, stat, "statistic")
+	dataUpdateBindable:Fire(player, profile.Data, stat, "statistic")
 	if not profile then warn("[DataManager]: Player data profile does not exist.") return end
 	if not profile.Data.Statistics then warn("[DataManager]: Statistics data does not exist.") return end
 	profile.Data.Statistics[stat] = value

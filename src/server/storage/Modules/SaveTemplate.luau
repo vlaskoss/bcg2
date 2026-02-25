@@ -8,12 +8,10 @@ return {
     Upgrades = {
         AutoClicker = 0,
         ClickUpgrades = 0,
-        DoubleClicks = 0,
-        TripleClicks = 0,
-        QuadrupleClicks = 0,
-        QuintupleClicks = 0,
+        ClickMultiplier = 0,
         TimePlayed = 0,
         ReduceLevelCost = 0,
+        BaseBoost = 0
     },
     Settings = {
         BGMusic = true,
@@ -21,5 +19,6 @@ return {
     },
     Statistics = {
         TotalTime = 0,
+        TotalClicks = 0,
     }
 } 

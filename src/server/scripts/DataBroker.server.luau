@@ -14,8 +14,8 @@ local dataUpdateBindable = bindablesFolder.DataUpdateBindable
 
 local dataManager = require(modulesFolder.DataManager)
 
-dataUpdateBindable.Event:Connect(function(data, player, updatedCurrency, type)
-    dataUpdateEvent:FireClient(player, data, updatedCurrency, type)
+dataUpdateBindable.Event:Connect(function(player, data, updatedCurrency, currencyType)
+    dataUpdateEvent:FireClient(player, data, updatedCurrency, currencyType)
 end)
 
 remoteDataFunction.OnServerInvoke = function(player, dataType, key)
