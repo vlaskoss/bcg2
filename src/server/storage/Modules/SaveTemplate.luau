@@ -11,7 +11,8 @@ return {
         ClickMultiplier = 0,
         TimePlayed = 0,
         ReduceLevelCost = 0,
-        BaseBoost = 0
+        BaseBoost = 0,
+        RemoveDebounce = false,
     },
     Settings = {
         BGMusic = true,
