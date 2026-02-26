@@ -17,6 +17,7 @@ local gammaNum = require(sharedModulesFolder.GammaNum)
 rebirthEvent.OnServerEvent:Connect(function(player)
     local dataTable = dataManager:RetrieveAmount(player)
     if dataTable.Level >= gameUtils:CalcLevelRequired(dataTable.Rebirths) then
+        dataManager:AddCurrency(player, "Rebirths", 1)
         dataManager:SetCurrency(player, "Level", saveTemplate.Level)
         dataManager:SetCurrency(player, "Clicks", gammaNum.fromNumber(10))
 

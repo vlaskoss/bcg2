@@ -18,6 +18,7 @@ local rebirthButton = rebirthsFrame.RebirthButton
 local rebirthSound = soundsFolder.Interactive.RebirthSound
 
 local gameUtils = require(modulesFolder.GameUtils)
+local menuManager = require(modulesFolder.MenuManager)
 
 local currentLevel
 local rebirthsAmount
@@ -28,7 +29,7 @@ local function updateUI(data)
     rebirthsAmount = data.Rebirths
     currentLevel = data.Level
 
-    levelLabel.Text = "You are currently level " .. currentLevel
+    levelLabel.Text = "You are currently level " .. gameUtils:FormatSeparators(currentLevel)
     
     local requiredLevel = gameUtils:CalcLevelRequired(rebirthsAmount)
 
@@ -36,7 +37,8 @@ local function updateUI(data)
         eligibilityLabel.Text = "You are eligible to rebirth!"
         rebirthButton.Visible = true
     elseif currentLevel < requiredLevel then
-        eligibilityLabel.Text = "You need to be level " .. requiredLevel .. " to rebirth."
+        eligibilityLabel.Text = "You need to be level " .. gameUtils:FormatSeparators(requiredLevel) .. " to rebirth."
+        rebirthButton.Visible = false
     end
 end
 
@@ -50,9 +52,12 @@ end)
 rebirthButton.MouseButton1Click:Connect(function()
     if currentLevel >= gameUtils:CalcLevelRequired(rebirthsAmount) then
         rebirthEvent:FireServer()
+        print("[RebirthsHandler]: Rebirth request sent to server")
     end
 end)
 
 rebirthSuccessEvent.OnClientEvent:Connect(function()
+    print("[RebirthsHandler]: Rebirth successful returned from server")
+    menuManager:AnimateMenuClose(rebirthsFrame)
     sfxEvent:Fire(rebirthSound, 2, false)
 end)

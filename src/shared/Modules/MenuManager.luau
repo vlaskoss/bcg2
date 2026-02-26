@@ -43,7 +43,7 @@ local function fadeDescendants(parentMenu, target, duration)
     end
 end
 
-local function animateOpen(menuFrame)
+function MenuManager:AnimateMenuOpen(menuFrame)
     menuFrame.BackgroundTransparency = 1
     fadeDescendants(menuFrame, 1, 0)
     menuFrame.Visible = true
@@ -51,7 +51,7 @@ local function animateOpen(menuFrame)
     fadeDescendants(menuFrame, 0 , 0.3)
 end
 
-local function animateClose(menuFrame)
+function MenuManager:AnimateMenuClose(menuFrame)
     tween(menuFrame, {BackgroundTransparency = 1}, 0.3)
     fadeDescendants(menuFrame, 1, 0.3)
 
@@ -65,7 +65,7 @@ function MenuManager:CloseAllMenus(menusFolder)
     for _, menu in pairs(menusFolder:GetChildren()) do
         if menu:IsA("Frame") then
             if menu.Visible then
-                animateClose(menu)
+                self:AnimateMenuClose(menu)
             end
         end
     end
@@ -97,7 +97,7 @@ function MenuManager:SetupButton(button, targetFrame)
 		if not targetFrame then return end
 		debounce = true
 		if targetFrame.Visible then
-			animateClose(targetFrame)
+			self:AnimateMenuClose(targetFrame)
 			task.wait(0.35)
 			debounce = false
 			return
@@ -107,7 +107,7 @@ function MenuManager:SetupButton(button, targetFrame)
 			if menu:IsA("Frame") then
 				if menu.Visible and menu ~= targetFrame then
 					print("[MenuManager]: Closing open menu: " .. menu.Name)
-					animateClose(menu)
+					self:AnimateMenuClose(menu)
 					wasAnyOpen = true
 				end
 			end
@@ -115,7 +115,7 @@ function MenuManager:SetupButton(button, targetFrame)
 		if wasAnyOpen then
 			task.wait(0.35)
 		end
-		animateOpen(targetFrame)
+		self:AnimateMenuOpen(targetFrame)
 		task.wait(0.3)
 		debounce = false
 	end)
