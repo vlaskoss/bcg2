@@ -6,6 +6,7 @@ local modulesFolder, remotesFolder, bindablesFolder, soundsFolder = sharedFolder
 local dataInitEvent = remotesFolder.DataInitEvent
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
 local rebirthEvent = remotesFolder.RebirthEvent
+local rebirthSuccessEvent = remotesFolder.RebirthSuccessEvent
 local sfxEvent = bindablesFolder.SFXEvent
 
 local mainFrame = script.Parent.MainUI.MainFrame
@@ -23,17 +24,13 @@ local rebirthsAmount
 
 rebirthButton.Visible = false
 
-local function calcLevelRequired(currentRebirths)
-    return math.round(100 * (1.25 ^ currentRebirths))
-end
-
 local function updateUI(data)
     rebirthsAmount = data.Rebirths
     currentLevel = data.Level
 
     levelLabel.Text = "You are currently level " .. currentLevel
     
-    local requiredLevel = calcLevelRequired(rebirthsAmount)
+    local requiredLevel = gameUtils:CalcLevelRequired(rebirthsAmount)
 
     if currentLevel >= requiredLevel then
         eligibilityLabel.Text = "You are eligible to rebirth!"
@@ -51,8 +48,11 @@ dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
 end)
 
 rebirthButton.MouseButton1Click:Connect(function()
-    if currentLevel >= calcLevelRequired(rebirthsAmount) then
+    if currentLevel >= gameUtils:CalcLevelRequired(rebirthsAmount) then
         rebirthEvent:FireServer()
-        sfxEvent:Fire(rebirthSound, 1, false)
     end
+end)
+
+rebirthSuccessEvent.OnClientEvent:Connect(function()
+    sfxEvent:Fire(rebirthSound, 2, false)
 end)

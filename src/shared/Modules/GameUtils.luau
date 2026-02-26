@@ -94,4 +94,8 @@ function GameUtils:EnsureGammaNum(value)
     return gammaNum.fromNumber(0)
 end
 
+function GameUtils:CalcLevelRequired(currentRebirths)
+    return math.round(100 * (1.25 ^ currentRebirths))
+end
+
 return GameUtils
