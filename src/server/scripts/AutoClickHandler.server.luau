@@ -28,7 +28,11 @@ local function runAutoClicker(player, level)
         local amountToGive = clickCalculationManager:Calculate(player, baseAmount)
         dataManager:AddCurrency(player, "Clicks", amountToGive)
         clickFXEvent:FireClient(player)
-        task.wait(1 / data.rate)
+        if data.rate and data.rate > 0 then
+            task.wait(1 / data.rate)
+        else
+            task.wait()
+        end
     end
 end
 
