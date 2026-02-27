@@ -17,8 +17,12 @@ local function fadeDescendants(parentMenu, target, duration)
         if child:IsA("Frame") then
             if child:GetAttribute("UpgradeFrame") then
                 goals.BackgroundTransparency = 1
-            else
-                goals.BackgroundTransparency = target
+            end
+        end
+        
+        if child:IsA("Frame") then
+            if child.Name == "SettingFrame" or "Holder" then
+                goals.BackgroundTransparency = 1
             end
         end
 

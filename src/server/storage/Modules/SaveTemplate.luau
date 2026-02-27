@@ -16,7 +16,8 @@ return {
     },
     Settings = {
         BGMusic = true,
-        SFX = false,
+        SFX = true,
+        VFX = true,
     },
     Statistics = {
         TotalTime = 0,
