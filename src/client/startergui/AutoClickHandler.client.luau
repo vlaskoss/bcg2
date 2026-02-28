@@ -5,6 +5,7 @@ local modulesFolder, remotesFolder, bindablesFolder, soundsFolder = sharedFolder
 
 local autoClickEvent = remotesFolder.AutoClickEvent
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
+local rebirthSuccessEvent = remotesFolder.RebirthSuccessEvent
 local sfxEvent = bindablesFolder.SFXEvent
 
 local autoClickSound = soundsFolder.Interactive.AutoClickSound
@@ -17,6 +18,17 @@ local isEligible
 local isActive = true
 
 autoClickButton.Visible = false
+
+local function toggleAutoClicker()
+    sfxEvent:Fire(autoClickSound, 2)
+    if isActive then
+        autoClickButton.Text = "AUTOCLICKER<br />off"
+        autoClickEvent:FireServer("stop")
+    else
+        autoClickButton.Text = "AUTOCLICKER<br />on"
+        autoClickEvent:FireServer("start")
+    end
+end
 
 dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
     if updatedCurrency == "AutoClicker" then
@@ -40,15 +52,15 @@ autoClickButton.MouseButton1Click:Connect(function()
     if debounce == false then
         debounce = true
         isActive = not isActive
-        sfxEvent:Fire(autoClickSound, 2)
-        if isActive then
-            autoClickButton.Text = "AUTOCLICKER<br />off"
-            autoClickEvent:FireServer("stop")
-        else
-            autoClickButton.Text = "AUTOCLICKER<br />on"
-            autoClickEvent:FireServer("start")
-        end
+        toggleAutoClicker()
         task.wait(0.5)
         debounce = false
+    end
+end)
+
+rebirthSuccessEvent.OnClientEvent:Connect(function()
+    if isActive then
+        isActive = not isActive
+        toggleAutoClicker()
     end
 end)
