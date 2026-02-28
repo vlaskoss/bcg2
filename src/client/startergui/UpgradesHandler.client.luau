@@ -190,13 +190,18 @@ local function refreshCard(upgradeKey, config)
     local currentTier = getCurrentTier(upgradeKey, config)
     if isMaxed(config, currentTier) then
         if existing then
-            existing.PurchaseButton.Interactable = false
-            fadeOutCard(existing)
+            local cardToRemove = existing
+            cardToRemove.PurchaseButton.Interactable = false
+            task.spawn(function()
+            fadeOutCard(cardToRemove)
             task.wait(0.5)
-            existing:Destroy()
-        end
-        return
+            if cardToRemove.Parent then
+                cardToRemove:Destroy()
+            end
+        end)
     end
+    return
+end
 
     if not existing then
         local upgradeUI       = upgradeTemplate:Clone()
@@ -254,6 +259,19 @@ dataUpdateEvent.OnClientEvent:Connect(function(newData, updatedStat, updateType)
         if updatedStat == "Level" and newData and newData.Level then
             upgradeState["Level"] = newData.Level
         end
+
+        if updatedStat == "Rebirths" then
+            for upgradeKey, config in pairs(upgradeConfig) do
+                if not config.IsPermanent then
+                    upgradeState[upgradeKey] = nil
+                    if config.RelatedStat then
+                        upgradeState[config.RelatedStat] = nil
+                    end
+                end
+            end
+            upgradeState["Level"] = 0
+        end
+
         for upgradeKey, config in pairs(upgradeConfig) do
             refreshCard(upgradeKey, config)
         end
