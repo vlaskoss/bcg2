@@ -97,5 +97,11 @@ dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
                 end) 
             end
         end
+        if updatedCurrency == "SFX" then
+            for _, sound in pairs(activeSounds) do
+                activeSounds[sound] = nil
+                script.Parent.SFX:ClearAllChildren()
+            end
+        end
     end
 end)
