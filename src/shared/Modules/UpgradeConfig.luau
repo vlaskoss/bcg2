@@ -156,12 +156,6 @@ return {
         RequiredLevel = 10,
     },
 
-    ["UnlimitedAutoClicker"] = {
-        Type = "Single",
-        MaxTier = 1,
-        Priority = 2,
-        
-    }
     --[[
         EXAMPLE: upgrade locked behind another upgrade
 

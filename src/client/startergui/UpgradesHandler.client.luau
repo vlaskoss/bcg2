@@ -1,22 +1,3 @@
---[[
-    UpgradesHandler_client.luau
-    ─────────────────────────────────────────────────────────────────────────────
-    Manages the upgrades UI.
-
-    Locked upgrades
-    ────────────────
-    If a config entry has RequiredUpgrade or RequiredLevel, the upgrade card is
-    hidden until those conditions are met in the local dataCache. When data
-    updates arrive the UI is refreshed so cards appear/disappear automatically.
-
-    Optimistic updates
-    ───────────────────
-    On a successful local affordability check the client immediately updates
-    dataCache and re-renders the card, then fires the server. The server
-    validates and applies the real change; the next dataUpdateEvent will
-    reconcile any discrepancy.
---]]
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService      = game:GetService("TweenService")
 
@@ -29,6 +10,7 @@ local soundsFolder    = sharedFolder.Sounds
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
 local dataInitEvent   = remotesFolder.DataInitEvent
 local upgradeEvent    = remotesFolder.UpgradeEvent
+local upgradeReturnEvent = remotesFolder.UpgradeReturnEvent
 local sfxEvent        = bindablesFolder.SFXEvent
 
 local purchaseSound = soundsFolder.Interactive.PurchaseSuccess
@@ -45,21 +27,8 @@ local upgradesFrame = mainFrame.Menus.UpgradesFrame.Holder
 local upgradeTemplate = script.Parent.UpgradeTemplate
 
 local dataInitialised = false
-local dataCache       = {}
 
-local nestedTables = { Upgrades = true, Statistics = false, Settings = false }
-
-local function flattenInto(target, source)
-    for key, value in pairs(source) do
-        if nestedTables[key] and type(value) == "table" then
-            for innerKey, innerValue in pairs(value) do
-                target[innerKey] = innerValue
-            end
-        else
-            target[key] = value
-        end
-    end
-end
+local upgradeState: {[string]: number} = {}
 
 local function getCost(config, currentTier)
     if config.CostFormula then
@@ -78,17 +47,17 @@ local function getCost(config, currentTier)
 end
 
 local function getCurrentTier(upgradeKey, config)
-    return dataCache[config.RelatedStat] or 0
+    return upgradeState[config.RelatedStat] or upgradeState[upgradeKey] or 0
 end
 
 local function meetsRequirements(config)
     if config.RequiredUpgrade then
         local minTier = config.RequiredUpgradeTier or 1
-        local reqTier = dataCache[config.RequiredUpgrade] or 0
+        local reqTier = upgradeState[config.RequiredUpgrade] or 0
         if reqTier < minTier then return false end
     end
     if config.RequiredLevel then
-        local level = dataCache["Level"] or 0
+        local level = upgradeState["Level"] or 0
         if level < config.RequiredLevel then return false end
     end
     return true
@@ -101,8 +70,8 @@ local function isMaxed(config, currentTier)
     return false
 end
 
-local FADE_DURATION = 0.25
-local fadeTweenInfo = TweenInfo.new(FADE_DURATION, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local fadeDuration = 0.25
+local fadeTweenInfo = TweenInfo.new(fadeDuration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 local function collectTransparencies(root)
     local targets = {}
@@ -195,27 +164,19 @@ end
 
 local function updateUI(upgradeUI, upgradeKey, config)
     if not dataInitialised then return end
-
     local currentTier = getCurrentTier(upgradeKey, config)
     local nextTier    = currentTier + 1
     if isMaxed(config, currentTier) then return end
     local maxed       = isMaxed(config, currentTier)
 
     local cost = getCost(config, currentTier)
-    if upgradeKey == "Level" then
-        local reduction = dataCache["ReduceLevelCost"] or 0
-        local factor    = gammaNum.div(
-            gammaNum.sub(gammaNum.fromNumber(100), gammaNum.fromNumber(reduction)),
-            gammaNum.fromNumber(100)
-        )
-        cost = gammaNum.mul(cost, factor)
-    end
 
     upgradeUI.UpgradeNameLabel.Text  = getDisplayName(config, upgradeKey, nextTier, maxed)
     upgradeUI.InformationLabel.Text  = getDescription(config, nextTier)
     upgradeUI.CostLabel.Text         = "Cost: " .. gameUtils:FormatNum(cost) .. " clicks"
     upgradeUI.PurchaseButton.Visible = true
 end
+
 
 local function refreshCard(upgradeKey, config)
     local unlocked = meetsRequirements(config)
@@ -228,13 +189,15 @@ local function refreshCard(upgradeKey, config)
 
     local currentTier = getCurrentTier(upgradeKey, config)
     if isMaxed(config, currentTier) then
-        if existing then 
+        if existing then
             existing.PurchaseButton.Interactable = false
             fadeOutCard(existing)
             task.wait(0.5)
-            existing:Destroy() end
+            existing:Destroy()
+        end
         return
     end
+
     if not existing then
         local upgradeUI       = upgradeTemplate:Clone()
         upgradeUI.Name        = upgradeKey
@@ -244,45 +207,10 @@ local function refreshCard(upgradeKey, config)
         fadeInCard(upgradeUI)
 
         upgradeUI.PurchaseButton.MouseButton1Down:Connect(function()
-            local currentTier  = getCurrentTier(upgradeKey, config)
-            local cost         = getCost(config, currentTier)
-
-            if upgradeKey == "Level" then
-                local reduction = dataCache["ReduceLevelCost"] or 0
-                local factor    = gammaNum.div(
-                    gammaNum.sub(gammaNum.fromNumber(100), gammaNum.fromNumber(reduction)),
-                    gammaNum.fromNumber(100)
-                )
-                cost = gammaNum.mul(cost, factor)
-            end
-
-            local currentClicks = gameUtils:EnsureGammaNum(dataCache.Clicks)
-
-            if gammaNum.gte(currentClicks, cost) then
-                upgradeEvent:FireServer(upgradeKey)
-                sfxEvent:Fire(purchaseSound, 1, false)
-                dataCache[config.RelatedStat] = currentTier + 1
-                dataCache.Clicks              = gammaNum.sub(currentClicks, cost)
-                updateUI(upgradeUI, upgradeKey, config)
-
-                for otherKey, otherConfig in pairs(upgradeConfig) do
-                    if otherConfig.RequiredUpgrade == upgradeKey then
-                        refreshCard(otherKey, otherConfig)
-                    end
-                end
-
-                if upgradeKey == "ReduceLevelCost" then
-                    local levelCard = upgradesFrame:FindFirstChild("Level")
-                    if levelCard then updateUI(levelCard, "Level", upgradeConfig["Level"]) end
-                end
-            else
-                sfxEvent:Fire(errorSound, 1, false)
-                upgradeUI.PurchaseButton.Text              = "no money :("
-                upgradeUI.PurchaseButton.BackgroundColor3  = Color3.fromRGB(255, 0, 0)
-                task.wait(0.5)
-                upgradeUI.PurchaseButton.Text              = "Purchase"
-                upgradeUI.PurchaseButton.BackgroundColor3  = Color3.fromRGB(53, 136, 9)
-            end
+            upgradeUI.PurchaseButton.Interactable = false
+            upgradeEvent:FireServer(upgradeKey)
+            task.wait(0.1)
+            upgradeUI.PurchaseButton.Interactable = true
         end)
     end
 
@@ -290,8 +218,6 @@ local function refreshCard(upgradeKey, config)
 end
 
 local function populateUpgrades()
-    if not dataInitialised then return end
-
     for _, child in ipairs(upgradesFrame:GetChildren()) do
         if child:IsA("Frame") and child ~= upgradeTemplate then
             child:Destroy()
@@ -305,19 +231,29 @@ end
 
 dataInitEvent.OnClientEvent:Connect(function(data)
     if dataInitialised then return end
-    if data then flattenInto(dataCache, data) end
     dataInitialised = true
+    for upgradeKey, tier in pairs(data.Upgrades) do
+        local config = upgradeConfig[upgradeKey]
+        upgradeState[upgradeKey] = tier
+        if config and config.RelatedStat then
+            upgradeState[config.RelatedStat] = tier
+        end
+    end
+
+    if data.Level then
+        upgradeState["Level"] = data.Level
+    end
+
     populateUpgrades()
 end)
-
+ 
 dataUpdateEvent.OnClientEvent:Connect(function(newData, updatedStat, updateType)
     if not dataInitialised then return end
 
-    if typeof(newData) == "table" then
-        flattenInto(dataCache, newData)
-    end
-
     if updateType == "upgrade" or updatedStat == "Rebirths" or updatedStat == "Level" then
+        if updatedStat == "Level" and newData and newData.Level then
+            upgradeState["Level"] = newData.Level
+        end
         for upgradeKey, config in pairs(upgradeConfig) do
             refreshCard(upgradeKey, config)
         end
@@ -330,3 +266,47 @@ dataUpdateEvent.OnClientEvent:Connect(function(newData, updatedStat, updateType)
         end
     end
 end)
+
+upgradeReturnEvent.OnClientEvent:Connect(function(upgradeKey, success, newTierOrReason)
+    if not success then
+        sfxEvent:Fire(errorSound, 1, false)
+        local card = upgradesFrame:FindFirstChild(upgradeKey)
+        if card then
+            card.PurchaseButton.Text             = tostring(newTierOrReason or "failed")
+            card.PurchaseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            task.wait(0.5)
+            if card.Parent then
+                card.PurchaseButton.Text             = "Purchase"
+                card.PurchaseButton.BackgroundColor3 = Color3.fromRGB(53, 136, 9)
+            end
+        end
+        return
+    end
+
+    local config = upgradeConfig[upgradeKey]
+    if not config then return end
+
+    local newTier = newTierOrReason
+    if config.RelatedStat then
+        upgradeState[config.RelatedStat] = newTier
+    end
+    upgradeState[upgradeKey] = newTier
+
+    sfxEvent:Fire(purchaseSound, 1, false)
+
+    refreshCard(upgradeKey, config)
+
+    for otherKey, otherConfig in pairs(upgradeConfig) do
+        if otherConfig.RequiredUpgrade == upgradeKey then
+            refreshCard(otherKey, otherConfig)
+        end
+    end
+
+    if upgradeKey == "ReduceLevelCost" then
+        local levelCard = upgradesFrame:FindFirstChild("Level")
+        if levelCard then
+            updateUI(levelCard, "Level", upgradeConfig["Level"])
+        end
+    end
+end)
+

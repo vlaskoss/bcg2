@@ -1,15 +1,3 @@
---[[
-    UpgradesHandler_server.luau
-    ─────────────────────────────────────────────────────────────────────────────
-    Handles upgrade purchase requests from clients.
-
-    Security model
-    ───────────────
-    All validation (affordability, max level, unlock requirements) is done
-    server-side. The client does optimistic UI updates for responsiveness, but
-    the server is the source of truth.
---]]
-
 debug.setmemorycategory("Upgrades")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -22,6 +10,7 @@ local modulesFolder     = serverFolder.Modules
 local sharedModulesFolder = sharedFolder.Modules
 
 local upgradeEvent  = remotesFolder.UpgradeEvent
+local upgradeReturnEvent = remotesFolder.UpgradeReturnEvent
 
 local dataManager   = require(modulesFolder.DataManager)
 local upgradeConfig = require(sharedModulesFolder.UpgradeConfig)
@@ -29,8 +18,6 @@ local gameUtils     = require(sharedModulesFolder.GameUtils)
 local gammaNum      = require(sharedModulesFolder.GammaNum)
 
 local upgradeFormulas = sharedModulesFolder.UpgradeFormulas
-
--- ─── helpers ─────────────────────────────────────────────────────────────────
 
 local function getUpgradeCost(config, currentTier)
     if config.CostFormula then
@@ -52,9 +39,7 @@ local function getCurrentTier(player, upgradeKey, config)
     end
 end
 
--- Returns true if the player meets all unlock requirements for this upgrade.
 local function meetsRequirements(player, config)
-    -- RequiredUpgrade: another upgrade must be at tier >= RequiredUpgradeTier (default 1)
     if config.RequiredUpgrade then
         local minTier = config.RequiredUpgradeTier or 1
         local reqTier = dataManager:GetUpgrade(player, config.RequiredUpgrade)
@@ -63,7 +48,6 @@ local function meetsRequirements(player, config)
         end
     end
 
-    -- RequiredLevel: player's Level must be >= threshold
     if config.RequiredLevel then
         local level = dataManager:RetrieveAmount(player, "Level")
         if not level or level < config.RequiredLevel then
@@ -81,34 +65,30 @@ local function isMaxed(config, currentTier)
     return false
 end
 
--- ─── purchase handler ────────────────────────────────────────────────────────
-
 upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
-    -- 1. Config must exist
     local config = upgradeConfig[upgradeKey]
     if not config then
-        warn(`[UpgradesHandler] Unknown upgradeKey "{upgradeKey}" from {player.Name}`)
+        warn(`[UpgradesHandler]: unknown upgradeKey {upgradeKey} from {player.Name}`)
+        upgradeReturnEvent:FireClient(player, upgradeKey, false, "does not exist")
         return
     end
 
-    -- 2. Unlock requirements
     local unlocked, reason = meetsRequirements(player, config)
     if not unlocked then
-        warn(`[UpgradesHandler] {player.Name} tried to buy locked upgrade "{upgradeKey}": {reason}`)
+        warn(`[UpgradesHandler]: {player.Name} tried to buy locked upgrade {upgradeKey}: {reason}`)
+        upgradeReturnEvent:FireClient(player, upgradeKey, false, "locked")
         return
     end
 
-    -- 3. Not already maxed
     local currentTier = getCurrentTier(player, upgradeKey, config)
     if isMaxed(config, currentTier) then
-        warn(`[UpgradesHandler] {player.Name} tried to buy maxed upgrade "{upgradeKey}"`)
+        warn(`[UpgradesHandler]: {player.Name} tried to buy maxed upgrade {upgradeKey}`)
+        upgradeReturnEvent:FireClient(player, upgradeKey, false, "maxed")
         return
     end
 
-    -- 4. Affordability
     local cost = getUpgradeCost(config, currentTier)
 
-    -- Special case: level cost reduction applies to Level purchases
     if upgradeKey == "Level" then
         local reduction = dataManager:GetUpgrade(player, "ReduceLevelCost") or 0
         local factor    = gammaNum.div(
@@ -121,11 +101,11 @@ upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
     local playerClicks = gameUtils:EnsureGammaNum(dataManager:RetrieveAmount(player, "Clicks"))
 
     if not gammaNum.gte(playerClicks, cost) then
-        print(`[UpgradesHandler] {player.Name} cannot afford "{upgradeKey}"`)
+        print(`[UpgradesHandler]: {player.Name} cannot afford {upgradeKey}`)
+        upgradeReturnEvent:FireClient(player, upgradeKey, false, "no money :(")
         return
     end
 
-    -- 5. Apply purchase
     dataManager:DeductCurrency(player, "Clicks", cost)
 
     if config.StatType == "Level" then
@@ -134,10 +114,9 @@ upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
         dataManager:SetUpgrade(player, upgradeKey, currentTier + 1)
     end
 
-    -- 6. Optional callback
     if config.OnUpgrade then
         config.OnUpgrade(player, currentTier + 1)
     end
-
-    print(`[UpgradesHandler] {player.Name} purchased "{upgradeKey}" → tier {currentTier + 1}`)
+    upgradeReturnEvent:FireClient(player, upgradeKey, true, currentTier + 1)
+    print(`[UpgradesHandler]: {player.Name} purchased {upgradeKey} tier {currentTier + 1}`)
 end)
