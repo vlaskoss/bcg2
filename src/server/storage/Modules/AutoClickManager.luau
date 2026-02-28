@@ -17,7 +17,8 @@ AutoClickManager.LevelRate = {
     [12] = 30,
     [13] = 35,
     [14] = 40,
-    [15] = 50  
+    [15] = 50,
+    [16] = 0 
 }
 
 function AutoClickManager:StartAutoClick(userId, level)

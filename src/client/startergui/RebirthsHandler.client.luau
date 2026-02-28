@@ -6,6 +6,7 @@ local modulesFolder, remotesFolder, bindablesFolder, soundsFolder = sharedFolder
 local dataInitEvent = remotesFolder.DataInitEvent
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
 local rebirthEvent = remotesFolder.RebirthEvent
+local rebirthSuccessEvent = remotesFolder.RebirthSuccessEvent
 local sfxEvent = bindablesFolder.SFXEvent
 
 local mainFrame = script.Parent.MainUI.MainFrame
@@ -17,29 +18,27 @@ local rebirthButton = rebirthsFrame.RebirthButton
 local rebirthSound = soundsFolder.Interactive.RebirthSound
 
 local gameUtils = require(modulesFolder.GameUtils)
+local menuManager = require(modulesFolder.MenuManager)
 
 local currentLevel
 local rebirthsAmount
 
 rebirthButton.Visible = false
 
-local function calcLevelRequired(currentRebirths)
-    return math.round(100 * (1.25 ^ currentRebirths))
-end
-
 local function updateUI(data)
     rebirthsAmount = data.Rebirths
     currentLevel = data.Level
 
-    levelLabel.Text = "You are currently level " .. currentLevel
+    levelLabel.Text = "You are currently level " .. gameUtils:FormatSeparators(currentLevel)
     
-    local requiredLevel = calcLevelRequired(rebirthsAmount)
+    local requiredLevel = gameUtils:CalcLevelRequired(rebirthsAmount)
 
     if currentLevel >= requiredLevel then
         eligibilityLabel.Text = "You are eligible to rebirth!"
         rebirthButton.Visible = true
     elseif currentLevel < requiredLevel then
-        eligibilityLabel.Text = "You need to be level " .. requiredLevel .. " to rebirth."
+        eligibilityLabel.Text = "You need to be level " .. gameUtils:FormatSeparators(requiredLevel) .. " to rebirth."
+        rebirthButton.Visible = false
     end
 end
 
@@ -51,8 +50,14 @@ dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
 end)
 
 rebirthButton.MouseButton1Click:Connect(function()
-    if currentLevel >= calcLevelRequired(rebirthsAmount) then
+    if currentLevel >= gameUtils:CalcLevelRequired(rebirthsAmount) then
         rebirthEvent:FireServer()
-        sfxEvent:Fire(rebirthSound, 1, false)
+        print("[RebirthsHandler]: Rebirth request sent to server")
     end
+end)
+
+rebirthSuccessEvent.OnClientEvent:Connect(function()
+    print("[RebirthsHandler]: Rebirth successful returned from server")
+    menuManager:AnimateMenuClose(rebirthsFrame)
+    sfxEvent:Fire(rebirthSound, 2, false)
 end)

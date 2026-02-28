@@ -69,7 +69,10 @@ local function checkBadges(player, data, updatedCurrency)
 
     for _, badge in ipairs(relevantBadges) do
         if owned and owned[badge.id] then continue end
-        if gammaNum.gte(value, badge.criteria.Required) then
+        local qualifies = if badge.criteria.Exact
+            then gammaNum.eq(value, badge.criteria.Required)
+            else gammaNum.gte(value, badge.criteria.Required)
+        if qualifies then
             awardBadge(player, badge.id, badge.criteria.Name)
         end
     end

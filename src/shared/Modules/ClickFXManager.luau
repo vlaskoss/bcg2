@@ -4,9 +4,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PlayersService = game:GetService("Players")
 
 local sharedFolder = ReplicatedStorage.Shared
-local modulesFolder, bindablesFolder, soundsFolder = sharedFolder.Modules, sharedFolder.Bindables, sharedFolder.Sounds
+local modulesFolder = sharedFolder.Modules
 
-local sfxEvent = bindablesFolder.SFXEvent
 local player = PlayersService.LocalPlayer
 
 local gameUtils = require(modulesFolder.GameUtils)
@@ -36,7 +35,6 @@ local messages = {
 }
 
 function ClickFXManager:Display(textFrame)
-    sfxEvent:Fire(soundsFolder.Interactive.ClickSound, 2)
     local randMsg = messages[math.random(1, #messages)]
     local text = createText(textFrame, randMsg)
     gameUtils:Tween(text, {TextTransparency = 0}, 0.5)

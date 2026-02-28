@@ -127,17 +127,18 @@ return {
 
     ["ClickMultiplier"] = {
         Type        = "Tiered",
-        MaxTier     = 4,
+        MaxTier     = 9,
         Priority    = 5,
         StatType    = "Upgrade",
         RelatedStat = "ClickMultiplier",
         CostFormula = "ClickMultiplierCost",
+        DisplayName = function(current)
+            return (current + 1) .. "x Clicks"
+        end,
+        Description = "+1x clicks per upgrade!",
         IsPermanent = false,
         Tiers = {
-            [1] = { DisplayName = "2x Clicks", Description = "A small multiplier." },
-            [2] = { DisplayName = "3x Clicks", Description = "A healthy multiplier." },
-            [3] = { DisplayName = "4x Clicks", Description = "A big multiplier." },
-            [4] = { DisplayName = "5x Clicks", Description = "A huge multiplier." },
+            [1] = { Description = "A small 2x clicks multiplier." },
         },
         RequiredLevel = 2,
     },
@@ -154,6 +155,7 @@ return {
         IsPermanent = false,
         RequiredLevel = 10,
     },
+
     --[[
         EXAMPLE: upgrade locked behind another upgrade
 

@@ -7,6 +7,8 @@ local modulesFolder = ReplicatedStorage.Shared.Modules
 
 local gammaNum = require(modulesFolder.GammaNum)
 
+local maxLevel = 1000000
+
 local ASCII = [[
 
 bbbbbbbb                                                    
@@ -92,6 +94,15 @@ function GameUtils:EnsureGammaNum(value)
     if typeof(value) == "number" then return gammaNum.fromNumber(value) end
     if typeof(value) == "table" and value.toSuffix then return value end
     return gammaNum.fromNumber(0)
+end
+
+function GameUtils:CalcLevelRequired(currentRebirths)
+    return math.min(maxLevel, math.round(100 * (1.25 ^ currentRebirths)))
+end
+
+function GameUtils:FormatSeparators(value)
+    local str = tostring(math.floor(value))
+    return str:reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
 end
 
 return GameUtils
