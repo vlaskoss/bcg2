@@ -64,6 +64,31 @@ function Handlers.Flat(player, config)
     return toGamma(config.Value or 0)
 end
 
+function Handlers.Exponents(player, config)
+    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+    if not tier or tier < 1 then return nil end
+
+    local perUpgrade = gammaMul(tier, 0.05)
+
+    return perUpgrade
+end
+
+
+function Handlers.Recursion(player, config)
+    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+    if not tier or tier < 1 then return nil end
+
+    local clicks = dataManager:RetrieveAmount(player, "Clicks")
+    if not clicks then return nil end
+
+    local logClicks = gammaNum.log10(clicks)
+    local tierScale = gammaNum.div(tier, 4)
+    local scaled = gammaMul(logClicks, tier)
+    local multiplier = gammaAdd(scaled, ONE)
+    print(gammaNum.toSuffix(multiplier))
+    return multiplier
+end
+
 function Handlers.TimePlayed(player, config)
     if config.RequiredUpgrade then
         local tier = dataManager:GetUpgrade(player, config.RequiredUpgrade)
@@ -152,24 +177,26 @@ end
 local function buildTotals(player)
     local baseTotal  = ZERO
     local finalTotal = ONE
+    local exponentTotal = ONE
 
     for sourceName, config in pairs(multiplierConfig) do
         local value = evaluateSource(player, config)
 
         if config.Category == "Base" then
-            -- nil / missing → 0 contribution to sum
             baseTotal = gammaAdd(baseTotal, value or ZERO)
 
         elseif config.Category == "Final" then
-            -- nil / missing → 1 contribution to product (identity)
             finalTotal = gammaMul(finalTotal, value or ONE)
+
+        elseif config.Category == "Exponent" then
+            exponentTotal = gammaAdd(exponentTotal, value or ZERO)
 
         else
             warn("[ClickCalculationManager]: Unknown Category '" .. tostring(config.Category) .. "' on source '" .. sourceName .. "' – skipping")
         end
     end
 
-    return baseTotal, finalTotal
+    return baseTotal, finalTotal, exponentTotal
 end
 
 -- ─── public API ─────────────────────────────────────────────────────────────
@@ -186,8 +213,9 @@ function ClickCalculationManager:RemovePlayer(player)
 end
 
 function ClickCalculationManager:UpdateMultiplier(player)
-    local baseTotal, finalTotal = buildTotals(player)
-    local total = gammaMul(baseTotal, finalTotal)
+    local baseTotal, finalTotal, exponentTotal = buildTotals(player)
+    local combined = gammaMul(baseTotal, finalTotal)
+    local total = gammaPow(combined, exponentTotal)
 
     self._cache[player.UserId] = {
         Base  = baseTotal,
@@ -196,10 +224,11 @@ function ClickCalculationManager:UpdateMultiplier(player)
     }
 
     print(string.format(
-        "[ClickCalculationManager]: %s multiplier → Base %s × Final %s = %s",
+        "[ClickCalculationManager]: %s multiplier → Base %s × Final %s ^ Exponent %s = %s",
         gameUtils:MakePossessive(player.Name),
         gammaNum.toSuffix(baseTotal),
         gammaNum.toSuffix(finalTotal),
+        gammaNum.toSuffix(exponentTotal),
         gammaNum.toSuffix(total)
     ))
 end

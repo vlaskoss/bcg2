@@ -103,4 +103,19 @@ return {
         Category             = "Final",
         MultiplierPerRebirth = 2,   -- 2^rebirths
     },
+
+    ["RecursionMultiplier"] = {
+        Type = "Recursion",
+        Category = "Final",
+        Upgrade = "Recursion"
+    },
+
+
+
+    
+    ["ExponentsMultiplier"] = {
+        Type = "Exponents",
+        Category = "Exponent",
+        Upgrade = "Exponents"
+    }
 }

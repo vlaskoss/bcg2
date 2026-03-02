@@ -156,6 +156,35 @@ return {
         RequiredLevel = 10,
     },
 
+    ["Recursion"] = {
+        Type = "Tiered",
+        MaxTier = 5,
+        Priority = 7,
+        StatType = "Upgrade",
+        RelatedStat = "Recursion",
+        CostFormula = "RecursionCost",
+        DisplayName = "Recursion",
+        Description = "Improves the Recursion formula",
+        Tiers = {
+            [1] = {Description = "Multiplies clicks by the number of clicks you currently have."}
+        },
+        IsPermanent = false,
+        RequiredLevel = 50
+    },
+    
+    ["Exponents"] = {
+        Type = "Tiered",
+        MaxTier = 5,
+        Priority = 8,
+        StatType = "Upgrade",
+        RelatedStat = "Exponents",
+        CostFormula = "ExponentsCost",
+        DisplayName = "Exponents",
+        Description = "Exponent test",
+        IsPermanent = true,
+        RequiredLevel = 100
+    },
+
     --[[
         EXAMPLE: upgrade locked behind another upgrade
 
