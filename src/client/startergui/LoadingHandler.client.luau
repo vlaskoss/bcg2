@@ -3,10 +3,11 @@ local StarterGui = game:GetService("StarterGui")
 local PlayersService = game:GetService("Players")
 local TestService = game:GetService("TestService")
 
-local sharedFolder = ReplicatedStorage.Shared
-local modulesFolder, remotesFolder = sharedFolder.Modules, sharedFolder.Remotes
 
-local dataInitEvent = remotesFolder.DataInitEvent
+local sharedFolder = ReplicatedStorage.Shared
+local modulesFolder, bindablesFolder = sharedFolder.Modules, sharedFolder.Bindables
+
+local dataInitEvent = bindablesFolder.DataInitEvent
 
 local gameVersion = require(modulesFolder.GameVersion)
 local gameUtils = require(modulesFolder.GameUtils)
@@ -20,7 +21,8 @@ local loadingLabel, versionLabel, gameLabel = mainFrame.LoadingLabel, mainFrame.
 local clicksFrame = mainUI.MainFrame.ClicksFrame
 local player = PlayersService.LocalPlayer
 
-local dataInitialised = false
+local dataInitialised = PlayersService.LocalPlayer:WaitForChild("DataInitialised")
+
 local joinTime = os.date("%Y-%m-%d %H:%M:%S")
 
 local uiDefaults = {
@@ -91,8 +93,7 @@ gameUtils:Tween(versionLabel, {TextTransparency = 0}, 0.5, 0.5)
 
 task.spawn(timeoutCheck)
 
-dataInitEvent.OnClientEvent:Connect(function(data)
-    dataInitialised = true
+dataInitEvent.Event:Connect(function(data)
     print("------------------DATA INITIALISED------------------")
     print("[LoadingHandler]: Data initalised")
     loadingLabel.Text = "data initalised!"

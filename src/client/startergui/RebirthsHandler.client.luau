@@ -3,11 +3,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local sharedFolder = ReplicatedStorage.Shared
 local modulesFolder, remotesFolder, bindablesFolder, soundsFolder = sharedFolder.Modules, sharedFolder.Remotes, sharedFolder.Bindables, sharedFolder.Sounds
 
-local dataInitEvent = remotesFolder.DataInitEvent
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
 local rebirthEvent = remotesFolder.RebirthEvent
 local rebirthSuccessEvent = remotesFolder.RebirthSuccessEvent
 local sfxEvent = bindablesFolder.SFXEvent
+local dataInitEvent = bindablesFolder.DataInitEvent
 
 local mainFrame = script.Parent.MainUI.MainFrame
 local rebirthsFrame = mainFrame.Menus.RebirthsFrame
@@ -42,7 +42,7 @@ local function updateUI(data)
     end
 end
 
-dataInitEvent.OnClientEvent:Connect(updateUI)
+dataInitEvent.Event:Connect(updateUI)
 dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
     if updatedCurrency == "Level" or "Rebirths" then
         updateUI(data)

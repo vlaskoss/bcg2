@@ -1,9 +1,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local PlayersService = game:GetService("Players")
 
 local sharedFolder = ReplicatedStorage.Shared
-local modulesFolder, remotesFolder, bindablesFolder = sharedFolder.Modules, sharedFolder.Remotes, sharedFolder.Bindables
+local modulesFolder, bindablesFolder = sharedFolder.Modules, sharedFolder.Bindables
 
-local dataInitEvent = remotesFolder.DataInitEvent
+local dataInitBindable = bindablesFolder.DataInitEvent
 
 local gameUtils = require(modulesFolder.GameUtils)
 local gameVersion = require(modulesFolder.GameVersion)
@@ -19,7 +20,7 @@ local versionButton = mainFrame.VersionLabel
 local clickButton, autoClickButton = mainUI.ClickButton, mainUI.AutoClickButton
 local buildLabel, uptimeLabel, versionLabel = versionFrame.BuildLabel, versionFrame.UptimeLabel, versionFrame.VersionLabel
 
-local dataInitialised = false
+local dataInitialised = PlayersService.LocalPlayer:WaitForChild("DataInitialised")
 local isOpen = false
 local debounce = false
 
@@ -74,7 +75,7 @@ local function toggleFrame()
     end
 end
 
-dataInitEvent.OnClientEvent:Connect(function()
+dataInitBindable.Event:Connect(function()
     tweenText(versionFrame, 1)
     coverFrame.BackgroundTransparency = 1
     versionFrame.BackgroundTransparency = 1
@@ -83,7 +84,6 @@ dataInitEvent.OnClientEvent:Connect(function()
     buildLabel.Text = "Build " .. game.PlaceVersion
     versionLabel.Text = "BCG (basic clicking game) - " .. gameVersion.FullName
     task.wait(5)
-    dataInitialised = true
 end)
 
 coverFrame.InputBegan:Connect(function(input)

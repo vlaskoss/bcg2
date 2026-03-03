@@ -10,6 +10,7 @@ local modulesFolder, bindablesFolder = serverFolder.Modules, serverFolder.Bindab
 local remotesFolder, sharedModulesFolder = sharedFolder.Remotes, sharedFolder.Modules
 
 local dataInitEvent = remotesFolder.DataInitEvent
+local dataInitReturnEvent = remotesFolder.DataInitReturnEvent
 local dataInitBindable = bindablesFolder.DataInitBindable
 
 local profileStore = require(modulesFolder.ProfileStore)
@@ -18,6 +19,8 @@ local dataManager = require(modulesFolder.DataManager)
 local debounceManager = require(modulesFolder.DebounceManager)
 local gammaNum = require(sharedModulesFolder.GammaNum)
 local gameUtils = require(sharedModulesFolder.GameUtils)
+
+local dataInitReturnTable = {}
 
 local function GetStoreName()
 	return RunService:IsStudio() and "Test" or "PlayerStore"
@@ -77,8 +80,20 @@ local function PlayerAdded(player: Player)
 			dataManager.Profiles[player] = profile
 			Initalise(player, profile)
 			print(`[DataHandler]: {gameUtils:MakePossessive(player.Name)} ({player.UserId}) data loaded successfully!`)
-			dataInitEvent:FireClient(player, profile.Data)
+			dataInitReturnTable[player.UserId] = false
 			dataInitBindable:Fire(player)
+			dataInitEvent:FireClient(player, profile.Data)
+
+			while dataInitReturnTable[player.UserId] == false do
+				dataInitEvent:FireClient(player, profile.Data)
+				task.wait(0.5)
+			end
+
+			dataInitReturnEvent.OnServerEvent:Connect(function(player)
+				dataInitReturnTable[player.UserId] = true
+				print("Player" .. player.Name .. "has returned the data init event")
+			end)
+			
 			
 		else
 			profile:EndSession()
@@ -101,5 +116,6 @@ PlayersService.PlayerRemoving:Connect(function(player)
 	if not profile then return end
 	profile:EndSession()
 	dataManager.Profiles[player] = nil
+	dataInitReturnTable[player.UserId] = nil
 	debounceManager:RemovePlayerDebounce(player.UserId)
 end)
