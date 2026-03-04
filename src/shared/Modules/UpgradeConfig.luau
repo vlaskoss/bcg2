@@ -164,7 +164,7 @@ return {
         RelatedStat = "Recursion",
         CostFormula = "RecursionCost",
         DisplayName = "Recursion",
-        Description = "Improves the Recursion formula",
+        Description = "Improves the Recursion formula by +0.25x",
         Tiers = {
             [1] = {Description = "Multiplies clicks by the number of clicks you currently have."}
         },
@@ -179,11 +179,27 @@ return {
         StatType = "Upgrade",
         RelatedStat = "Exponents",
         CostFormula = "ExponentsCost",
-        DisplayName = "Exponents",
-        Description = "Exponent test",
+        DisplayName = "Exponents!",
+        Description = "+ ^.05 exponent per upgrade",
+        Tiers = {
+            [1] = {Description = "An exponent of ^1.05 after all other multipliers!"}
+        },
         IsPermanent = true,
         RequiredLevel = 100
     },
+
+    ["FlatRate"] = {
+        Type = "Single",
+        Priority = 9,
+        StatType = "Upgrade",
+        RelatedStat = "FlatRate",
+        Cost = gammaNum.fromNumber(5000),
+        DisplayName = "Flat Rate",
+        Description = "A flat 1.5x clicks multiplier!",
+        IsPermanent = false,
+        RequiredLevel = 10
+    }
+
 
     --[[
         EXAMPLE: upgrade locked behind another upgrade

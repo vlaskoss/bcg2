@@ -73,6 +73,15 @@ return {
     ---------------------------------------------------------------------------
     -- FINAL multipliers  (multiplied together and applied to the base total)
     ---------------------------------------------------------------------------
+    ["FlatRateMultiplier"] = {
+        Type = "PerUpgrade",
+        Category = "Final",
+        Upgrade = "FlatRate",
+        Steps = {
+            [1] = 1.5
+        }
+    },
+    
     ["ClickMultiplier"] = {
         Type     = "PerUpgrade",
         Category = "Final",
@@ -110,12 +119,10 @@ return {
         Upgrade = "Recursion"
     },
 
-
-
-    
     ["ExponentsMultiplier"] = {
         Type = "Exponents",
         Category = "Exponent",
         Upgrade = "Exponents"
+    },
+
     }
-}

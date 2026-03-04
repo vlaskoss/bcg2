@@ -83,7 +83,7 @@ function Handlers.Recursion(player, config)
 
     local logClicks = gammaNum.log10(clicks)
     local tierScale = gammaNum.div(tier, 4)
-    local scaled = gammaMul(logClicks, tier)
+    local scaled = gammaMul(logClicks, tierScale)
     local multiplier = gammaAdd(scaled, ONE)
     print(gammaNum.toSuffix(multiplier))
     return multiplier
