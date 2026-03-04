@@ -15,7 +15,7 @@ local gameUtils = require(modulesFolder.GameUtils)
 
 local debounce = false
 local isEligible
-local isActive = true
+local isActive = false
 
 autoClickButton.Visible = false
 
@@ -51,8 +51,8 @@ end)
 autoClickButton.MouseButton1Click:Connect(function()
     if debounce == false then
         debounce = true
-        isActive = not isActive
         toggleAutoClicker()
+        isActive = not isActive
         task.wait(0.5)
         debounce = false
     end
@@ -60,7 +60,7 @@ end)
 
 rebirthSuccessEvent.OnClientEvent:Connect(function()
     if isActive then
-        isActive = not isActive
-        toggleAutoClicker()
+        autoClickButton.Text = "AUTOCLICKER<br />off"
+        isActive = false
     end
 end)
