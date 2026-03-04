@@ -34,7 +34,7 @@ end
 
 local function toggleFrame()
     if not debounce then
-        if dataInitialised == true then
+        if dataInitialised.Value == true then
             debounce = true
             if isOpen then
                 autoClickButton.Interactable = true
@@ -97,7 +97,7 @@ end)
 versionButton.MouseButton1Click:Connect(toggleFrame)
 
 while task.wait(1) do
-    if dataInitialised == true then
+    if dataInitialised.Value == true then
         local uptime = gameUtils:GetUptime()
         uptimeLabel.Text = "Server uptime: "  .. uptime
     end
