@@ -1,10 +1,9 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local sharedFolder = ReplicatedStorage.Shared
-local modulesFolder, remotesFolder = sharedFolder.Modules, sharedFolder.Remotes
+local modulesFolder, remotesFolder, bindablesFolder = sharedFolder.Modules, sharedFolder.Remotes, sharedFolder.Bindables
 
-local dataInitEvent = remotesFolder.DataInitEvent
-local dataUpdateEvent = remotesFolder.DataUpdateEvent
+local dataInitEvent = bindablesFolder.DataInitEvent
 local settingUpdateEvent = remotesFolder.SettingUpdateEvent
 
 local mainFrame = script.Parent.MainUI.MainFrame
@@ -56,7 +55,7 @@ local function setupSettingButton(button, setting, previousSetting)
     end
 end
 
-dataInitEvent.OnClientEvent:Connect(function(data)
+dataInitEvent.Event:Connect(function(data)
     -- validate if settings exist based on initial data
     local settingsTable = data.Settings
     for _, setting in pairs(settingsFolder:GetChildren()) do

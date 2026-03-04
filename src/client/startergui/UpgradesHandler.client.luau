@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService      = game:GetService("TweenService")
+local PlayersService = game:GetService("Players")
 
 local sharedFolder    = ReplicatedStorage.Shared
 local modulesFolder   = sharedFolder.Modules
@@ -8,17 +9,16 @@ local bindablesFolder = sharedFolder.Bindables
 local soundsFolder    = sharedFolder.Sounds
 
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
-local dataInitEvent   = remotesFolder.DataInitEvent
 local upgradeEvent    = remotesFolder.UpgradeEvent
 local upgradeReturnEvent = remotesFolder.UpgradeReturnEvent
 local sfxEvent        = bindablesFolder.SFXEvent
+local dataInitEvent = bindablesFolder.DataInitEvent
 
 local purchaseSound = soundsFolder.Interactive.PurchaseSuccess
 local errorSound    = soundsFolder.Interactive.PurchaseUnsuccessful
 
 local upgradeConfig  = require(modulesFolder.UpgradeConfig)
 local gameUtils      = require(modulesFolder.GameUtils)
-local gammaNum       = require(modulesFolder.GammaNum)
 
 local formulaFolder  = modulesFolder.UpgradeFormulas
 
@@ -26,7 +26,7 @@ local mainFrame     = script.Parent.MainUI.MainFrame
 local upgradesFrame = mainFrame.Menus.UpgradesFrame.Holder
 local upgradeTemplate = script.Parent.UpgradeTemplate
 
-local dataInitialised = false
+local dataInitialised = PlayersService.LocalPlayer:WaitForChild("DataInitialised")
 
 local upgradeState: {[string]: number} = {}
 
@@ -234,9 +234,8 @@ local function populateUpgrades()
     end
 end
 
-dataInitEvent.OnClientEvent:Connect(function(data)
-    if dataInitialised then return end
-    dataInitialised = true
+dataInitEvent.Event:Connect(function(data)
+    if dataInitialised == "true" then return end
     for upgradeKey, tier in pairs(data.Upgrades) do
         local config = upgradeConfig[upgradeKey]
         upgradeState[upgradeKey] = tier

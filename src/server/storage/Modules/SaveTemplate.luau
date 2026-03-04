@@ -12,6 +12,9 @@ return {
         TimePlayed = 0,
         ReduceLevelCost = 0,
         BaseBoost = 0,
+        Recursion = 0,
+        Exponents = 0,
+        FlatRate = 0,
         RemoveDebounce = false,
     },
     Settings = {

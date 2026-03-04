@@ -1,19 +1,20 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local PlayersService = game:GetService("Players")
 
 local remotesFolder, modulesFolder, bindablesFolder = ReplicatedStorage.Shared.Remotes, ReplicatedStorage.Shared.Modules, ReplicatedStorage.Shared.Bindables
 local soundsFolder = ReplicatedStorage.Shared.Sounds
 local clickEvent = remotesFolder.ClickEvent
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
-local dataInitEvent = remotesFolder.DataInitEvent
 local clickFXEvent = remotesFolder.ClickFXEvent
 local sfxEvent = bindablesFolder.SFXEvent
+local dataInitEvent = bindablesFolder.DataInitEvent
 
 local mainUI = script.Parent.MainUI
 local textFrame, clicksFrame = mainUI.MainFrame.TextFrame, mainUI.MainFrame.ClicksFrame
 local clicksLabel = clicksFrame.ClicksLabel
 
-local dataInitialised = false
+local dataInitialised = PlayersService.LocalPlayer:WaitForChild("DataInitialised")
 local debounce = false
 
 local originalSize = mainUI.ClickButton.Size
@@ -28,7 +29,7 @@ local function updateText(clicks)
     clicksLabel.Text = "clicks: " .. gameUtils:FormatNum(clicks)
 end
 
-dataInitEvent.OnClientEvent:Connect(function(data)
+dataInitEvent.Event:Connect(function(data)
     task.wait(0.5)
     print("[ClicksHandler]: Click-related functions are now enabled")
     dataInitialised = true

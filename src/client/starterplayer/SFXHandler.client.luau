@@ -4,7 +4,7 @@ local TweenService = game:GetService("TweenService")
 local sharedFolder = ReplicatedStorage.Shared
 local modulesFolder, remotesFolder, bindablesFolder, soundsFolder = sharedFolder.Modules, sharedFolder.Remotes, sharedFolder.Bindables, sharedFolder.Sounds
 
-local dataInitEvent = remotesFolder.DataInitEvent
+local dataInitEvent = bindablesFolder.DataInitEvent
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
 local sfxEvent = bindablesFolder.SFXEvent
 local stopSfxEvent = bindablesFolder.StopSFXEvent
@@ -19,7 +19,7 @@ local bgSound
 
 local activeSounds = {}
 
-dataInitEvent.OnClientEvent:Connect(function(data)
+dataInitEvent.Event:Connect(function(data)
 
     bgMusicEnabled = data.Settings.BGMusic
     sfxEnabled = data.Settings.SFX
