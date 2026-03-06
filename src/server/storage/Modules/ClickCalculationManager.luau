@@ -155,7 +155,7 @@ function Handlers.Rebirth(player, config)
     local expnt = toGamma(rebirths)
 
     if gammaNum.eq(expnt, ZERO) then return ONE end
-    return gammaPow(base, expnt)
+    return gammaMul(base, expnt)
 end
 
 -- ─── core calculation ────────────────────────────────────────────────────────
