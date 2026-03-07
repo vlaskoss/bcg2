@@ -38,12 +38,20 @@ $$E = 1.3 + \frac{(\log_{10}(\text{level}))^2}{10}$$
 $$\text{Cost} = \lfloor 10 \times \text{level}^E \rfloor$$
 
 
-* **level**: the level that you want to find the cost for.
+* **level**: the level that you want to find the cost for, which ingame is the player's current level + 1.
 * **E**: the scaling exponent (starts at 1.3 and grows logarithmically).
 * **$\lfloor \dots \rfloor$**: floor function, rounds to nearest integer.
 
+10 is the base cost of Level 2.
+
 ## rebirths
 
+$$L_{\text{max}} = \min\left( 1000000, \text{round}(100 \times 1.25^R) \right)$$
+
+* **L**: the level amount required to rebirth.
+* **R**: the current amount of rebirths the player has.
+
+100 is the base level for Rebirths, increasing 25% each time and capping at level 1,000,000
 ## upgrades
 Upgrades are found in the [UpgradeFormulas folder](src/shared/Modules/UpgradeFormulas/)
 
