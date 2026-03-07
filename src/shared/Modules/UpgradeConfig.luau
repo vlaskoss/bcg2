@@ -110,7 +110,7 @@ return {
         Description = "Multiplies your clicks based on your total playtime.",
         IsPermanent = true,
         RequiredUpgrade = "ClickMultiplier",
-        RequiredUpgradeTier = 2,
+        RequiredUpgradeTier = 5,
     },
     ["ReduceLevelCost"] = {
         Type        = "Tiered",
@@ -151,7 +151,7 @@ return {
         RelatedStat = "BaseBoost",
         CostFormula = "BaseBoostCost",
         DisplayName = "Back to Basics",
-        Description = "+10 base clicks per tier.",
+        Description = "+5 base clicks per tier.",
         IsPermanent = false,
         RequiredLevel = 10,
     },
@@ -193,13 +193,24 @@ return {
         Priority = 9,
         StatType = "Upgrade",
         RelatedStat = "FlatRate",
-        Cost = gammaNum.fromNumber(5000),
+        Cost = gammaNum.fromNumber(1000),
         DisplayName = "Flat Rate",
         Description = "A flat 1.5x clicks multiplier!",
         IsPermanent = false,
         RequiredLevel = 10
-    }
+    },
 
+    ["Base2"] = {
+        Type = "Tiered",
+        Priority = 10,
+        StatType = "Upgrade",
+        RelatedStat = "Base2",
+        CostFormula = "Base2Cost",
+        DisplayName = "Base 2",
+        Description = "Cost increases 2x per upgrade, but so do clicks!",
+        IsPermanent = false,
+        RequiredLevel = 100
+    }
 
     --[[
         EXAMPLE: upgrade locked behind another upgrade
