@@ -91,7 +91,6 @@ local function PlayerAdded(player: Player)
 
 			dataInitReturnEvent.OnServerEvent:Connect(function(player)
 				dataInitReturnTable[player.UserId] = true
-				print("Player" .. player.Name .. "has returned the data init event")
 			end)
 			
 			
