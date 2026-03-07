@@ -46,10 +46,10 @@ The levelling cost formula is found in [LevelCost.luau](src/shared/Modules/Upgra
 
 ## rebirths
 
-$$\text{level} = \min\left(1000000,\text{round}(100 \times 1.25^rebirths)\right)$$
+$$\text{level} = \min\left(1000000,\text{round}(100 \times 1.25^R)\right)$$
 
 * **level**: the level required to rebirth.
-* **rebirths**: the current amount of rebirths the player has.
+* **R**: the current amount of rebirths the player has.
 
 100 is the base level for Rebirths, increasing 25% each time and capping at level 1,000,000
 The level calculation formula for Rebirths is found in [GameUtils.luau](src/shared/Modules/GameUtils.luau)
@@ -57,9 +57,45 @@ The level calculation formula for Rebirths is found in [GameUtils.luau](src/shar
 ## upgrades
 Upgrades are found in the [UpgradeFormulas folder](src/shared/Modules/UpgradeFormulas/)
 
-$$C = \begin{cases} 50, & \text{if } T = 0 \\ 50 \times 10^T, & \text{if } T > 0 \end{cases}$$
+The current upgrades (excluding Levels) are:
+* AutoClicker (Autoclicker #)
+* TimePlayed (The Long Game)
+* ReduceLevelCost (Deflation)
+* ClickMultiplier (#+1x Clicks)
+* BaseBoost (Back to Basics)
+* Recursion (Recursion)
+* Exponents (Exponents!)
+* Base2 (Base 2)
 
-TEST
+
+
+#### AutoClicker
+$$\text{Cost} = 50 \times 10^T$$
+
+#### TimePlayed
+$$\text{Cost} = 5000$$
+
+multiplier
+$$\text{Multiplier} = 1 + \frac{\sqrt{t}}{30}$$
+
+#### ReduceLevelCost
+$$\text{Cost} = 1000 \times 1000^T$$
+
+#### ClickMultiplier
+$$\text{Cost} = 100 \times 10^T$$
+
+#### BaseBoost
+$$\text{Cost} = 500 \times 2^T$$
+
+#### Recursion
+$$\text{Cost} = 10000 \times 50^T$$
+
+#### Exponents
+$$\text{Cost} = 1000000 \times 1000^T$$
+
+#### Base2
+$$\text{Cost} = 512 \times 2^T$$
+
 
 SIX SEVEN!
 
