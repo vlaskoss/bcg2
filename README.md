@@ -70,12 +70,13 @@ The current upgrades (excluding Levels) are:
 
 
 #### AutoClicker
-$$\text{Cost} = 50 \times 10^T$$
+\text{Cost} = 50 \times 10^T
 
 #### TimePlayed
-$$\text{Cost} = 5000$$
+\text{Cost} = 5000
 
 multiplier
+
 $$\text{Multiplier} = 1 + \frac{\sqrt{t}}{30}$$
 
 #### ReduceLevelCost
