@@ -1,10 +1,10 @@
 # bcg
 
 
-basic clicking game / bcg is a Roblox game made in Luau inspired by games like Cookie Clicker and Everything Upgrade Tree. Use it as a template or anything, really.
+basic clicking game / bcg is a Roblox game made in Luau inspired by games like Cookie Clicker and Everything Upgrade Tree. Use it as a template or anything, really. I'm using this repo to learn more about versioning in Git.
 
 Features:
-- modular upgrades and multiplier config
+- modular upgrades, badges and multiplier config
 - robust data saving based on ProfileStore
 - numbers up to 10↑↑2^1024 using GammaNum (thankyou Valkzius)
 - modify players' currency securely and easily with integrated Cmdr
@@ -26,6 +26,28 @@ rojo serve
 ```
 
 For more help, check out [the Rojo documentation](https://rojo.space/docs).
+
+
+# formulas
+
+bcg uses many formulas for the different upgrades ingame. Here is a list of each upgrade and their corresponding formula.
+
+## levels
+
+$$E = 1.3 + \frac{(\log_{10}(\text{level}))^2}{10}$$
+$$\text{Cost} = \lfloor 10 \times \text{level}^E \rfloor$$
+
+
+* **level**: the level that you want to find the cost for.
+* **E**: the scaling exponent (starts at 1.3 and grows logarithmically).
+* **$\lfloor \dots \rfloor$**: floor function, rounds to nearest integer.
+
+## rebirths
+
+## upgrades
+Upgrades are found in the [UpgradeFormulas folder](src/shared/Modules/UpgradeFormulas/)
+
+
 
 SIX SEVEN!
 
