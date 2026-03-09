@@ -21,6 +21,9 @@ local dataUpdateBindable = bindablesFolder.DataUpdateBindable
 
 local STAT_TRIGGERS = {}
 
+STAT_TRIGGERS["Exponents"] = true
+STAT_TRIGGERS["Recursion"] = true
+STAT_TRIGGERS["Base2"] = true
 STAT_TRIGGERS["TotalTime"] = true
 STAT_TRIGGERS["TimePlayed"] = true
 STAT_TRIGGERS["BaseBoost"] = true
