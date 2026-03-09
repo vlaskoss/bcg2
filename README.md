@@ -61,7 +61,7 @@ The current upgrades (excluding Levels) are:
 * AutoClicker (Autoclicker #)
 * TimePlayed (The Long Game)
 * ReduceLevelCost (Deflation)
-* ClickMultiplier (#+1x Clicks)
+* ClickMultiplier ((#+1)x Clicks)
 * BaseBoost (Back to Basics)
 * Recursion (Recursion)
 * Exponents (Exponents!)
@@ -92,7 +92,7 @@ $$\text{Cost} = 10000 \times 50^T$$
 $$\text{Cost} = 1000000 \times 1000^T$$
 
 #### Base2
-$$\text{Cost} = 512 \times 2^T$$
+$$\text{Cost} = 256 \times 2^T$$
 
 
 SIX SEVEN!

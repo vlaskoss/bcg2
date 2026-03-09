@@ -34,7 +34,6 @@ dataInitEvent.Event:Connect(function(data)
     print("[ClicksHandler]: Click-related functions are now enabled")
     dataInitialised = true
     updateText(data.Clicks)
-    print(data.Settings.VFX)
     vfxEnabled = data.Settings.VFX
 end)
 
