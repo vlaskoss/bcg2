@@ -64,11 +64,12 @@ function Handlers.Flat(player, config)
     return toGamma(config.Value or 0)
 end
 
+
+
 function Handlers.Base2(player, config)
     local tier = dataManager:GetUpgrade(player, config.Upgrade)
     if not tier or tier < 1 then return nil end
     local perUpgrade = gammaPow(tier, 2)
-    print(perUpgrade)
     return perUpgrade
 end
 
@@ -99,18 +100,20 @@ function Handlers.Recursion(player, config)
 end
 
 function Handlers.TimePlayed(player, config)
+    local tier
     if config.RequiredUpgrade then
         local tier = dataManager:GetUpgrade(player, config.RequiredUpgrade)
         if not tier or tier < 1 then return nil end
     end
 
-    local time = dataManager:GetStatistic(player, config.Stat)  -- was RetrieveAmount
+    local time = dataManager:GetStatistic(player, config.Stat) 
     if not time then return nil end
 
     local t        = toGamma(time)
     local sqrtTime = gammaPow(t, toGamma(0.5))
     local scaled   = gammaNum.div(sqrtTime, toGamma(30))
-    return gammaAdd(scaled, ONE)
+    local afterTierCalculation = gammaMul(scaled, gammaNum.div(tier, 2))
+    return gammaAdd(afterTierCalculation, ONE)
 end
 
 -- Linear: stat * ValuePerUnit
