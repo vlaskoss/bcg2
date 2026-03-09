@@ -1,6 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local gammaNum = require(ReplicatedStorage.Shared.Modules.GammaNum)
-local baseCost = gammaNum.fromNumber(512)
+local baseCost = gammaNum.fromNumber(256)
 local costMultiplier = gammaNum.fromNumber(2)
 
 return function (tier)

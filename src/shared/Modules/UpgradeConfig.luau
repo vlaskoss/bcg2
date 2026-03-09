@@ -197,7 +197,7 @@ return {
         DisplayName = "Base 2",
         Description = "Cost increases 2x per upgrade, but so do clicks!",
         IsPermanent = false,
-        RequiredLevel = 100
+        RequiredLevel = 50
     }
 
     --[[
