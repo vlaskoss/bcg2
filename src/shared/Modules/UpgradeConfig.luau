@@ -54,6 +54,7 @@
                    Optional server-side callback fired after a successful purchase.
 --]]
 
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local gammaNum = require(ReplicatedStorage.Shared.Modules.GammaNum)
 
@@ -101,7 +102,7 @@ return {
         RequiredLevel = 2,
     },
     ["TimePlayed"] = {
-        Type        = "Single",
+        Type        = "Tiered",
         Priority    = 3,
         StatType    = "Upgrade",
         RelatedStat = "TimePlayed",
@@ -144,8 +145,8 @@ return {
     },
 
     ["BaseBoost"] = {
-        Type        = "Tiered",
-        MaxTier     = 5,
+        Type        = "Finite",
+        MaxLevel     = 5,
         Priority    = 6,
         StatType    = "Upgrade",
         RelatedStat = "BaseBoost",
@@ -194,12 +195,41 @@ return {
         StatType = "Upgrade",
         RelatedStat = "Base2",
         CostFormula = "Base2Cost",
-        DisplayName = "Base 2",
+        DisplayName = function(current)
+            if current >= 1 then
+                return `Base 2 ({current})`
+            else
+                return "Base 2"
+            end
+        end,
         Description = "Cost increases 2x per upgrade, but so do clicks!",
         IsPermanent = false,
         RequiredLevel = 50
-    }
+    },
 
+    ["RemoveClickDebounce"] = {
+        Type = "Single",
+        Priority = 11,
+        StatType = "Upgrade",
+        RelatedStat = "RemoveClickDebounce",
+        Cost = gammaNum.fromNumber(50000),
+        DisplayName = "Freedom",
+        Description = "Removes the click debounce for manual clicks!",
+        IsPermanent = true,
+        RequiredLevel = 75
+    },
+
+    ["LevelMultibuy"] = {
+        Type = "Single",
+        Priority = 11,
+        StatType = "Upgrade",
+        RelatedStat = "LevelMultibuy",
+        Cost = gammaNum.fromNumber(25000),
+        DisplayName = "Freedom",
+        Description = "Removes the click debounce for manual clicks!",
+        IsPermanent = true,
+        RequiredLevel = 75
+    }
     --[[
         EXAMPLE: upgrade locked behind another upgrade
 
