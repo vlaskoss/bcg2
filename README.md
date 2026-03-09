@@ -74,7 +74,7 @@ $$\text{Cost} = 50 \times 10^T$$
 
 #### TimePlayed
 $$\text{Cost} = 5000$$
-$$\text{Multiplier} = 1 + \frac{\sqrt{t}}{30}$$
+$$\text{Multiplier} = 1 + \frac{\sqrt{seconds}}{30}$$
 
 #### ReduceLevelCost
 $$\text{Cost} = 1000 \times 1000^T$$
