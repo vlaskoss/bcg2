@@ -1,10 +1,10 @@
 # bcg
 
 
-basic clicking game / bcg is a Roblox game made in Luau inspired by games like Cookie Clicker and Everything Upgrade Tree. Use it as a template or anything, really.
+basic clicking game / bcg is a Roblox game made in Luau inspired by games like Cookie Clicker and Everything Upgrade Tree. Use it as a template or anything, really. I'm using this repo to learn more about versioning in Git.
 
 Features:
-- modular upgrades and multiplier config
+- modular upgrades, badges and multiplier config
 - robust data saving based on ProfileStore
 - numbers up to 10↑↑2^1024 using GammaNum (thankyou Valkzius)
 - modify players' currency securely and easily with integrated Cmdr
@@ -26,6 +26,74 @@ rojo serve
 ```
 
 For more help, check out [the Rojo documentation](https://rojo.space/docs).
+
+
+# formulas
+
+bcg uses many formulas for the different upgrades ingame. Here is a list of each upgrade and their corresponding formula.
+
+## levels
+
+$$E = 1.3 + \frac{(\log_{10}(\text{level}))^2}{10}$$
+$$\text{Cost} = \lfloor 10 \times \text{level}^E \rfloor$$
+
+* **level**: the level that you want to find the cost for, which ingame is the player's current level + 1.
+* **E**: the scaling exponent (starts at 1.3 and grows logarithmically).
+* **$\lfloor \dots \rfloor$**: floor function, rounds to nearest integer.
+
+10 is the base cost of Level 2.\
+The levelling cost formula is found in [LevelCost.luau](src/shared/Modules/UpgradeFormulas/LevelCost.luau)
+
+## rebirths
+
+$$\text{level} = \min\left(1000000,\text{round}(100 \times 1.25^R)\right)$$
+
+* **level**: the level required to rebirth.
+* **R**: the current amount of rebirths the player has.
+
+100 is the base level for Rebirths, increasing 25% each time and capping at level 1,000,000.\
+The level calculation formula for Rebirths is found in [GameUtils.luau](src/shared/Modules/GameUtils.luau)
+
+## upgrades
+Upgrades are found in the [UpgradeFormulas folder](src/shared/Modules/UpgradeFormulas/)
+
+The current upgrades (excluding Levels) are:
+* AutoClicker (Autoclicker #)
+* TimePlayed (The Long Game)
+* ReduceLevelCost (Deflation)
+* ClickMultiplier (#+1x Clicks)
+* BaseBoost (Back to Basics)
+* Recursion (Recursion)
+* Exponents (Exponents!)
+* Base2 (Base 2)
+
+
+
+#### AutoClicker
+$$\text{Cost} = 50 \times 10^T$$
+
+#### TimePlayed
+$$\text{Cost} = 5000$$
+$$\text{Multiplier} = 1 + \frac{\sqrt{seconds}}{30}$$
+
+#### ReduceLevelCost
+$$\text{Cost} = 1000 \times 1000^T$$
+
+#### ClickMultiplier
+$$\text{Cost} = 100 \times 10^T$$
+
+#### BaseBoost
+$$\text{Cost} = 500 \times 2^T$$
+
+#### Recursion
+$$\text{Cost} = 10000 \times 50^T$$
+
+#### Exponents
+$$\text{Cost} = 1000000 \times 1000^T$$
+
+#### Base2
+$$\text{Cost} = 512 \times 2^T$$
+
 
 SIX SEVEN!
 

@@ -110,7 +110,7 @@ return {
         Description = "Multiplies your clicks based on your total playtime.",
         IsPermanent = true,
         RequiredUpgrade = "ClickMultiplier",
-        RequiredUpgradeTier = 2,
+        RequiredUpgradeTier = 9,
     },
     ["ReduceLevelCost"] = {
         Type        = "Tiered",
@@ -122,7 +122,7 @@ return {
         DisplayName = "Deflation",
         Description = "Reduces level cost by 0.01x (additive) per tier.",
         IsPermanent = true,
-        RequiredLevel = 15,
+        RequiredLevel = 25,
     },
 
     ["ClickMultiplier"] = {
@@ -140,7 +140,7 @@ return {
         Tiers = {
             [1] = { Description = "A small 2x clicks multiplier." },
         },
-        RequiredLevel = 2,
+        RequiredLevel = 5,
     },
 
     ["BaseBoost"] = {
@@ -151,9 +151,9 @@ return {
         RelatedStat = "BaseBoost",
         CostFormula = "BaseBoostCost",
         DisplayName = "Back to Basics",
-        Description = "+10 base clicks per tier.",
+        Description = "+5 base clicks per tier.",
         IsPermanent = false,
-        RequiredLevel = 10,
+        RequiredLevel = 15,
     },
 
     ["Recursion"] = {
@@ -169,7 +169,7 @@ return {
             [1] = {Description = "Multiplies clicks by the number of clicks you currently have."}
         },
         IsPermanent = false,
-        RequiredLevel = 50
+        RequiredLevel = 125
     },
     
     ["Exponents"] = {
@@ -188,18 +188,17 @@ return {
         RequiredLevel = 100
     },
 
-    ["FlatRate"] = {
-        Type = "Single",
-        Priority = 9,
+    ["Base2"] = {
+        Type = "Tiered",
+        Priority = 10,
         StatType = "Upgrade",
-        RelatedStat = "FlatRate",
-        Cost = gammaNum.fromNumber(5000),
-        DisplayName = "Flat Rate",
-        Description = "A flat 1.5x clicks multiplier!",
+        RelatedStat = "Base2",
+        CostFormula = "Base2Cost",
+        DisplayName = "Base 2",
+        Description = "Cost increases 2x per upgrade, but so do clicks!",
         IsPermanent = false,
-        RequiredLevel = 10
+        RequiredLevel = 50
     }
-
 
     --[[
         EXAMPLE: upgrade locked behind another upgrade

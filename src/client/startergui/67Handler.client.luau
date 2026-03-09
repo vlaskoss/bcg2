@@ -4,6 +4,7 @@ local PlayersService = game:GetService("Players")
 local sharedFolder = ReplicatedStorage.Shared
 local soundsFolder = sharedFolder.Sounds.sixseven
 
+local dataInitEvent = sharedFolder.Bindables.DataInitEvent
 local dataUpdateEvent = sharedFolder.Remotes.DataUpdateEvent
 local sfxEvent = sharedFolder.Bindables.SFXEvent
 local stopSFXEvent = sharedFolder.Bindables.StopSFXEvent
@@ -13,6 +14,7 @@ local gammaNum = require(sharedFolder.Modules.GammaNum)
 local defaultRandom = Random.new()
 
 local debounce = false
+local vfxEnabled
 
 local function randomColor(random: Random?)
     local rng = random or defaultRandom
@@ -58,8 +60,17 @@ local messages = {
 
 local screenUI = setUpUI()
 
+dataInitEvent.Event:Connect(function(data)
+    vfxEnabled = data.Settings.VFX
+end)
+
+
 dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
-    if debounce == false then
+    if updatedCurrency == "VFX" then
+        vfxEnabled = data.Settings.VFX
+    end
+
+    if debounce == false and vfxEnabled == true then
         if updatedCurrency == "Clicks" then
             if gammaNum.eq(data[updatedCurrency], 67) then
                 sfxEvent:Fire(soundsFolder.sixseven, 10, true, soundsFolder.sixseven.Name)

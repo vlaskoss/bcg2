@@ -67,20 +67,12 @@ return {
         Type         = "PerUpgrade",
         Category     = "Base",
         Upgrade      = "BaseBoost",
-        ValuePerTier =  10
+        ValuePerTier =  5
     },
 
     ---------------------------------------------------------------------------
     -- FINAL multipliers  (multiplied together and applied to the base total)
     ---------------------------------------------------------------------------
-    ["FlatRateMultiplier"] = {
-        Type = "PerUpgrade",
-        Category = "Final",
-        Upgrade = "FlatRate",
-        Steps = {
-            [1] = 1.5
-        }
-    },
     
     ["ClickMultiplier"] = {
         Type     = "PerUpgrade",
@@ -117,6 +109,12 @@ return {
         Type = "Recursion",
         Category = "Final",
         Upgrade = "Recursion"
+    },
+
+    ["Base2Multiplier"] = {
+        Type = "Base2",
+        Category = "Base",
+        Upgrade = "Base2",
     },
 
     ["ExponentsMultiplier"] = {

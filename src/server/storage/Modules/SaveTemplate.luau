@@ -16,6 +16,7 @@ return {
         Exponents = 0,
         FlatRate = 0,
         RemoveDebounce = false,
+        Base2 = 0,
     },
     Settings = {
         BGMusic = true,

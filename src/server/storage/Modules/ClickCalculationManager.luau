@@ -64,6 +64,15 @@ function Handlers.Flat(player, config)
     return toGamma(config.Value or 0)
 end
 
+function Handlers.Base2(player, config)
+    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+    if not tier or tier < 1 then return nil end
+    local perUpgrade = gammaPow(tier, 2)
+    print(perUpgrade)
+    return perUpgrade
+end
+
+
 function Handlers.Exponents(player, config)
     local tier = dataManager:GetUpgrade(player, config.Upgrade)
     if not tier or tier < 1 then return nil end
@@ -155,7 +164,7 @@ function Handlers.Rebirth(player, config)
     local expnt = toGamma(rebirths)
 
     if gammaNum.eq(expnt, ZERO) then return ONE end
-    return gammaPow(base, expnt)
+    return gammaMul(base, expnt)
 end
 
 -- ─── core calculation ────────────────────────────────────────────────────────
