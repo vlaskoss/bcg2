@@ -65,7 +65,7 @@ end
 
 local function isMaxed(config, currentTier)
     if config.Type == "Finite"  and currentTier >= (config.MaxLevel or math.huge) then return true end
-    if config.Type == "Single"  and currentTier >= 1                               then return true end
+    if config.Type == "Single"  and currentTier == true                             then return true end
     if config.Type == "Tiered"  and currentTier >= (config.MaxTier or (config.Tiers and #config.Tiers) or math.huge) then return true end
     return false
 end
@@ -157,7 +157,7 @@ local function getDescription(config, nextTier)
     end
     local desc = config.Description or "No description available."
     if config.IsPermanent then
-        desc = desc .. " [PERMANENT]"
+        desc = "[PERMANENT] " .. desc
     end
     return desc
 end

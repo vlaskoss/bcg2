@@ -59,8 +59,8 @@ local function meetsRequirements(player, config)
 end
 
 local function isMaxed(config, currentTier)
+    if config.Type == "Single" and dataManager:GetUpgrade(nil, nil) then return true end
     if config.Type == "Finite"   and currentTier >= (config.MaxLevel or math.huge) then return true end
-    if config.Type == "Single"   and currentTier >= 1                               then return true end
     if config.Type == "Tiered"   and currentTier >= (config.MaxTier or (config.Tiers and #config.Tiers) or math.huge) then return true end
     return false
 end
@@ -81,7 +81,16 @@ upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
     end
 
     local currentTier = getCurrentTier(player, upgradeKey, config)
-    if isMaxed(config, currentTier) then
+
+    -- Boolean upgrades are maxed if already set to true
+    if config.Type == "Single" then
+        local existing = dataManager:GetUpgrade(player, upgradeKey)
+        if existing == true then
+            warn(`[UpgradesHandler]: {player.Name} tried to buy already-owned boolean upgrade {upgradeKey}`)
+            upgradeReturnEvent:FireClient(player, upgradeKey, false, "maxed")
+            return
+        end
+    elseif isMaxed(config, currentTier) then
         warn(`[UpgradesHandler]: {player.Name} tried to buy maxed upgrade {upgradeKey}`)
         upgradeReturnEvent:FireClient(player, upgradeKey, false, "maxed")
         return
@@ -108,15 +117,21 @@ upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
 
     dataManager:DeductCurrency(player, "Clicks", cost)
 
+    local newTier
     if config.StatType == "Level" then
         dataManager:AddCurrency(player, config.RelatedStat, 1)
+        newTier = currentTier + 1
+    elseif config.Type == "Single" then
+        dataManager:SetUpgrade(player, upgradeKey, true)
+        newTier = true
     else
         dataManager:SetUpgrade(player, upgradeKey, currentTier + 1)
+        newTier = currentTier + 1
     end
 
     if config.OnUpgrade then
-        config.OnUpgrade(player, currentTier + 1)
+        config.OnUpgrade(player, newTier)
     end
-    upgradeReturnEvent:FireClient(player, upgradeKey, true, currentTier + 1)
-    print(`[UpgradesHandler]: {player.Name} purchased {upgradeKey} tier {currentTier + 1}`)
+    upgradeReturnEvent:FireClient(player, upgradeKey, true, newTier)
+    print(`[UpgradesHandler]: {player.Name} purchased {upgradeKey} -> {tostring(newTier)}`)
 end)
