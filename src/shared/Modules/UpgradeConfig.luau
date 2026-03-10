@@ -57,6 +57,7 @@
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local gammaNum = require(ReplicatedStorage.Shared.Modules.GammaNum)
+local gameUtils = require(ReplicatedStorage.Shared.Modules.GameUtils)
 
 return {
     ["Level"] = {
@@ -66,7 +67,7 @@ return {
         RelatedStat = "Level",
         CostFormula = "LevelCost",
         DisplayName = function(current)
-            return "Level " .. tostring(current)
+            return "Level " .. tostring(gameUtils:FormatSeparators(current))
         end,
         Description = "Increases the power of your clicks!",
         IsPermanent = false,
@@ -190,14 +191,14 @@ return {
     },
 
     ["Base2"] = {
-        Type = "Tiered",
+        Type = "Infinite",
         Priority = 10,
         StatType = "Upgrade",
         RelatedStat = "Base2",
         CostFormula = "Base2Cost",
         DisplayName = function(current)
             if current >= 1 then
-                return `Base 2 ({current})`
+                return `Base 2 ({gameUtils:FormatSeparators(current)})`
             else
                 return "Base 2"
             end
