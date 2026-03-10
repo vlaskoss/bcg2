@@ -106,10 +106,14 @@ return {
         Type        = "Tiered",
         Priority    = 3,
         StatType    = "Upgrade",
+        MaxTier = 50,
         RelatedStat = "TimePlayed",
-        Cost        = gammaNum.fromNumber(5000),
+        CostFormula = "TimePlayedCost",
         DisplayName = "The Long Game",
-        Description = "Multiplies your clicks based on your total playtime.",
+        Tiers = {
+            [1] = {Description = "Multiplies your clicks based on your total playtime."}
+        },
+        Description = "Upgrades the TimePlayed formula",
         IsPermanent = true,
         RequiredUpgrade = "ClickMultiplier",
         RequiredUpgradeTier = 9,
