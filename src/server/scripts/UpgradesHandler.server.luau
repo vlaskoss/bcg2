@@ -81,8 +81,7 @@ upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
     end
 
     local currentTier = getCurrentTier(player, upgradeKey, config)
-
-    -- Boolean upgrades are maxed if already set to true
+    
     if config.Type == "Single" then
         local existing = dataManager:GetUpgrade(player, upgradeKey)
         if existing == true then

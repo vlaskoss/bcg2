@@ -13,12 +13,14 @@ local clickCalculationManager = require(modulesFolder.ClickCalculationManager)
 local clickEvent = remotesFolder.ClickEvent
 
 clickEvent.OnServerEvent:Connect(function(player)
+    local removeClickDebounce = dataManager:GetUpgrade(player, "RemoveClickDebounce")
     if not player or not player.Parent then return end
     local userId = player.UserId
-    if debounceManager:IsDebounced(userId) then return end
-
-    debounceManager:AddPlayerDebounce(userId)
-
+    if not removeClickDebounce then
+        if debounceManager:IsDebounced(userId) then return end     
+        debounceManager:AddPlayerDebounce(userId)   
+    end
+    
     local baseAmount = 1
     local amountToGive = clickCalculationManager:Calculate(player, baseAmount)
     dataManager:AddCurrency(player, "Clicks", amountToGive)

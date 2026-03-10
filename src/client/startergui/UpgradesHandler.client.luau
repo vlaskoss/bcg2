@@ -165,8 +165,8 @@ end
 local function updateUI(upgradeUI, upgradeKey, config)
     if not dataInitialised then return end
     local currentTier = getCurrentTier(upgradeKey, config)
-    local nextTier    = currentTier + 1
     if isMaxed(config, currentTier) then return end
+    local nextTier    = currentTier + 1
     local maxed       = isMaxed(config, currentTier)
 
     local cost = getCost(config, currentTier)
