@@ -45,6 +45,7 @@ local ONE  = gammaNum.fromNumber(1)
 
 local function gammaAdd(a, b) return gammaNum.add(a, b) end
 local function gammaMul(a, b) return gammaNum.mul(a, b) end
+local function gammaDiv(a, b) return gammaNum.div(a, b) end
 local function gammaPow(a, b) return gammaNum.pow(a, b) end
 
 local function hasGamepass(player, gamepassId)
@@ -92,27 +93,24 @@ function Handlers.Recursion(player, config)
     if not clicks then return nil end
 
     local logClicks = gammaNum.log10(clicks)
-    local tierScale = gammaNum.div(tier, 4)
+    local tierScale = gammaDiv(tier, 4)
     local scaled = gammaMul(logClicks, tierScale)
     local multiplier = gammaAdd(scaled, ONE)
-    print(gammaNum.toSuffix(multiplier))
     return multiplier
 end
 
 function Handlers.TimePlayed(player, config)
-    local tier
-    if config.RequiredUpgrade then
-        local tier = dataManager:GetUpgrade(player, config.RequiredUpgrade)
-        if not tier or tier < 1 then return nil end
-    end
+    if not config.RequiredUpgrade then return nil end
+    local tier = dataManager:GetUpgrade(player, config.RequiredUpgrade)
+    if not tier or tier < 1 then return nil end
 
     local time = dataManager:GetStatistic(player, config.Stat) 
     if not time then return nil end
 
     local t        = toGamma(time)
     local sqrtTime = gammaPow(t, toGamma(0.5))
-    local scaled   = gammaNum.div(sqrtTime, toGamma(30))
-    local afterTierCalculation = gammaMul(scaled, gammaNum.div(tier, 2))
+    local scaled   = gammaDiv(sqrtTime, toGamma(30))
+    local afterTierCalculation = gammaMul(scaled, gammaDiv(tier, 2))
     return gammaAdd(afterTierCalculation, ONE)
 end
 
