@@ -18,7 +18,8 @@ return {
 
         -- booleans
         RemoveClickDebounce = false,
-
+        LevelMultibuy = false,
+        
     },
     Settings = {
         BGMusic = true,
