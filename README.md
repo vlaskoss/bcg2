@@ -61,7 +61,7 @@ The level calculation formula for Rebirths is found in [GameUtils.luau](src/shar
 Upgrades are found in the [UpgradeFormulas folder](src/shared/Modules/UpgradeFormulas/)
 
 The current upgrades (excluding Levels) are:
-* Internal Name (User-facing name)
+* Format: Internal Name (User-facing name)
 * AutoClicker (Autoclicker #)
 * TimePlayed (The Long Game)
 * ReduceLevelCost (Deflation)
@@ -72,6 +72,9 @@ The current upgrades (excluding Levels) are:
 * Base2 (Base 2)
 * RemoveClickDebounce (Freedom)
 
+Some upgrades do not have cost formulas due to them being single/boolean upgrades:
+* RemoveClickDebounce: 50,000 clicks
+* LevelMultibuy: 25,000 clicks (not implemented yet)
 
 #### AutoClicker
 $$\text{Cost} = 50 \times 10^T$$

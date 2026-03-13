@@ -224,7 +224,7 @@ return {
         RequiredLevel = 75
     },
 
-    ["LevelMultibuy"] = {
+    --[[["LevelMultibuy"] = {
         Type = "Single",
         Priority = 11,
         StatType = "Upgrade",
@@ -235,6 +235,7 @@ return {
         IsPermanent = true,
         RequiredLevel = 75
     }
+    ]]--
     --[[
         EXAMPLE: upgrade locked behind another upgrade
 
