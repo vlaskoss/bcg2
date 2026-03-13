@@ -93,7 +93,7 @@ function Handlers.Recursion(player, config)
     if not clicks then return nil end
 
     local logClicks = gammaNum.log10(clicks)
-    local tierScale = gammaDiv(tier, 10)
+    local tierScale = gammaDiv(tier, 20)
     local scaled = gammaMul(logClicks, tierScale)
     local multiplier = gammaAdd(scaled, ONE)
     return multiplier
