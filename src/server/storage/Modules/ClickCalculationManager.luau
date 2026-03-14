@@ -19,6 +19,7 @@
 local ServerStorage    = game:GetService("ServerStorage")
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage  = game:GetService("ReplicatedStorage")
+local PlayersService = game:GetService("Players")
 
 local serverFolder       = ServerStorage.Server
 local sharedFolder       = ReplicatedStorage.Shared
@@ -74,6 +75,28 @@ function Handlers.Base2(player, config)
     return perUpgrade
 end
 
+function Handlers.ExponentRecursion(player, config)
+    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+    if not tier or tier == false then return nil end
+
+    local clicks = dataManager:RetrieveAmount(player, "Clicks")
+    if not clicks then return nil end
+
+    local logClicks = gammaNum.log10(clicks)
+    local multiplier = gammaDiv(logClicks, 100)
+    
+    return multiplier
+end
+
+function Handlers.PyramidScheme(player, config)
+    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+    if not tier or tier == false then return nil end
+    
+    local numPlayers = #PlayersService:GetPlayers()
+    local perPlayer = gammaMul(numPlayers, 0.01)
+    
+    return perPlayer
+end
 
 function Handlers.Exponents(player, config)
     local tier = dataManager:GetUpgrade(player, config.Upgrade)
@@ -83,7 +106,6 @@ function Handlers.Exponents(player, config)
 
     return perUpgrade
 end
-
 
 function Handlers.Recursion(player, config)
     local tier = dataManager:GetUpgrade(player, config.Upgrade)
