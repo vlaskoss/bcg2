@@ -31,9 +31,9 @@ rojo serve
 For more help, check out [the Rojo documentation](https://rojo.space/docs).
 
 
-# formulas
+# key formulas
 
-bcg uses many formulas for the different upgrades ingame. Here is a list of each upgrade and their corresponding formula. These are not guaranteed to be up-to-date.
+bcg uses many formulas for the different upgrades ingame. Here are the main ones for levels and rebirths.
 
 ## levels
 
@@ -57,8 +57,11 @@ $$\text{level} = \min\left(1000000,\text{round}(100 \times 1.25^R)\right)$$
 100 is the base level for Rebirths, increasing 25% each time and capping at level 1,000,000.\
 The level calculation formula for Rebirths is found in [GameUtils.luau](src/shared/Modules/GameUtils.luau)
 
-## upgrades
-Upgrades are found in the [UpgradeFormulas folder](src/shared/Modules/UpgradeFormulas/)
+
+# upgrades
+Upgrades are found in [UpgradeConfig.luau](src/shared/Modules/UpgradeConfig.luau)
+Upgrade cost formulas are found in the [UpgradeFormulas folder](src/shared/Modules/UpgradeFormulas/)
+Associated upgrade multiplier formulas are found in [ClickCalculationManager.luau](src/server/storage/Modules/ClickCalculationManager.luau)
 
 The current upgrades (excluding Levels) are:
 * Format: Internal Name (User-facing name)
@@ -74,6 +77,9 @@ The current upgrades (excluding Levels) are:
 
 Some upgrades do not have cost formulas due to them being single/boolean upgrades:
 * RemoveClickDebounce: 50,000 clicks
+* PyramidScheme: 1,000,000 clicks
+* ExponentRecursion: 1,000,000,000 clicks
+* ServerAge: 250,000 clicks
 * LevelMultibuy: 25,000 clicks (not implemented yet)
 
 #### AutoClicker
@@ -85,18 +91,23 @@ $$\text{Multiplier} = 1 + \frac{\sqrt{seconds}}{30} \times \frac{T}{2}$$
 
 #### ReduceLevelCost
 $$\text{Cost} = 1000 \times 1000^T$$
+$$\text{FinalLevelCost} = \text{[Level formula](#levels)} \times \frac{100 - T}{100}$$
 
 #### ClickMultiplier
 $$\text{Cost} = 100 \times 10^T$$
+$$\text{Multiplier} = 1 + T$$
 
 #### BaseBoost
 $$\text{Cost} = 500 \times 2^T$$
+$$\text{Multiplier} = 5 \times T$$
 
 #### Recursion
 $$\text{Cost} = 10000 \times 50^T$$
 
+
 #### Exponents
 $$\text{Cost} = 1000000 \times 1000^T$$
+$$\text{Exponent} = 0.05 \times T$$
 
 #### Base2
 $$\text{Cost} = 256 \times 2^T$$
