@@ -19,6 +19,8 @@ return {
         -- booleans
         RemoveClickDebounce = false,
         LevelMultibuy = false,
+        PyramidScheme = false,
+        ExponentRecursion = false,
         
     },
     Settings = {

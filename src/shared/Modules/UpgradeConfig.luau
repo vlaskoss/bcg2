@@ -224,6 +224,30 @@ return {
         RequiredLevel = 75
     },
 
+    ["PyramidScheme"] = {
+        Type = "Single",
+        Priority = 12,
+        StatType = "Upgrade",
+        RelatedStat = "PyramidScheme",
+        Cost = gammaNum.fromNumber(1000000),
+        DisplayName = "Pyramid Scheme",
+        Description = "Get a +^.01 exponent for every player in the server!",
+        IsPermanent = true,
+        RequiredLevel = 125,
+    },
+
+    ["ExponentRecursion"] = {
+        Type = "Single",
+        Priority = 13,
+        StatType = "Upgrade",
+        RelatedStat = "Exponent Recursion",
+        Cost = gammaNum.fromNumber(1000000000),
+        DisplayName = "Recursion 2",
+        Description = "Adds an exponent based of the number of clicks you currently have.",
+        IsPermanent = true,
+        RequiredLevel = 150
+    }
+
     --[[["LevelMultibuy"] = {
         Type = "Single",
         Priority = 11,
