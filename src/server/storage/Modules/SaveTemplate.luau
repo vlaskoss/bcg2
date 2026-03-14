@@ -6,17 +6,22 @@ return {
     Level = 1,
     Rebirths = 0,
     Upgrades = {
+        -- numbers
         AutoClicker = 0,
-        ClickUpgrades = 0,
         ClickMultiplier = 0,
         TimePlayed = 0,
         ReduceLevelCost = 0,
         BaseBoost = 0,
         Recursion = 0,
         Exponents = 0,
-        FlatRate = 0,
-        RemoveDebounce = false,
         Base2 = 0,
+
+        -- booleans
+        RemoveClickDebounce = false,
+        LevelMultibuy = false,
+        PyramidScheme = false,
+        ExponentRecursion = false,
+        
     },
     Settings = {
         BGMusic = true,

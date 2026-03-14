@@ -3,6 +3,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PlayersService = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local sharedFolder = ReplicatedStorage.Shared
 local remotesFolder, bindablesFolder = sharedFolder.Remotes, sharedFolder.Bindables
@@ -21,9 +22,14 @@ local dataInitialised
 dataInitEvent.OnClientEvent:Connect(function(data)
     if dataInitialised == true then return end
     dataInitialised = true
-
-
     dataInitReturnEvent:FireServer()
+    if not game:IsLoaded() then
+        game.Loaded:Wait()
+    end
+    if RunService:IsStudio() then
+        task.wait(3.5)
+    end
+    
     dataInitBindable:Fire(data)
     dataInitialisedValue.Value = true
 end)

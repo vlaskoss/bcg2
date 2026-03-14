@@ -123,4 +123,21 @@ return {
         Upgrade = "Exponents"
     },
 
+    ["PyramidSchemeMultiplier"] = {
+        Type = "PyramidScheme",
+        Category = "Exponent",
+        Upgrade = "PyramidScheme"
+    },
+
+    ["ExponentRecursionMultiplier"] = {
+        Type = "ExponentRecursion",
+        Category = "Exponent",
+        Upgrade = "ExponentRecursion"
+    },
+
+    ["ServerAgeMultiplier"] = {
+        Type = "ServerAge",
+        Category = "Final",
+        Upgrade = "ServerAge"
+    }
     }

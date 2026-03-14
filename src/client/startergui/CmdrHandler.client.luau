@@ -1,4 +1,11 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Cmdr = require(ReplicatedStorage:WaitForChild("CmdrClient"))
 
-Cmdr:SetActivationKeys({ Enum.KeyCode.RightAlt })
+local bindablesFolder = ReplicatedStorage.Shared.Bindables
+
+local dataInitEvent = bindablesFolder.DataInitEvent
+
+local cmdrClient = require(ReplicatedStorage:WaitForChild("CmdrClient"))
+
+dataInitEvent.Event:Connect(function()
+    cmdrClient:SetActivationKeys({Enum.KeyCode.RightAlt})
+end)

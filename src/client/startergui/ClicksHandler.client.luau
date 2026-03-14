@@ -16,6 +16,7 @@ local clicksLabel = clicksFrame.ClicksLabel
 
 local dataInitialised = PlayersService.LocalPlayer:WaitForChild("DataInitialised")
 local debounce = false
+local removeClickDebounce
 
 local originalSize = mainUI.ClickButton.Size
 local tweenInfo = TweenInfo.new(0.05, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, true)
@@ -34,18 +35,22 @@ dataInitEvent.Event:Connect(function(data)
     print("[ClicksHandler]: Click-related functions are now enabled")
     dataInitialised = true
     updateText(data.Clicks)
-    print(data.Settings.VFX)
     vfxEnabled = data.Settings.VFX
+    removeClickDebounce = data.Upgrades.RemoveClickDebounce
 end)
 
 mainUI.ClickButton.MouseButton1Click:Connect(function()
     if dataInitialised then
         if not debounce then
-            debounce = true
+            if not removeClickDebounce then
+                debounce = true
+            end
             clickEvent:FireServer()
             task.spawn(function()
-                local tween = TweenService:Create(mainUI.ClickButton, tweenInfo, {Size = UDim2.new(originalSize.X.Scale* 1.05, 0, originalSize.Y.Scale * 1.05, 0)})
-                tween:Play()
+                if not removeClickDebounce then
+                    local tween = TweenService:Create(mainUI.ClickButton, tweenInfo, {Size = UDim2.new(originalSize.X.Scale* 1.05, 0, originalSize.Y.Scale * 1.05, 0)})
+                    tween:Play()
+                end
                 if vfxEnabled then
                     clickFXManager:Display(textFrame)                    
                 end
@@ -64,6 +69,8 @@ dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
         updateText(data[updatedCurrency])
     elseif updatedCurrency == "VFX" then
         vfxEnabled = data.Settings.VFX
+    elseif updatedCurrency == "RemoveClickDebounce" then
+        removeClickDebounce = data.Upgrades.RemoveClickDebounce
     end
 end)
 

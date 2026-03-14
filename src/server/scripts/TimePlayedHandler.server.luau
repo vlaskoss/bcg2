@@ -28,7 +28,7 @@ dataInitBindable.Event:Connect(function(player)
             local sessionDuration = os.time() - joinTime 
             local newTime = startingTime + sessionDuration
             dataManager:SetStatistic(player, "TotalTime", newTime)
-            task.wait(5)
+            task.wait(1)
         end
     end)
 end)

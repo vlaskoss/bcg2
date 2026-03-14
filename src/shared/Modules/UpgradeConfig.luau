@@ -54,8 +54,10 @@
                    Optional server-side callback fired after a successful purchase.
 --]]
 
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local gammaNum = require(ReplicatedStorage.Shared.Modules.GammaNum)
+local gameUtils = require(ReplicatedStorage.Shared.Modules.GameUtils)
 
 return {
     ["Level"] = {
@@ -65,7 +67,7 @@ return {
         RelatedStat = "Level",
         CostFormula = "LevelCost",
         DisplayName = function(current)
-            return "Level " .. tostring(current)
+            return "Level " .. tostring(gameUtils:FormatSeparators(current))
         end,
         Description = "Increases the power of your clicks!",
         IsPermanent = false,
@@ -101,13 +103,17 @@ return {
         RequiredLevel = 2,
     },
     ["TimePlayed"] = {
-        Type        = "Single",
+        Type        = "Tiered",
         Priority    = 3,
         StatType    = "Upgrade",
+        MaxTier = 50,
         RelatedStat = "TimePlayed",
-        Cost        = gammaNum.fromNumber(5000),
+        CostFormula = "TimePlayedCost",
         DisplayName = "The Long Game",
-        Description = "Multiplies your clicks based on your total playtime.",
+        Tiers = {
+            [1] = {Description = "Multiplies your clicks based on your total playtime."}
+        },
+        Description = "Upgrades the TimePlayed formula",
         IsPermanent = true,
         RequiredUpgrade = "ClickMultiplier",
         RequiredUpgradeTier = 9,
@@ -144,8 +150,8 @@ return {
     },
 
     ["BaseBoost"] = {
-        Type        = "Tiered",
-        MaxTier     = 5,
+        Type        = "Finite",
+        MaxLevel     = 5,
         Priority    = 6,
         StatType    = "Upgrade",
         RelatedStat = "BaseBoost",
@@ -189,17 +195,84 @@ return {
     },
 
     ["Base2"] = {
-        Type = "Tiered",
+        Type = "Infinite",
         Priority = 10,
         StatType = "Upgrade",
         RelatedStat = "Base2",
         CostFormula = "Base2Cost",
-        DisplayName = "Base 2",
+        DisplayName = function(current)
+            if current >= 1 then
+                return `Base 2 ({gameUtils:FormatSeparators(current)})`
+            else
+                return "Base 2"
+            end
+        end,
         Description = "Cost increases 2x per upgrade, but so do clicks!",
         IsPermanent = false,
         RequiredLevel = 50
-    }
+    },
 
+    ["RemoveClickDebounce"] = {
+        Type = "Single",
+        Priority = 11,
+        StatType = "Upgrade",
+        RelatedStat = "RemoveClickDebounce",
+        Cost = gammaNum.fromNumber(50000),
+        DisplayName = "Freedom",
+        Description = "Removes the click debounce for manual clicks!",
+        IsPermanent = true,
+        RequiredLevel = 75
+    },
+
+    ["PyramidScheme"] = {
+        Type = "Single",
+        Priority = 12,
+        StatType = "Upgrade",
+        RelatedStat = "PyramidScheme",
+        Cost = gammaNum.fromNumber(1000000),
+        DisplayName = "Pyramid Scheme",
+        Description = "Get a +^.01 exponent for every player in the server!",
+        IsPermanent = true,
+        RequiredLevel = 125,
+    },
+
+    ["ExponentRecursion"] = {
+        Type = "Single",
+        Priority = 13,
+        StatType = "Upgrade",
+        RelatedStat = "ExponentRecursion",
+        Cost = gammaNum.fromNumber(1000000000),
+        DisplayName = "Recursion 2",
+        Description = "Adds an exponent based of the number of clicks you currently have.",
+        IsPermanent = true,
+        RequiredLevel = 150
+    },
+
+    ["ServerAge"] = {
+        Type = "Single",
+        Priority = 14,
+        StatType = "Upgrade",
+        RelatedStat = "ServerAge",
+        Cost = gammaNum.fromNumber(250000),
+        DisplayName = "Old is Gold",
+        Description = "Multiplies your clicks based on the age of the server.",
+        IsPermanent = false,
+        RequiredLevel = 75
+    },
+
+
+    --[[["LevelMultibuy"] = {
+        Type = "Single",
+        Priority = 11,
+        StatType = "Upgrade",
+        RelatedStat = "LevelMultibuy",
+        Cost = gammaNum.fromNumber(25000),
+        DisplayName = "Freedom",
+        Description = "Removes the click debounce for manual clicks!",
+        IsPermanent = true,
+        RequiredLevel = 75
+    }
+    ]]--
     --[[
         EXAMPLE: upgrade locked behind another upgrade
 

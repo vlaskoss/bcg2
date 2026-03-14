@@ -1,3 +1,4 @@
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local PlayersService = game:GetService("Players")
@@ -35,6 +36,8 @@ local uiDefaults = {
     [clicksFrame] = {Visible = true, Position = UDim2.fromScale(0.5,-0.15)},
     [mainFrame] = {Visible = true}
 }
+
+ReplicatedFirst:RemoveDefaultLoadingScreen()
 
 local function timeoutCheck()
     task.wait(10)
