@@ -75,6 +75,17 @@ function Handlers.Base2(player, config)
     return perUpgrade
 end
 
+function Handlers.ServerAge(player, config)
+    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+    if not tier or tier == false then return nil end
+
+    local serverAge = toGamma(math.floor(time()))
+    local multiplier = gammaNum.log10(serverAge)
+
+    return multiplier
+end
+
+
 function Handlers.ExponentRecursion(player, config)
     local tier = dataManager:GetUpgrade(player, config.Upgrade)
     if not tier or tier == false then return nil end

@@ -240,13 +240,26 @@ return {
         Type = "Single",
         Priority = 13,
         StatType = "Upgrade",
-        RelatedStat = "Exponent Recursion",
+        RelatedStat = "ExponentRecursion",
         Cost = gammaNum.fromNumber(1000000000),
         DisplayName = "Recursion 2",
         Description = "Adds an exponent based of the number of clicks you currently have.",
         IsPermanent = true,
         RequiredLevel = 150
-    }
+    },
+
+    ["ServerAge"] = {
+        Type = "Single",
+        Priority = 14,
+        StatType = "Upgrade",
+        RelatedStat = "ServerAge",
+        Cost = gammaNum.fromNumber(250000),
+        DisplayName = "Old is Gold",
+        Description = "Multiplies your clicks based on the age of the server.",
+        IsPermanent = false,
+        RequiredLevel = 75
+    },
+
 
     --[[["LevelMultibuy"] = {
         Type = "Single",
