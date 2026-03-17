@@ -85,6 +85,8 @@ Some upgrades do not have cost formulas due to them being single/boolean upgrade
 * ServerAge: 250,000 clicks
 * LevelMultibuy: 25,000 clicks (not implemented yet)
 
+Upgrades that don't have either a cost / multiplier formula are not listed below.
+
 #### AutoClicker
 Upgrade Type: Tiered  
 
@@ -124,7 +126,7 @@ Upgrade Type: Tiered
 Multiplier Type: Final  
 
 $$\text{Cost} = 10000 \times 50^T$$
-$$\text{Multiplier} = 1 + \left( \log_{10}(\text{Clicks}) \cdot \frac{T}{20} \right)$$
+$$\text{Multiplier} = 1 + \left( \log_{10}(\text{Clicks}) \times \frac{T}{20} \right)$$
 
 #### Exponents
 Upgrade Type: Tiered  
@@ -139,11 +141,6 @@ Multiplier Type: Base
 
 $$\text{Cost} = 256 \times 2^T$$
 
-#### RemoveClickDebounce
-Upgrade Type: Single  
-
-$$\text{Cost} = 50000$$
-
 #### PyramidScheme
 Upgrade Type: Single  
 Multiplier Type: Exponent  
@@ -151,11 +148,9 @@ Multiplier Type: Exponent
 $$\text{Cost} = 1000000$$
 $$\text{Exponent} = 0.1 \times \text{Players}$$
 
-
-
 #### ExponentRecursion
 $$\text{Cost} = 1000000000$$
-$$\text{Exponent} = 
+$$\text{Exponent} = 1 + \frac{\log_{10}(\text{Clicks})}{100}$$
 
 SIX SEVEN!
 
