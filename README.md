@@ -59,8 +59,8 @@ The level calculation formula for Rebirths is found in [GameUtils.luau](src/shar
 
 
 # upgrades
-Upgrades are found in [UpgradeConfig.luau](src/shared/Modules/UpgradeConfig.luau)
-Upgrade cost formulas are found in the [UpgradeFormulas folder](src/shared/Modules/UpgradeFormulas/)
+Upgrades are found in [UpgradeConfig.luau](src/shared/Modules/UpgradeConfig.luau)  
+Upgrade cost formulas are found in the [UpgradeFormulas folder](src/shared/Modules/UpgradeFormulas/)  
 Associated upgrade multiplier formulas are found in [ClickCalculationManager.luau](src/server/storage/Modules/ClickCalculationManager.luau)
 
 The current upgrades (excluding Levels) are:
@@ -147,7 +147,7 @@ Upgrade Type: Single
 Multiplier Type: Exponent  
 
 $$\text{Cost} = 1000000$$
-$$\text{Exponent} = 0.1 \times \text{Players}$$
+$$\text{Exponent} = 0.01 \times \text{Players}$$
 
 #### ExponentRecursion
 Upgrade Type: Single  
