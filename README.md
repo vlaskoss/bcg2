@@ -86,70 +86,72 @@ Some upgrades do not have cost formulas due to them being single/boolean upgrade
 * LevelMultibuy: 25,000 clicks (not implemented yet)
 
 #### AutoClicker
+Upgrade Type: Tiered  
+
 $$\text{Cost} = 50 \times 10^T$$
 
-Upgrade Type: Tiered
-
 #### TimePlayed
+Upgrade Type: Tiered  
+Multiplier Type: Final  
+
 $$\text{Cost} = 5000$$
 $$\text{Multiplier} = 1 + \frac{\sqrt{seconds}}{30} \times \frac{T}{2}$$
 
-Upgrade Type: Tiered
-Multiplier Type: Final
-
 #### ReduceLevelCost
+Upgrade Type: Tiered  
+
 $$\text{Cost} = 1000 \times 1000^T$$  
 $$\text{FinalLevelCost} = \text{Level Formula} \times \frac{100 - T}{100}$$
 
 *See the [Level formula](#levels) for the base calculation.*
 
-Upgrade Type: Tiered
-
 #### ClickMultiplier
+Upgrade Type: Tiered  
+Multiplier Type: Final  
+
 $$\text{Cost} = 100 \times 10^T$$
 $$\text{Multiplier} = 1 + T$$
 
-Upgrade Type: Tiered
-Multiplier Type: Final
-
 #### BaseBoost
+Upgrade Type: Finite  
+Multiplier Type: Base  
+
 $$\text{Cost} = 500 \times 2^T$$
 $$\text{Multiplier} = 5 \times T$$
 
-Upgrade Type: Finite
-Multiplier Type: Base
-
 #### Recursion
+Upgrade Type: Tiered  
+Multiplier Type: Final  
+
 $$\text{Cost} = 10000 \times 50^T$$
 $$\text{Multiplier} = 1 + \left( \log_{10}(\text{Clicks}) \cdot \frac{T}{20} \right)$$
 
-Upgrade Type: Tiered
-Multiplier Type: Final
-
 #### Exponents
+Upgrade Type: Tiered  
+Multiplier Type: Exponent... say wallahi bro  
+
 $$\text{Cost} = 1000000 \times 1000^T$$
 $$\text{Exponent} = 0.05 \times T$$
 
-Upgrade Type: Tiered
-Multiplier Type: Exponent... say wallahi bro
-
 #### Base2
+Upgrade Type: Infinite  
+Multiplier Type: Base  
+
 $$\text{Cost} = 256 \times 2^T$$
 
-Upgrade Type: Infinite
-Multiplier Type: Base
-
 #### RemoveClickDebounce
+Upgrade Type: Single  
+
 $$\text{Cost} = 50000$$
 
-Upgrade Type: Single
-
 #### PyramidScheme
+Upgrade Type: Single  
+Multiplier Type: Exponent  
+
 $$\text{Cost} = 1000000$$
 $$\text{Exponent} = 0.1 \times \text{Players}$$
 
-Upgrade Type: Single
-Multiplier Type: Exponent
+
 
 #### ExponentRecursion
 $$\text{Cost} = 1000000000$$
