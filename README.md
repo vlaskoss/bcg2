@@ -74,6 +74,9 @@ The current upgrades (excluding Levels) are:
 * Exponents (Exponents!)
 * Base2 (Base 2)
 * RemoveClickDebounce (Freedom)
+* PyramidScheme (Pyramid Scheme)
+* ExponentRecursion (Recursion 2)
+* ServerAge (Old is Gold)
 
 Some upgrades do not have cost formulas due to them being single/boolean upgrades:
 * RemoveClickDebounce: 50,000 clicks
@@ -85,33 +88,72 @@ Some upgrades do not have cost formulas due to them being single/boolean upgrade
 #### AutoClicker
 $$\text{Cost} = 50 \times 10^T$$
 
+Upgrade Type: Tiered
+
 #### TimePlayed
 $$\text{Cost} = 5000$$
 $$\text{Multiplier} = 1 + \frac{\sqrt{seconds}}{30} \times \frac{T}{2}$$
 
+Upgrade Type: Tiered
+Multiplier Type: Final
+
 #### ReduceLevelCost
-$$\text{Cost} = 1000 \times 1000^T$$
-$$\text{FinalLevelCost} = \text{[Level formula](#levels)} \times \frac{100 - T}{100}$$
+$$\text{Cost} = 1000 \times 1000^T$$  
+$$\text{FinalLevelCost} = \text{Level Formula} \times \frac{100 - T}{100}$$
+
+*See the [Level formula](#levels) for the base calculation.*
+
+Upgrade Type: Tiered
 
 #### ClickMultiplier
 $$\text{Cost} = 100 \times 10^T$$
 $$\text{Multiplier} = 1 + T$$
 
+Upgrade Type: Tiered
+Multiplier Type: Final
+
 #### BaseBoost
 $$\text{Cost} = 500 \times 2^T$$
 $$\text{Multiplier} = 5 \times T$$
 
+Upgrade Type: Finite
+Multiplier Type: Base
+
 #### Recursion
 $$\text{Cost} = 10000 \times 50^T$$
+$$\text{Multiplier} = 1 + \left( \log_{10}(\text{Clicks}) \cdot \frac{T}{20} \right)$$
 
+Upgrade Type: Tiered
+Multiplier Type: Final
 
 #### Exponents
 $$\text{Cost} = 1000000 \times 1000^T$$
 $$\text{Exponent} = 0.05 \times T$$
 
+Upgrade Type: Tiered
+Multiplier Type: Exponent... say wallahi bro
+
 #### Base2
 $$\text{Cost} = 256 \times 2^T$$
 
+Upgrade Type: Infinite
+Multiplier Type: Base
+
+#### RemoveClickDebounce
+$$\text{Cost} = 50000$$
+
+Upgrade Type: Single
+
+#### PyramidScheme
+$$\text{Cost} = 1000000$$
+$$\text{Exponent} = 0.1 \times \text{Players}$$
+
+Upgrade Type: Single
+Multiplier Type: Exponent
+
+#### ExponentRecursion
+$$\text{Cost} = 1000000000$$
+$$\text{Exponent} = 
 
 SIX SEVEN!
 
