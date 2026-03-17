@@ -86,6 +86,7 @@ Some upgrades do not have cost formulas due to them being single/boolean upgrade
 * LevelMultibuy: 25,000 clicks (not implemented yet)
 
 Upgrades that don't have either a cost / multiplier formula are not listed below.
+$$\text{T} = \text{Current tier}
 
 #### AutoClicker
 Upgrade Type: Tiered  
@@ -149,8 +150,18 @@ $$\text{Cost} = 1000000$$
 $$\text{Exponent} = 0.1 \times \text{Players}$$
 
 #### ExponentRecursion
+Upgrade Type: Single  
+Multiplier Type: Exponent  
+
 $$\text{Cost} = 1000000000$$
-$$\text{Exponent} = 1 + \frac{\log_{10}(\text{Clicks})}{100}$$
+$$\text{Exponent} = \frac{\log_{10}(\text{Clicks})}{100}$$
+
+#### ServerAge
+Upgrade Type: Single  
+Multiplier Type: Final
+
+$$\text{Cost} = 250000$$
+$$\text{Exponent} = \frac{\log_{10}(\text{seconds})}{2}$$
 
 SIX SEVEN!
 
