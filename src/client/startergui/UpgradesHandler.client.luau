@@ -181,7 +181,6 @@ local function updateUI(upgradeUI, upgradeKey, config)
         finalCost = cost
     end
 
-    print(reduceLevelCost)
     upgradeUI.UpgradeNameLabel.Text  = getDisplayName(config, upgradeKey, nextTier, maxed)
     upgradeUI.InformationLabel.Text  = getDescription(config, nextTier)
     upgradeUI.CostLabel.Text         = "Cost: " .. gameUtils:FormatNum(finalCost) .. " clicks"
