@@ -85,8 +85,8 @@ Some upgrades do not have cost formulas due to them being single/boolean upgrade
 * ServerAge: 250,000 clicks
 * LevelMultibuy: 25,000 clicks (not implemented yet)
 
-Upgrades that don't have either a cost / multiplier formula are not listed below.
-$$\text{T} = \text{Current tier}
+Upgrades that don't have either a cost / multiplier formula are not listed below.  
+$$\text{T} = \text{Current tier}$$
 
 #### AutoClicker
 Upgrade Type: Tiered  
