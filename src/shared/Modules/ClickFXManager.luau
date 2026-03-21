@@ -2,6 +2,7 @@ local ClickFXManager = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PlayersService = game:GetService("Players")
+local CollectionService = game:GetService("CollectionService")
 
 local sharedFolder = ReplicatedStorage.Shared
 local modulesFolder = sharedFolder.Modules
@@ -24,6 +25,7 @@ local function createText(parent: Frame, text)
     label.BackgroundTransparency = 1
     label.FontFace = Font.new("rbxasset://fonts/families/Montserrat.json", Enum.FontWeight.Medium)
     label.TextTransparency = 1
+    CollectionService:AddTag(label, "VFX")
     return label
 end
 

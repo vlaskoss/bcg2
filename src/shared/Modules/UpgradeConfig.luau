@@ -61,9 +61,9 @@ local gameUtils = require(ReplicatedStorage.Shared.Modules.GameUtils)
 
 return {
     ["Level"] = {
-        Type        = "Infinite",
-        Priority    = 1,
-        StatType    = "Level",
+        Type = "Infinite",
+        Priority = 1,
+        StatType = "Level",
         RelatedStat = "Level",
         CostFormula = "LevelCost",
         DisplayName = function(current)
@@ -72,10 +72,27 @@ return {
         Description = "Increases the power of your clicks!",
         IsPermanent = false,
     },
+    ["Base2"] = {
+        Type = "Infinite",
+        Priority = 2,
+        StatType = "Upgrade",
+        RelatedStat = "Base2",
+        CostFormula = "Base2Cost",
+        DisplayName = function(current)
+            if current >= 1 then
+                return `Base 2 ({gameUtils:FormatSeparators(current)})`
+            else
+                return "Base 2"
+            end
+        end,
+        Description = "Cost increases 2x per upgrade, but so do clicks!",
+        IsPermanent = false,
+        RequiredLevel = 16
+    },
     ["AutoClicker"] = {
         Type        = "Tiered",
         MaxTier     = 15,
-        Priority    = 2,
+        Priority    = 3,
         StatType    = "Upgrade",
         RelatedStat = "AutoClicker",
         CostFormula = "AutoClickerCost",
@@ -118,19 +135,6 @@ return {
         RequiredUpgrade = "ClickMultiplier",
         RequiredUpgradeTier = 9,
     },
-    ["ReduceLevelCost"] = {
-        Type        = "Tiered",
-        MaxTier     = 50,
-        Priority    = 4,
-        StatType    = "Upgrade",
-        RelatedStat = "ReduceLevelCost",
-        CostFormula = "ReduceLevelCost",
-        DisplayName = "Deflation",
-        Description = "Reduces level cost by 0.01x (additive) per tier.",
-        IsPermanent = true,
-        RequiredLevel = 25,
-    },
-
     ["ClickMultiplier"] = {
         Type        = "Tiered",
         MaxTier     = 9,
@@ -194,23 +198,7 @@ return {
         RequiredLevel = 100
     },
 
-    ["Base2"] = {
-        Type = "Infinite",
-        Priority = 10,
-        StatType = "Upgrade",
-        RelatedStat = "Base2",
-        CostFormula = "Base2Cost",
-        DisplayName = function(current)
-            if current >= 1 then
-                return `Base 2 ({gameUtils:FormatSeparators(current)})`
-            else
-                return "Base 2"
-            end
-        end,
-        Description = "Cost increases 2x per upgrade, but so do clicks!",
-        IsPermanent = false,
-        RequiredLevel = 50
-    },
+
 
     ["RemoveClickDebounce"] = {
         Type = "Single",
@@ -259,7 +247,18 @@ return {
         IsPermanent = false,
         RequiredLevel = 75
     },
-
+    ["ReduceLevelCost"] = {
+        Type        = "Tiered",
+        MaxTier     = 50,
+        Priority    = 15,
+        StatType    = "Upgrade",
+        RelatedStat = "ReduceLevelCost",
+        CostFormula = "ReduceLevelCost",
+        DisplayName = "Deflation",
+        Description = "Reduces level cost by 0.01x (additive) per tier",
+        IsPermanent = true,
+        RequiredLevel = 40,
+    },
 
     --[[["LevelMultibuy"] = {
         Type = "Single",

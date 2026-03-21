@@ -80,7 +80,7 @@ function Handlers.ServerAge(player, config)
     if not tier or tier == false then return nil end
 
     local serverAge = toGamma(math.floor(time()))
-    local multiplier = gammaNum.log10(serverAge)
+    local multiplier = gammaDiv(gammaNum.log10(serverAge), 2)
 
     return multiplier
 end

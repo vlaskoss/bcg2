@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PlayersService = game:GetService("Players")
+local CollectionService = game:GetService("CollectionService")
 
 local sharedFolder = ReplicatedStorage.Shared
 local soundsFolder = sharedFolder.Sounds.sixseven
@@ -47,6 +48,7 @@ local function createText(parent: ScreenGui, text)
 	label.TextColor3 = randomColor()
 	label.BackgroundTransparency = 1
 	label.FontFace = Font.new("rbxasset://fonts/families/Montserrat.json", Enum.FontWeight.Bold)
+    CollectionService:AddTag(label, "VFX")
 	
     return label
 end
@@ -70,7 +72,7 @@ dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
         vfxEnabled = data.Settings.VFX
     end
 
-    if debounce == false and vfxEnabled == true then
+    if debounce == false then
         if updatedCurrency == "Clicks" then
             if gammaNum.eq(data[updatedCurrency], 67) then
                 sfxEvent:Fire(soundsFolder.sixseven, 10, true, soundsFolder.sixseven.Name)
@@ -83,9 +85,11 @@ dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
                     end)
                 end
                 for i=1, 1000 do
-                    task.wait()
-                    local randMsg = messages[math.random(1, #messages)]
-                    createText(screenUI, randMsg)
+                    if vfxEnabled then
+                        task.wait()
+                        local randMsg = messages[math.random(1, #messages)]
+                        createText(screenUI, randMsg)
+                    end
                 end
                 task.wait(5)
                 for i,v in pairs(soundsFolder:GetChildren()) do

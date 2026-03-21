@@ -1,7 +1,7 @@
 # bcg
 
 
-basic clicking game / bcg is a Roblox game made in Luau inspired by games like Cookie Clicker and Everything Upgrade Tree. bcg is a simple, modular clicker/incremental game made in under 3,000 LOC.
+basic clicking game / bcg is a Roblox game made in Luau inspired by games like Cookie Clicker and Everything Upgrade Tree. bcg is a simple, modular clicker/incremental game made in under 3,000 LOC (excluding level and multiplier configs).
 
 Use it as a template or anything, really. I'm using this repo to learn more about versioning in Git.
 
@@ -59,8 +59,8 @@ The level calculation formula for Rebirths is found in [GameUtils.luau](src/shar
 
 
 # upgrades
-Upgrades are found in [UpgradeConfig.luau](src/shared/Modules/UpgradeConfig.luau)
-Upgrade cost formulas are found in the [UpgradeFormulas folder](src/shared/Modules/UpgradeFormulas/)
+Upgrades are found in [UpgradeConfig.luau](src/shared/Modules/UpgradeConfig.luau)  
+Upgrade cost formulas are found in the [UpgradeFormulas folder](src/shared/Modules/UpgradeFormulas/)  
 Associated upgrade multiplier formulas are found in [ClickCalculationManager.luau](src/server/storage/Modules/ClickCalculationManager.luau)
 
 The current upgrades (excluding Levels) are:
@@ -74,6 +74,9 @@ The current upgrades (excluding Levels) are:
 * Exponents (Exponents!)
 * Base2 (Base 2)
 * RemoveClickDebounce (Freedom)
+* PyramidScheme (Pyramid Scheme)
+* ExponentRecursion (Recursion 2)
+* ServerAge (Old is Gold)
 
 Some upgrades do not have cost formulas due to them being single/boolean upgrades:
 * RemoveClickDebounce: 50,000 clicks
@@ -82,36 +85,83 @@ Some upgrades do not have cost formulas due to them being single/boolean upgrade
 * ServerAge: 250,000 clicks
 * LevelMultibuy: 25,000 clicks (not implemented yet)
 
+Upgrades that don't have either a cost / multiplier formula are not listed below.  
+$$\text{T} = \text{Current tier}$$
+
 #### AutoClicker
+Upgrade Type: Tiered  
+
 $$\text{Cost} = 50 \times 10^T$$
 
 #### TimePlayed
+Upgrade Type: Tiered  
+Multiplier Type: Final  
+
 $$\text{Cost} = 5000$$
 $$\text{Multiplier} = 1 + \frac{\sqrt{seconds}}{30} \times \frac{T}{2}$$
 
 #### ReduceLevelCost
-$$\text{Cost} = 1000 \times 1000^T$$
-$$\text{FinalLevelCost} = \text{[Level formula](#levels)} \times \frac{100 - T}{100}$$
+Upgrade Type: Tiered  
+
+$$\text{Cost} = 1000 \times 1000^T$$  
+$$\text{FinalLevelCost} = \text{Level Formula} \times \frac{100 - T}{100}$$
+
+*See the [Level formula](#levels) for the base calculation.*
 
 #### ClickMultiplier
-$$\text{Cost} = 100 \times 10^T$$
+Upgrade Type: Tiered  
+Multiplier Type: Final  
+
+$$\text{Cost} = 100 \times 100^T$$
 $$\text{Multiplier} = 1 + T$$
 
 #### BaseBoost
+Upgrade Type: Finite  
+Multiplier Type: Base  
+
 $$\text{Cost} = 500 \times 2^T$$
 $$\text{Multiplier} = 5 \times T$$
 
 #### Recursion
-$$\text{Cost} = 10000 \times 50^T$$
+Upgrade Type: Tiered  
+Multiplier Type: Final  
 
+$$\text{Cost} = 10000 \times 50^T$$
+$$\text{Multiplier} = 1 + \left( \log_{10}(\text{Clicks}) \times \frac{T}{20} \right)$$
 
 #### Exponents
+Upgrade Type: Tiered  
+Multiplier Type: Exponent... say wallahi bro  
+
 $$\text{Cost} = 1000000 \times 1000^T$$
 $$\text{Exponent} = 0.05 \times T$$
 
 #### Base2
+Upgrade Type: Infinite  
+Multiplier Type: Base  
+
 $$\text{Cost} = 256 \times 2^T$$
 
+#### PyramidScheme
+Upgrade Type: Single  
+Multiplier Type: Exponent  
+
+$$\text{Cost} = 1000000$$
+$$\text{Exponent} = 0.01 \times \text{Players}$$
+
+#### ExponentRecursion
+Upgrade Type: Single  
+Multiplier Type: Exponent  
+
+$$\text{Cost} = 1000000000$$
+$$\text{Exponent} = \frac{\log_{10}(\text{Clicks})}{100}$$
+
+#### ServerAge
+Upgrade Type: Single  
+Multiplier Type: Final
+
+$$\text{Cost} = 250000$$
+$$\text{Exponent} = \frac{\log_{10}(\text{seconds})}{2}$$
 
 SIX SEVEN!
 

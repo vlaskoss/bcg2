@@ -19,6 +19,7 @@ local errorSound    = soundsFolder.Interactive.PurchaseUnsuccessful
 
 local upgradeConfig  = require(modulesFolder.UpgradeConfig)
 local gameUtils      = require(modulesFolder.GameUtils)
+local gammaNum = require(modulesFolder.GammaNum)
 
 local formulaFolder  = modulesFolder.UpgradeFormulas
 
@@ -29,6 +30,7 @@ local upgradeTemplate = script.Parent.UpgradeTemplate
 local dataInitialised = PlayersService.LocalPlayer:WaitForChild("DataInitialised")
 
 local upgradeState: {[string]: number} = {}
+local reduceLevelCost
 
 local function getCost(config, currentTier)
     if config.CostFormula then
@@ -170,10 +172,18 @@ local function updateUI(upgradeUI, upgradeKey, config)
     local maxed       = isMaxed(config, currentTier)
 
     local cost = getCost(config, currentTier)
+    local finalCost
+
+    if upgradeKey == "Level" then
+        local reductionMultiplier = gammaNum.div(gammaNum.sub(100, reduceLevelCost), 100)
+        finalCost = gammaNum.mul(cost, reductionMultiplier)
+    else
+        finalCost = cost
+    end
 
     upgradeUI.UpgradeNameLabel.Text  = getDisplayName(config, upgradeKey, nextTier, maxed)
     upgradeUI.InformationLabel.Text  = getDescription(config, nextTier)
-    upgradeUI.CostLabel.Text         = "Cost: " .. gameUtils:FormatNum(cost) .. " clicks"
+    upgradeUI.CostLabel.Text         = "Cost: " .. gameUtils:FormatNum(finalCost) .. " clicks"
     upgradeUI.PurchaseButton.Visible = true
 end
 
@@ -243,7 +253,9 @@ dataInitEvent.Event:Connect(function(data)
             upgradeState[config.RelatedStat] = tier
         end
     end
-
+    if data.Upgrades and data.Upgrades["ReduceLevelCost"] then
+        reduceLevelCost = data.Upgrades["ReduceLevelCost"]
+    end
     if data.Level then
         upgradeState["Level"] = data.Level
     end
@@ -258,6 +270,10 @@ dataUpdateEvent.OnClientEvent:Connect(function(newData, updatedStat, updateType)
         if updatedStat == "Level" and newData and newData.Level then
             upgradeState["Level"] = newData.Level
         end
+
+    if updatedStat == "ReduceLevelCost" then
+        reduceLevelCost = newData.Upgrades["ReduceLevelCost"]
+    end
 
         if updatedStat == "Rebirths" then
             for upgradeKey, config in pairs(upgradeConfig) do
