@@ -1,7 +1,7 @@
 # bcg
 
 
-basic clicking game / bcg is a Roblox game made in Luau inspired by games like Cookie Clicker and Everything Upgrade Tree. bcg is a simple, modular clicker/incremental game made in under 3,000 LOC.
+basic clicking game / bcg is a Roblox game made in Luau inspired by games like Cookie Clicker and Everything Upgrade Tree. bcg is a simple, modular clicker/incremental game made in under 3,000 LOC (excluding level and multiplier configs).
 
 Use it as a template or anything, really. I'm using this repo to learn more about versioning in Git.
 
@@ -112,7 +112,7 @@ $$\text{FinalLevelCost} = \text{Level Formula} \times \frac{100 - T}{100}$$
 Upgrade Type: Tiered  
 Multiplier Type: Final  
 
-$$\text{Cost} = 100 \times 10^T$$
+$$\text{Cost} = 100 \times 100^T$$
 $$\text{Multiplier} = 1 + T$$
 
 #### BaseBoost
