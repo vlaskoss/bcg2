@@ -198,8 +198,6 @@ return {
         RequiredLevel = 100
     },
 
-
-
     ["RemoveClickDebounce"] = {
         Type = "Single",
         Priority = 11,

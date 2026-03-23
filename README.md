@@ -5,7 +5,13 @@ basic clicking game / bcg is a Roblox game made in Luau inspired by games like C
 
 Use it as a template or anything, really. I'm using this repo to learn more about versioning in Git.
 
-Features:
+## table of contents
+- finish later
+
+
+
+
+## features:
 - modular upgrades, badges and multiplier config
 - robust data saving based on ProfileStore (thankyou loleris)
 - numbers up to 10↑↑2^1024 using GammaNum (thankyou Valkzius)
