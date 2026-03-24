@@ -1,11 +1,13 @@
 local upgrades = {
     "AutoClicker",
-    "DoubleClicks",
-    "TripleClicks",
-    "QuadrupleClicks",
-    "QuintupleClicks",
+    "ClickMultiplier",
     "TimePlayed",
     "ReduceLevelCost",
+    "BaseBoost",
+    "Recursion",
+    "Exponents",
+    "Base2",
+    
 }
 return function (registry)
     registry:RegisterType("upgrades", registry.Cmdr.Util.MakeEnumType("upgrades", upgrades))
