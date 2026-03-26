@@ -7,12 +7,12 @@ return {
 		{
 			Type = "player",
 			Name = "Player",
-			Description = "The player whose currency you want to change.",
+			Description = "The target player.",
 		},
 		{
 			Type = "upgrades",
 			Name = "Upgrade",
-			Description = "The upgrade you want to change."
+			Description = "The target upgrade."
 		},
 		{
 			Type = "number",
