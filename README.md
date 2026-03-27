@@ -172,6 +172,5 @@ Multiplier Type: Final
 $$\text{Cost} = 250000$$
 $$\text{Exponent} = \frac{\log_{10}(\text{seconds})}{2}$$
 
-SIX SEVEN!
+*Due to the logarithmic formula of the ServerAge upgrade, the multiplier does not start until the server is at least 100 seconds old. Below a 1x multiplier (100 seconds), it defaults to nil.*
 
-All commits made using Claude, an artifical intelligence software, are marked on commits with "claude:" prepending the commit information.
