@@ -81,8 +81,7 @@ function Handlers.ServerAge(player, config)
 
     local serverAge = toGamma(math.floor(time()))
     local multiplier = gammaDiv(gammaNum.log10(serverAge), 2)
-
-    return multiplier
+    if gammaNum.gte(multiplier, ONE) then return multiplier else return nil end
 end
 
 

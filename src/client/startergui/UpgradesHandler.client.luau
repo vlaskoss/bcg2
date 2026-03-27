@@ -1,29 +1,29 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService      = game:GetService("TweenService")
+local TweenService = game:GetService("TweenService")
 local PlayersService = game:GetService("Players")
 
-local sharedFolder    = ReplicatedStorage.Shared
-local modulesFolder   = sharedFolder.Modules
-local remotesFolder   = sharedFolder.Remotes
+local sharedFolder = ReplicatedStorage.Shared
+local modulesFolder = sharedFolder.Modules
+local remotesFolder = sharedFolder.Remotes
 local bindablesFolder = sharedFolder.Bindables
-local soundsFolder    = sharedFolder.Sounds
+local soundsFolder = sharedFolder.Sounds
 
 local dataUpdateEvent = remotesFolder.DataUpdateEvent
-local upgradeEvent    = remotesFolder.UpgradeEvent
+local upgradeEvent = remotesFolder.UpgradeEvent
 local upgradeReturnEvent = remotesFolder.UpgradeReturnEvent
-local sfxEvent        = bindablesFolder.SFXEvent
+local sfxEvent = bindablesFolder.SFXEvent
 local dataInitEvent = bindablesFolder.DataInitEvent
 
 local purchaseSound = soundsFolder.Interactive.PurchaseSuccess
-local errorSound    = soundsFolder.Interactive.PurchaseUnsuccessful
+local errorSound = soundsFolder.Interactive.PurchaseUnsuccessful
 
-local upgradeConfig  = require(modulesFolder.UpgradeConfig)
-local gameUtils      = require(modulesFolder.GameUtils)
+local upgradeConfig = require(modulesFolder.UpgradeConfig)
+local gameUtils = require(modulesFolder.GameUtils)
 local gammaNum = require(modulesFolder.GammaNum)
 
-local formulaFolder  = modulesFolder.UpgradeFormulas
+local formulaFolder = modulesFolder.UpgradeFormulas
 
-local mainFrame     = script.Parent.MainUI.MainFrame
+local mainFrame = script.Parent.MainUI.MainFrame
 local upgradesFrame = mainFrame.Menus.UpgradesFrame.Holder
 local upgradeTemplate = script.Parent.UpgradeTemplate
 
@@ -181,6 +181,8 @@ local function updateUI(upgradeUI, upgradeKey, config)
         finalCost = cost
     end
 
+    if not upgradeUI:FindFirstChild("PurchaseButton") then return end
+
     upgradeUI.UpgradeNameLabel.Text  = getDisplayName(config, upgradeKey, nextTier, maxed)
     upgradeUI.InformationLabel.Text  = getDescription(config, nextTier)
     upgradeUI.CostLabel.Text         = "Cost: " .. gameUtils:FormatNum(finalCost) .. " clicks"
@@ -201,17 +203,18 @@ local function refreshCard(upgradeKey, config)
     if isMaxed(config, currentTier) then
         if existing then
             local cardToRemove = existing
-            cardToRemove.PurchaseButton.Interactable = false
+            local btn = cardToRemove:FindFirstChild("PurchaseButton")
+            if btn then btn.Interactable = false end
             task.spawn(function()
-            fadeOutCard(cardToRemove)
-            task.wait(0.5)
-            if cardToRemove.Parent then
-                cardToRemove:Destroy()
-            end
-        end)
+                fadeOutCard(cardToRemove)
+                task.wait(0.5)
+                if cardToRemove.Parent then
+                    cardToRemove:Destroy()
+                end
+            end)
+        end
+        return 
     end
-    return
-end
 
     if not existing then
         local upgradeUI       = upgradeTemplate:Clone()
@@ -225,7 +228,9 @@ end
             upgradeUI.PurchaseButton.Interactable = false
             upgradeEvent:FireServer(upgradeKey)
             task.wait(0.1)
-            upgradeUI.PurchaseButton.Interactable = true
+            if upgradeUI.Parent and upgradeUI:FindFirstChild("PurchaseButton") then
+                upgradeUI.PurchaseButton.Interactable = true
+            end
         end)
     end
 
@@ -271,9 +276,9 @@ dataUpdateEvent.OnClientEvent:Connect(function(newData, updatedStat, updateType)
             upgradeState["Level"] = newData.Level
         end
 
-    if updatedStat == "ReduceLevelCost" then
-        reduceLevelCost = newData.Upgrades["ReduceLevelCost"]
-    end
+        if updatedStat == "ReduceLevelCost" then
+            reduceLevelCost = newData.Upgrades["ReduceLevelCost"]
+        end
 
         if updatedStat == "Rebirths" then
             for upgradeKey, config in pairs(upgradeConfig) do
@@ -304,11 +309,11 @@ upgradeReturnEvent.OnClientEvent:Connect(function(upgradeKey, success, newTierOr
     if not success then
         sfxEvent:Fire(errorSound, 1, false)
         local card = upgradesFrame:FindFirstChild(upgradeKey)
-        if card then
+        if card and card:FindFirstChild("PurchaseButton") then
             card.PurchaseButton.Text             = tostring(newTierOrReason or "failed")
             card.PurchaseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
             task.wait(0.5)
-            if card.Parent then
+            if card.Parent and card:FindFirstChild("PurchaseButton") then
                 card.PurchaseButton.Text             = "Purchase"
                 card.PurchaseButton.BackgroundColor3 = Color3.fromRGB(53, 136, 9)
             end
@@ -342,4 +347,3 @@ upgradeReturnEvent.OnClientEvent:Connect(function(upgradeKey, success, newTierOr
         end
     end
 end)
-
