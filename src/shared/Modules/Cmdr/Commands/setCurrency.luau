@@ -1,7 +1,7 @@
 return {
 	Name = "setCurrency",
 	Aliases = {"sc"},
-	Description = "Sets a user's currency to a specified amount (or none, clearing the data).",
+	Description = "Sets a player's currency to a specified amount.",
 	Group = "Admin",
 	Args = {
 		{
@@ -17,8 +17,7 @@ return {
 		{
 			Type = "number",
 			Name = "Amount",
-			Description = "The amount related to the operation."
+			Description = "The amount to set the currency to."
 		},
-		
 	}
 }

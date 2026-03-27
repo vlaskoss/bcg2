@@ -1,7 +1,7 @@
 return {
 	Name = "setUpgrade",
 	Aliases = {"su"},
-	Description = "Sets a user's upgrade value to a specified amount (or none, clearing the data).",
+	Description = "Sets a player's upgrade to a specified value. Works for both numeric and boolean upgrades.",
 	Group = "Admin",
 	Args = {
 		{
@@ -10,15 +10,14 @@ return {
 			Description = "The target player.",
 		},
 		{
-			Type = "upgrades",
+			Type = "upgrades",  
 			Name = "Upgrade",
 			Description = "The target upgrade."
 		},
 		{
-			Type = "number",
-			Name = "Amount",
-			Description = "The amount related to the operation."
+			Type = "string", 
+			Name = "Value",
+			Description = "The value to set, either a number or boolean."
 		},
-		
 	}
 }

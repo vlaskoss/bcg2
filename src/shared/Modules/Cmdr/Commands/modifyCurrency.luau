@@ -1,13 +1,13 @@
 return {
 	Name = "modifyCurrency",
 	Aliases = {"mc"},
-	Description = "Applies a basic arithmetic function (add, subtract or multiply) to a user's currency. ",
+	Description = "Applies an arithmetic operation (add, deduct, multiply) to a player's currency. Use * for all players.",
 	Group = "Admin",
 	Args = {
 		{
-			Type = "player",
+			Type = "players",
 			Name = "Player",
-			Description = "The player whose currency you want to change. Use * for all players.",
+			Description = "The target player(s). Use * for all players.",
 		},
 		{
 			Type = "currency",
@@ -24,6 +24,5 @@ return {
 			Name = "Amount",
 			Description = "The amount related to the operation."
 		},
-		
 	}
 }
