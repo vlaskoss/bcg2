@@ -71,7 +71,6 @@ dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
     if updatedCurrency == "VFX" then
         vfxEnabled = data.Settings.VFX
     end
-
     if debounce == false then
         if updatedCurrency == "Clicks" then
             if gammaNum.eq(data[updatedCurrency], 67) then
