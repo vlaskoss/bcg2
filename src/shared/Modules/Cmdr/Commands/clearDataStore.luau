@@ -5,9 +5,13 @@ return {
 	Group = "Admin",
 	Args = {
 		{
-			Type = "player",
+			Type = "player?",
 			Name = "Player",
-			Description = "The player whose data you want to clear.",
+			Description = "The in-game player whose data you want to clear. Leave blank if using UserId.",
+		},
+		{	Type = "number?",
+			Name = "UserId",
+			Description = "The UserId of an offline player whose data you want to clear. Leave blank if using Player."
 		}
 	}
 }
