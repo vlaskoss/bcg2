@@ -65,7 +65,7 @@ return {
         Priority = 1,
         StatType = "Level",
         RelatedStat = "Level",
-        CostFormula = "LevelCost",
+        CostFormula = true,
         DisplayName = function(current)
             return "Level " .. tostring(gameUtils:FormatSeparators(current))
         end,
@@ -77,7 +77,7 @@ return {
         Priority = 2,
         StatType = "Upgrade",
         RelatedStat = "Base2",
-        CostFormula = "Base2Cost",
+        CostFormula = true,
         DisplayName = function(current)
             if current >= 1 then
                 return `Base 2 ({gameUtils:FormatSeparators(current)})`
@@ -95,7 +95,7 @@ return {
         Priority    = 3,
         StatType    = "Upgrade",
         RelatedStat = "AutoClicker",
-        CostFormula = "AutoClickerCost",
+        CostFormula = true,
         DisplayName = function(current)
             return "Autoclicker " .. tostring(current)
         end,
@@ -125,7 +125,7 @@ return {
         StatType    = "Upgrade",
         MaxTier = 50,
         RelatedStat = "TimePlayed",
-        CostFormula = "TimePlayedCost",
+        CostFormula = true,
         DisplayName = "The Long Game",
         Tiers = {
             [1] = {Description = "Multiplies your clicks based on your total playtime."}
@@ -141,7 +141,7 @@ return {
         Priority    = 5,
         StatType    = "Upgrade",
         RelatedStat = "ClickMultiplier",
-        CostFormula = "ClickMultiplierCost",
+        CostFormula = true,
         DisplayName = function(current)
             return (current + 1) .. "x Clicks"
         end,
@@ -159,7 +159,7 @@ return {
         Priority    = 6,
         StatType    = "Upgrade",
         RelatedStat = "BaseBoost",
-        CostFormula = "BaseBoostCost",
+        CostFormula = true,
         DisplayName = "Back to Basics",
         Description = "+5 base clicks per tier.",
         IsPermanent = false,
@@ -172,7 +172,7 @@ return {
         Priority = 7,
         StatType = "Upgrade",
         RelatedStat = "Recursion",
-        CostFormula = "RecursionCost",
+        CostFormula = true,
         DisplayName = "Recursion",
         Description = "Improves the Recursion formula by +0.25x",
         Tiers = {
@@ -188,7 +188,7 @@ return {
         Priority = 8,
         StatType = "Upgrade",
         RelatedStat = "Exponents",
-        CostFormula = "ExponentsCost",
+        CostFormula = true,
         DisplayName = "Exponents!",
         Description = "+ ^.05 exponent per upgrade",
         Tiers = {
@@ -251,7 +251,7 @@ return {
         Priority    = 15,
         StatType    = "Upgrade",
         RelatedStat = "ReduceLevelCost",
-        CostFormula = "ReduceLevelCost",
+        CostFormula = true,
         DisplayName = "Deflation",
         Description = "Reduces level cost by 0.01x (additive) per tier",
         IsPermanent = true,

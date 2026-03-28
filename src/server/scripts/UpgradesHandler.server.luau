@@ -18,9 +18,9 @@ local upgradeFormulas = require(sharedModulesFolder.UpgradeFormulas)
 local gameUtils     = require(sharedModulesFolder.GameUtils)
 local gammaNum      = require(sharedModulesFolder.GammaNum)
 
-local function getUpgradeCost(config, currentTier)
+local function getUpgradeCost(upgradeKey, config, currentTier)
     if config.CostFormula then
-        local formula = upgradeFormulas[config.CostFormula]
+        local formula = upgradeFormulas[upgradeKey]
         if formula then 
             return formula(currentTier)
         end
@@ -94,7 +94,7 @@ upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
         return
     end
 
-    local cost = getUpgradeCost(config, currentTier)
+    local cost = getUpgradeCost(upgradeKey, config, currentTier)
 
     if upgradeKey == "Level" then
         local reduction = dataManager:GetUpgrade(player, "ReduceLevelCost") or 0

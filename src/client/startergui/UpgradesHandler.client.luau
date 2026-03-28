@@ -31,9 +31,9 @@ local dataInitialised = PlayersService.LocalPlayer:WaitForChild("DataInitialised
 local upgradeState: {[string]: number} = {}
 local reduceLevelCost
 
-local function getCost(config, currentTier)
+local function getCost(upgradeKey, config, currentTier)
     if config.CostFormula then
-        local formula = upgradeFormulas[config.CostFormula]
+        local formula = upgradeFormulas[upgradeKey]
         if formula then 
             return formula(currentTier)
         end
@@ -170,7 +170,7 @@ local function updateUI(upgradeUI, upgradeKey, config)
     local nextTier    = currentTier + 1
     local maxed       = isMaxed(config, currentTier)
 
-    local cost = getCost(config, currentTier)
+    local cost = getCost(upgradeKey, config, currentTier)
     local finalCost
 
     if upgradeKey == "Level" then
