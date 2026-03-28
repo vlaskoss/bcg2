@@ -18,10 +18,9 @@ local purchaseSound = soundsFolder.Interactive.PurchaseSuccess
 local errorSound = soundsFolder.Interactive.PurchaseUnsuccessful
 
 local upgradeConfig = require(modulesFolder.UpgradeConfig)
+local upgradeFormulas = require(modulesFolder.UpgradeFormulas)
 local gameUtils = require(modulesFolder.GameUtils)
 local gammaNum = require(modulesFolder.GammaNum)
-
-local formulaFolder = modulesFolder.UpgradeFormulas
 
 local mainFrame = script.Parent.MainUI.MainFrame
 local upgradesFrame = mainFrame.Menus.UpgradesFrame.Holder
@@ -34,9 +33,9 @@ local reduceLevelCost
 
 local function getCost(config, currentTier)
     if config.CostFormula then
-        local module = formulaFolder:FindFirstChild(config.CostFormula)
-        if module then
-            return require(module)(currentTier)
+        local formula = upgradeFormulas[config.CostFormula]
+        if formula then 
+            return formula(currentTier)
         end
     end
     if config.Type == "Tiered" and config.Tiers then

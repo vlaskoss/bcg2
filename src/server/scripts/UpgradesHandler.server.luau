@@ -14,16 +14,15 @@ local upgradeReturnEvent = remotesFolder.UpgradeReturnEvent
 
 local dataManager   = require(modulesFolder.DataManager)
 local upgradeConfig = require(sharedModulesFolder.UpgradeConfig)
+local upgradeFormulas = require(sharedModulesFolder.UpgradeFormulas)
 local gameUtils     = require(sharedModulesFolder.GameUtils)
 local gammaNum      = require(sharedModulesFolder.GammaNum)
 
-local upgradeFormulas = sharedModulesFolder.UpgradeFormulas
-
 local function getUpgradeCost(config, currentTier)
     if config.CostFormula then
-        local formulaModule = upgradeFormulas:FindFirstChild(config.CostFormula)
-        if formulaModule then
-            return require(formulaModule)(currentTier)
+        local formula = upgradeFormulas[config.CostFormula]
+        if formula then 
+            return formula(currentTier)
         end
     end
     return gameUtils:EnsureGammaNum(config.Cost or 0)
