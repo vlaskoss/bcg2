@@ -146,7 +146,6 @@ function Handlers.TimePlayed(player, config)
     return gammaAdd(afterTierCalculation, ONE)
 end
 
--- Linear: stat * ValuePerUnit
 function Handlers.PerStat(player, config)
     local stat = dataManager:RetrieveAmount(player, config.Stat)
     if not stat then return nil end
@@ -157,7 +156,6 @@ function Handlers.PerStat(player, config)
     return value
 end
 
--- Upgrade tier → value via Steps table (preferred) or BaseValue + tier*ValuePerTier.
 function Handlers.PerUpgrade(player, config)
     local tier = dataManager:GetUpgrade(player, config.Upgrade)
     if not tier then return nil end
@@ -171,7 +169,6 @@ function Handlers.PerUpgrade(player, config)
         value = base + tier * slope
     end
 
-    -- a Final source returning 0 would wipe everything — treat as no contribution
     if value == 0 then return nil end
 
     return toGamma(value)

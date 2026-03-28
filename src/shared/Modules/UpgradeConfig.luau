@@ -3,67 +3,58 @@
     ─────────────────────────────────────────────────────────────────────────────
     Defines every purchasable upgrade in the game.
 
-    SHARED FIELDS (all upgrades)
-    ─────────────────────────────
-    Type         "Infinite" | "Finite" | "Single" | "Tiered"
-                   Infinite → no cap, keeps going
-                   Finite   → capped at MaxLevel
-                   Single   → one-time purchase (tier 0 or 1)
-                   Tiered   → fixed list of tiers defined in Tiers table
+    ── SHARED FIELDS ────────────────────────────────────────────────────────────
 
-    StatType     "Level" | "Upgrade"
-                   Level   → uses RetrieveAmount / AddCurrency
-                   Upgrade → uses GetUpgrade / SetUpgrade
+    Type          "Infinite" | "Finite" | "Single" | "Tiered"
+                    Infinite → no cap, keeps going
+                    Finite   → capped at MaxLevel
+                    Single   → one-time purchase (boolean)
+                    Tiered   → fixed tier list defined in Tiers table
 
-    RelatedStat  (string) data key this upgrade reads/writes
+    StatType      "Level" | "Upgrade"
+                    Level   → uses RetrieveAmount / AddCurrency
+                    Upgrade → uses GetUpgrade / SetUpgrade
 
-    Priority     (number) UI sort order, lower = higher up
+    RelatedStat   (string)  data key this upgrade reads/writes
+    Priority      (number)  UI sort order — lower = higher up
+    IsPermanent   (bool)    whether the upgrade survives rebirths
 
-    DisplayName  (string | function(currentTier) → string)
+    DisplayName   (string | function(currentTier) → string)
+    Description   (string)  shown in UI; Tiered upgrades can override per-tier
 
-    Description  (string) shown in UI; Tiered upgrades can override per tier
+    CostFormula   (bool | nil)      whether the upgrade has an associated cost formula    
+    Cost          (GammaNum | nil)  flat cost used when CostFormula is absent
 
-    IsPermanent  (bool) whether the upgrade survives rebirths
+    MaxLevel      (number | nil)  cap for Finite upgrades
+    MaxTier       (number | nil)  cap for Tiered upgrades
+    Tiers         ({ [n] = { DisplayName?, Description? } } | nil)
 
-    CostFormula  (string | nil) name of formula module in UpgradeFormulas folder
-    Cost         (GammaNum | nil) flat cost fallback if no CostFormula
+    ── UNLOCK CONDITIONS ────────────────────────────────────────────────────────
 
-    MaxLevel     (number | nil) cap for Finite type
-    MaxTier      (number | nil) cap for Tiered type
+    RequiredLevel        (number | nil)
+                           Player's Level must be >= this to see the upgrade.
 
-    Tiers        ({[n] = {DisplayName?, Description?, Cost?}} | nil)
-                   Tiered upgrades define per-tier display overrides here.
-
-    RequiredUpgrade  (string | nil)
-                   If set, the player must own at least tier 1 of this upgrade
-                   (or the tier specified by RequiredUpgradeTier) before this
-                   upgrade appears/is purchasable.
-                   Example: RequiredUpgrade = "TimePlayed"
+    RequiredUpgrade      (string | nil)
+                           Another upgrade that must be owned first.
 
     RequiredUpgradeTier  (number | nil)
-                   Works together with RequiredUpgrade. When set, the referenced
-                   upgrade must be at THIS tier or higher (instead of the default
-                   of >= 1). Ignored if RequiredUpgrade is not also set.
-                   Example: RequiredUpgrade = "AutoClicker", RequiredUpgradeTier = 5
-                            → hidden until the player owns AutoClicker tier 5+
-
-    RequiredLevel    (number | nil)
-                   Player's Level stat must be >= this value to unlock.
-
-    OnUpgrade    (function(player, newTier) | nil)
-                   Optional server-side callback fired after a successful purchase.
+                           Minimum tier of RequiredUpgrade needed. Defaults to 1.
+                           Ignored if RequiredUpgrade is not set.
 --]]
 
-local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local gammaNum = require(ReplicatedStorage.Shared.Modules.GammaNum)
-local gameUtils = require(ReplicatedStorage.Shared.Modules.GameUtils)
+
+local modulesFolder = ReplicatedStorage.Shared.Modules
+
+local gammaNum = require(modulesFolder.GammaNum)
+local gameUtils = require(modulesFolder.GameUtils)
 
 return {
+
     ["Level"] = {
-        Type = "Infinite",
-        Priority = 1,
-        StatType = "Level",
+        Type        = "Infinite",
+        Priority    = 1,
+        StatType    = "Level",
         RelatedStat = "Level",
         CostFormula = true,
         DisplayName = function(current)
@@ -72,10 +63,11 @@ return {
         Description = "Increases the power of your clicks!",
         IsPermanent = false,
     },
+
     ["Base2"] = {
-        Type = "Infinite",
-        Priority = 2,
-        StatType = "Upgrade",
+        Type        = "Infinite",
+        Priority    = 2,
+        StatType    = "Upgrade",
         RelatedStat = "Base2",
         CostFormula = true,
         DisplayName = function(current)
@@ -85,10 +77,11 @@ return {
                 return "Base 2"
             end
         end,
-        Description = "Cost increases 2x per upgrade, but so do clicks!",
-        IsPermanent = false,
-        RequiredLevel = 16
+        Description   = "Cost increases 2x per upgrade, but so do clicks!",
+        IsPermanent   = false,
+        RequiredLevel = 16,
     },
+
     ["AutoClicker"] = {
         Type        = "Tiered",
         MaxTier     = 15,
@@ -100,7 +93,7 @@ return {
             return "Autoclicker " .. tostring(current)
         end,
         Tiers = {
-            [1]  = { DisplayName = "Autoclicker",  Description = "Automatically clicks for you at a sluggish rate (2 cps)" },
+            [1]  = { DisplayName = "Autoclicker", Description = "Automatically clicks for you at a sluggish rate (2 cps)" },
             [2]  = { Description = "Upgrade the speed of your sluggish autoclicker! (4 cps)" },
             [3]  = { Description = "Upgrade your autoclicker's speed! (6 cps)" },
             [4]  = { Description = "Upgrade your autoclicker's speed! (8 cps)" },
@@ -116,25 +109,28 @@ return {
             [14] = { Description = "Upgrade your autoclicker to 40 cps!" },
             [15] = { Description = "THE FINAL SPEED.. 50 CPS! OR IS IT??" },
         },
+        Description = "Automatically clicks for you!",
         IsPermanent = true,
         RequiredLevel = 2,
     },
+
     ["TimePlayed"] = {
         Type        = "Tiered",
+        MaxTier     = 50,
         Priority    = 3,
         StatType    = "Upgrade",
-        MaxTier = 50,
         RelatedStat = "TimePlayed",
         CostFormula = true,
         DisplayName = "The Long Game",
         Tiers = {
-            [1] = {Description = "Multiplies your clicks based on your total playtime."}
+            [1] = { Description = "Multiplies your clicks based on your total playtime." },
         },
-        Description = "Upgrades the TimePlayed formula",
-        IsPermanent = true,
-        RequiredUpgrade = "ClickMultiplier",
+        Description         = "Upgrades the TimePlayed formula",
+        IsPermanent         = true,
+        RequiredUpgrade     = "ClickMultiplier",
         RequiredUpgradeTier = 9,
     },
+
     ["ClickMultiplier"] = {
         Type        = "Tiered",
         MaxTier     = 9,
@@ -145,106 +141,107 @@ return {
         DisplayName = function(current)
             return (current + 1) .. "x Clicks"
         end,
-        Description = "+1x clicks per upgrade!",
-        IsPermanent = false,
         Tiers = {
             [1] = { Description = "A small 2x clicks multiplier." },
         },
+        Description   = "+1x clicks per upgrade!",
+        IsPermanent   = false,
         RequiredLevel = 5,
     },
 
     ["BaseBoost"] = {
         Type        = "Finite",
-        MaxLevel     = 5,
+        MaxLevel    = 5,
         Priority    = 6,
         StatType    = "Upgrade",
         RelatedStat = "BaseBoost",
         CostFormula = true,
         DisplayName = "Back to Basics",
-        Description = "+5 base clicks per tier.",
-        IsPermanent = false,
+        Description   = "+5 base clicks per tier.",
+        IsPermanent   = false,
         RequiredLevel = 15,
     },
 
     ["Recursion"] = {
-        Type = "Tiered",
-        MaxTier = 5,
-        Priority = 7,
-        StatType = "Upgrade",
+        Type        = "Tiered",
+        MaxTier     = 5,
+        Priority    = 7,
+        StatType    = "Upgrade",
         RelatedStat = "Recursion",
         CostFormula = true,
         DisplayName = "Recursion",
-        Description = "Improves the Recursion formula by +0.25x",
         Tiers = {
-            [1] = {Description = "Multiplies clicks by the number of clicks you currently have."}
+            [1] = { Description = "Multiplies clicks by the number of clicks you currently have." },
         },
-        IsPermanent = false,
-        RequiredLevel = 125
+        Description   = "Improves the Recursion formula by +0.25x",
+        IsPermanent   = false,
+        RequiredLevel = 125,
     },
-    
+
     ["Exponents"] = {
-        Type = "Tiered",
-        MaxTier = 5,
-        Priority = 8,
-        StatType = "Upgrade",
+        Type        = "Tiered",
+        MaxTier     = 5,
+        Priority    = 8,
+        StatType    = "Upgrade",
         RelatedStat = "Exponents",
         CostFormula = true,
         DisplayName = "Exponents!",
-        Description = "+ ^.05 exponent per upgrade",
         Tiers = {
-            [1] = {Description = "An exponent of ^1.05 after all other multipliers!"}
+            [1] = { Description = "An exponent of ^1.05 after all other multipliers!" },
         },
-        IsPermanent = true,
-        RequiredLevel = 100
+        Description   = "+^.05 exponent per upgrade",
+        IsPermanent   = true,
+        RequiredLevel = 100,
     },
 
     ["RemoveClickDebounce"] = {
-        Type = "Single",
-        Priority = 11,
-        StatType = "Upgrade",
+        Type        = "Single",
+        Priority    = 11,
+        StatType    = "Upgrade",
         RelatedStat = "RemoveClickDebounce",
-        Cost = gammaNum.fromNumber(50000),
+        Cost        = gammaNum.fromNumber(50000),
         DisplayName = "Freedom",
-        Description = "Removes the click debounce for manual clicks!",
-        IsPermanent = true,
-        RequiredLevel = 75
+        Description   = "Removes the click debounce for manual clicks!",
+        IsPermanent   = true,
+        RequiredLevel = 75,
     },
 
     ["PyramidScheme"] = {
-        Type = "Single",
-        Priority = 12,
-        StatType = "Upgrade",
+        Type        = "Single",
+        Priority    = 12,
+        StatType    = "Upgrade",
         RelatedStat = "PyramidScheme",
-        Cost = gammaNum.fromNumber(1000000),
+        Cost        = gammaNum.fromNumber(1000000),
         DisplayName = "Pyramid Scheme",
-        Description = "Get a +^.01 exponent for every player in the server!",
-        IsPermanent = true,
+        Description   = "Get a +^.01 exponent for every player in the server!",
+        IsPermanent   = true,
         RequiredLevel = 125,
     },
 
     ["ExponentRecursion"] = {
-        Type = "Single",
-        Priority = 13,
-        StatType = "Upgrade",
+        Type        = "Single",
+        Priority    = 13,
+        StatType    = "Upgrade",
         RelatedStat = "ExponentRecursion",
-        Cost = gammaNum.fromNumber(1000000000),
+        Cost        = gammaNum.fromNumber(1000000000),
         DisplayName = "Recursion 2",
-        Description = "Adds an exponent based of the number of clicks you currently have.",
-        IsPermanent = true,
-        RequiredLevel = 150
+        Description   = "Adds an exponent based on the number of clicks you currently have.",
+        IsPermanent   = true,
+        RequiredLevel = 150,
     },
 
     ["ServerAge"] = {
-        Type = "Single",
-        Priority = 14,
-        StatType = "Upgrade",
+        Type        = "Single",
+        Priority    = 14,
+        StatType    = "Upgrade",
         RelatedStat = "ServerAge",
-        Cost = gammaNum.fromNumber(250000),
+        Cost        = gammaNum.fromNumber(250000),
         DisplayName = "Old is Gold",
-        Description = "Multiplies your clicks based on the age of the server.",
-        IsPermanent = false,
-        RequiredLevel = 75
+        Description   = "Multiplies your clicks based on the age of the server.",
+        IsPermanent   = false,
+        RequiredLevel = 75,
     },
+
     ["ReduceLevelCost"] = {
         Type        = "Tiered",
         MaxTier     = 50,
@@ -253,37 +250,13 @@ return {
         RelatedStat = "ReduceLevelCost",
         CostFormula = true,
         DisplayName = "Deflation",
-        Description = "Reduces level cost by 0.01x (additive) per tier",
-        IsPermanent = true,
+        Description   = "Reduces level cost by 0.01x (additive) per tier",
+        IsPermanent   = true,
         RequiredLevel = 40,
     },
 
-    --[[["LevelMultibuy"] = {
-        Type = "Single",
-        Priority = 11,
-        StatType = "Upgrade",
-        RelatedStat = "LevelMultibuy",
-        Cost = gammaNum.fromNumber(25000),
-        DisplayName = "Freedom",
-        Description = "Removes the click debounce for manual clicks!",
-        IsPermanent = true,
-        RequiredLevel = 75
-    }
-    ]]--
-    --[[
-        EXAMPLE: upgrade locked behind another upgrade
+    -- TBA: Level Multibuy
 
-        ["DoubleClickMultiplier"] = {
-            Type             = "Single",
-            Priority         = 6,
-            StatType         = "Upgrade",
-            RelatedStat      = "DoubleClickMultiplier",
-            Cost             = gammaNum.fromNumber(10000),
-            DisplayName      = "Double Down",
-            Description      = "Doubles your click multiplier.",
-            IsPermanent      = false,
-            RequiredUpgrade  = "ClickMultiplier",   -- hidden until ClickMultiplier tier >= 1
-            -- RequiredLevel = 10,                  -- also optionally gate by level
-        },
-    --]]
 }
+
+
