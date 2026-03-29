@@ -19,22 +19,11 @@ local dataUpdateBindable = bindablesFolder.DataUpdateBindable
 -- Any stat referenced by a config entry should trigger a recalc when it changes.
 -- We derive this automatically so you never have to update the handler manually.
 
-local STAT_TRIGGERS = {}
+local statTriggers = {}
 
-STAT_TRIGGERS["Exponents"] = true
-STAT_TRIGGERS["Recursion"] = true
-STAT_TRIGGERS["Base2"] = true
-STAT_TRIGGERS["TotalTime"] = true
-STAT_TRIGGERS["TimePlayed"] = true
-STAT_TRIGGERS["BaseBoost"] = true
 
-for _, config in pairs(multiplierConfig) do
-    if config.Stat    then STAT_TRIGGERS[config.Stat]    = true end
-    if config.Upgrade then STAT_TRIGGERS[config.Upgrade] = true end
-    if config.Type == "Rebirth" then STAT_TRIGGERS["Rebirths"] = true end
-    if config.Type == "PerStat" and config.Stat == "Level" then
-        STAT_TRIGGERS["Level"] = true
-    end
+for key in pairs(multiplierConfig) do
+    statTriggers[key] = true
 end
 
 dataInitBindable.Event:Connect(function(player)
@@ -42,7 +31,7 @@ dataInitBindable.Event:Connect(function(player)
 end)
 
 dataUpdateBindable.Event:Connect(function(player, _data, updatedCurrency)
-    if STAT_TRIGGERS[updatedCurrency] then
+    if statTriggers[updatedCurrency] then
         clickCalculationManager:UpdateMultiplier(player)
     end
 end)

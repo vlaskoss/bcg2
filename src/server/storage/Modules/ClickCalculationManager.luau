@@ -31,119 +31,104 @@ local dataManager      = require(modulesFolder.DataManager)
 local gameUtils        = require(sharedModulesFolder.GameUtils)
 local gammaNum         = require(sharedModulesFolder.GammaNum)
 
--- ─── helpers ────────────────────────────────────────────────────────────────
-
 local function toGamma(value)
     if typeof(value) == "number" then
         return gammaNum.fromNumber(value)
     end
-    -- already a GammaNum (buffer or table with .toSuffix)
-    return value
+    return value -- already a gammaNum
 end
 
 local ZERO = gammaNum.fromNumber(0)
 local ONE  = gammaNum.fromNumber(1)
-
-local function gammaAdd(a, b) return gammaNum.add(a, b) end
-local function gammaMul(a, b) return gammaNum.mul(a, b) end
-local function gammaDiv(a, b) return gammaNum.div(a, b) end
-local function gammaPow(a, b) return gammaNum.pow(a, b) end
 
 local function hasGamepass(player, gamepassId)
     local ok, owns = pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, gamepassId)
     return ok and owns
 end
 
--- ─── type handlers ──────────────────────────────────────────────────────────
---
--- Each handler receives (player, config) and returns a GammaNum contribution.
--- Return nil to mean "no contribution" (treated as identity for the category).
+
+
+-- specific type handlers
+-- each handler receives (player, config: optional) and returns a gammaNum contribution.
+-- nil means no contribution
 
 local Handlers = {}
 
--- Always-on flat value.
-function Handlers.Flat(player, config)
-    return toGamma(config.Value or 0)
-end
-
-
-
-function Handlers.Base2(player, config)
-    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+function Handlers.Base2(player)
+    local tier = dataManager:GetUpgrade(player, "Base2")
     if not tier or tier < 1 then return nil end
-    local perUpgrade = gammaPow(tier, 2)
+    local perUpgrade = gammaNum.pow(tier, 2)
     return perUpgrade
 end
 
-function Handlers.ServerAge(player, config)
-    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+function Handlers.ServerAge(player)
+    local tier = dataManager:GetUpgrade(player, "ServerAge")
     if not tier or tier == false then return nil end
 
     local serverAge = toGamma(math.floor(time()))
-    local multiplier = gammaDiv(gammaNum.log10(serverAge), 2)
+    local multiplier = gammaNum.div(gammaNum.log10(serverAge), 2)
     if gammaNum.gte(multiplier, ONE) then return multiplier else return nil end
 end
 
 
-function Handlers.ExponentRecursion(player, config)
-    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+function Handlers.ExponentRecursion(player)
+    local tier = dataManager:GetUpgrade(player, "ExponentRecursion")
     if not tier or tier == false then return nil end
 
     local clicks = dataManager:RetrieveAmount(player, "Clicks")
     if not clicks then return nil end
 
     local logClicks = gammaNum.log10(clicks)
-    local multiplier = gammaDiv(logClicks, 100)
+    local multiplier = gammaNum.div(logClicks, 100)
     
     return multiplier
 end
 
-function Handlers.PyramidScheme(player, config)
-    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+function Handlers.PyramidScheme(player)
+    local tier = dataManager:GetUpgrade(player, "PyramidScheme")
     if not tier or tier == false then return nil end
     
     local numPlayers = #PlayersService:GetPlayers()
-    local perPlayer = gammaMul(numPlayers, 0.01)
+    local perPlayer = gammaNum.mul(numPlayers, 0.01)
     
     return perPlayer
 end
 
-function Handlers.Exponents(player, config)
-    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+function Handlers.Exponents(player)
+    local tier = dataManager:GetUpgrade(player, "Exponents")
     if not tier or tier < 1 then return nil end
 
-    local perUpgrade = gammaMul(tier, 0.05)
+    local perUpgrade = gammaNum.mul(tier, 0.05)
 
     return perUpgrade
 end
 
-function Handlers.Recursion(player, config)
-    local tier = dataManager:GetUpgrade(player, config.Upgrade)
+function Handlers.Recursion(player)
+    local tier = dataManager:GetUpgrade(player, "Recursion")
     if not tier or tier < 1 then return nil end
 
     local clicks = dataManager:RetrieveAmount(player, "Clicks")
     if not clicks then return nil end
 
     local logClicks = gammaNum.log10(clicks)
-    local tierScale = gammaDiv(tier, 20)
-    local scaled = gammaMul(logClicks, tierScale)
-    local multiplier = gammaAdd(scaled, ONE)
+    local tierScale = gammaNum.div(tier, 20)
+    local scaled = gammaNum.mul(logClicks, tierScale)
+    local multiplier = gammaNum.add(scaled, ONE)
     return multiplier
 end
 
-function Handlers.TimePlayed(player, config)
-    if not config.RequiredUpgrade then return nil end
-    local tier = dataManager:GetUpgrade(player, config.RequiredUpgrade)
+function Handlers.TimePlayed(player)
+    local tier = dataManager:GetUpgrade(player, "TimePlayed")
     if not tier or tier < 1 then return nil end
 
-    local time = dataManager:GetStatistic(player, config.Stat) 
+    local time = dataManager:GetStatistic(player, "TotalTime") 
     if not time then return nil end
 
     local t        = toGamma(time)
-    local sqrtTime = gammaPow(t, toGamma(0.5))
-    local scaled   = gammaDiv(sqrtTime, toGamma(30))
-    local afterTierCalculation = gammaMul(scaled, gammaDiv(tier, 5))
-    return gammaAdd(afterTierCalculation, ONE)
+    local sqrtTime = gammaNum.pow(t, toGamma(0.5))
+    local scaled   = gammaNum.div(sqrtTime, toGamma(30))
+    local afterTierCalculation = gammaNum.mul(scaled, gammaNum.div(tier, 5))
+    return gammaNum.add(afterTierCalculation, ONE)
 end
 
 function Handlers.PerStat(player, config)
@@ -151,7 +136,7 @@ function Handlers.PerStat(player, config)
     if not stat then return nil end
     local value = gammaNum.mul(toGamma(stat), toGamma(config.ValuePerUnit or 1))
     if config.Offset then
-        value = gammaAdd(value, toGamma(config.Offset))
+        value = gammaNum.add(value, toGamma(config.Offset))
     end
     return value
 end
@@ -174,7 +159,6 @@ function Handlers.PerUpgrade(player, config)
     return toGamma(value)
 end
 
--- Gamepass flat bonus.
 function Handlers.Gamepass(player, config)
     if hasGamepass(player, config.GamepassId) then
         return toGamma(config.Value or 1)
@@ -182,32 +166,25 @@ function Handlers.Gamepass(player, config)
     return nil
 end
 
--- Exponential rebirth scaling: MultiplierPerRebirth ^ rebirths
--- Returns 1 when rebirths = 0 (safe identity).
 function Handlers.Rebirth(player, config)
     local rebirths = dataManager:RetrieveAmount(player, "Rebirths")
-
-    -- no data or zero rebirths → identity (1x), not 0
     if not rebirths or rebirths == 0 then return ONE end
 
-    local base  = toGamma(config.MultiplierPerRebirth or 2)
-    local expnt = toGamma(rebirths)
-
-    if gammaNum.eq(expnt, ZERO) then return ONE end
-    return gammaMul(base, expnt)
+    local multiplierPerRebirth = toGamma(config.MultiplierPerRebirth or 2)
+    return gammaNum.mul(toGamma(rebirths), multiplierPerRebirth)
 end
 
--- ─── core calculation ────────────────────────────────────────────────────────
+-- calculations
 
 local function evaluateSource(player, config)
     local handler = Handlers[config.Type]
     if not handler then
-        warn("[ClickCalculationManager]: Unknown Type '" .. tostring(config.Type) .. "' – skipping")
+        warn(`[ClickCalculationManager]: Unknown upgrade type {config.Type} – skipping`)
         return nil
     end
     local ok, result = pcall(handler, player, config)
     if not ok then
-        warn("[ClickCalculationManager]: Handler error for Type '" .. tostring(config.Type) .. "': " .. tostring(result))
+        warn(`[ClickCalculationManager]: Handler error for type {config.Type}: {result}`)
         return nil
     end
     return result
@@ -222,79 +199,63 @@ local function buildTotals(player)
         local value = evaluateSource(player, config)
 
         if config.Category == "Base" then
-            baseTotal = gammaAdd(baseTotal, value or ZERO)
+            baseTotal = gammaNum.add(baseTotal, value or ZERO)
 
         elseif config.Category == "Final" then
-            finalTotal = gammaMul(finalTotal, value or ONE)
+            finalTotal = gammaNum.mul(finalTotal, value or ONE)
 
         elseif config.Category == "Exponent" then
-            exponentTotal = gammaAdd(exponentTotal, value or ZERO)
+            exponentTotal = gammaNum.add(exponentTotal, value or ZERO)
 
         else
-            warn("[ClickCalculationManager]: Unknown Category '" .. tostring(config.Category) .. "' on source '" .. sourceName .. "' – skipping")
+            warn(`[ClickCalculationManager]: Unknown upgrade category {tostring(config.Category)} from source {sourceName} – skipping`)
         end
     end
 
     return baseTotal, finalTotal, exponentTotal
 end
 
--- ─── public API ─────────────────────────────────────────────────────────────
-
 local ClickCalculationManager = {}
-ClickCalculationManager._cache = {}   -- [userId] = { Base, Final, Total }
+ClickCalculationManager.Cache = {}  
+
+local function getCached(player, key, default)
+    local data = ClickCalculationManager.Cache[player.UserId]
+    return (data and data[key]) or default
+end
 
 function ClickCalculationManager:InitialisePlayer(player)
     self:UpdateMultiplier(player)
 end
 
 function ClickCalculationManager:RemovePlayer(player)
-    self._cache[player.UserId] = nil
+    self.Cache[player.UserId] = nil
 end
 
 function ClickCalculationManager:UpdateMultiplier(player)
     local baseTotal, finalTotal, exponentTotal = buildTotals(player)
-    local combined = gammaMul(baseTotal, finalTotal)
-    local total = gammaPow(combined, exponentTotal)
+    local combined = gammaNum.mul(baseTotal, finalTotal)
+    local total = gammaNum.pow(combined, exponentTotal)
 
-    self._cache[player.UserId] = {
+    self.Cache[player.UserId] = {
         Base  = baseTotal,
         Final = finalTotal,
+        Exponent = exponentTotal,
         Total = total,
     }
 
-    print(string.format(
-        "[ClickCalculationManager]: %s multiplier → Base %s × Final %s ^ Exponent %s = %s",
-        gameUtils:MakePossessive(player.Name),
-        gammaNum.toSuffix(baseTotal),
-        gammaNum.toSuffix(finalTotal),
-        gammaNum.toSuffix(exponentTotal),
-        gammaNum.toSuffix(total)
-    ))
+    print(`[ClickCalculationManager]: {gameUtils:MakePossessive(player.Name)} multiplier - Base {baseTotal} x Final {finalTotal} ^ Exponent {exponentTotal} = {total}`)
 end
 
--- Returns the cached Total GammaNum (defaults to 1 if not yet computed).
-function ClickCalculationManager:GetMultiplier(player)
-    local data = self._cache[player.UserId]
-    return (data and data.Total) or ONE
-end
+function ClickCalculationManager:GetMultiplier(player)     return getCached(player, "Total",    ONE)  end
+function ClickCalculationManager:GetBaseMultiplier(player) return getCached(player, "Base",     ZERO) end
+function ClickCalculationManager:GetFinalMultiplier(player)return getCached(player, "Final",    ONE)  end
+function ClickCalculationManager:GetExponent(player)       return getCached(player, "Exponent", ONE)  end
 
--- Returns just the base portion (useful for UI breakdowns).
-function ClickCalculationManager:GetBaseMultiplier(player)
-    local data = self._cache[player.UserId]
-    return (data and data.Base) or ZERO
-end
-
--- Returns just the final-multiplier portion.
-function ClickCalculationManager:GetFinalMultiplier(player)
-    local data = self._cache[player.UserId]
-    return (data and data.Final) or ONE
-end
-
--- Applies the cached multiplier to a base click amount.
+-- applies cached multiplier to a click amount (the base)
 function ClickCalculationManager:Calculate(player, baseAmount)
     local multiplier = self:GetMultiplier(player)
     local base       = toGamma(baseAmount)
-    return gammaNum.floor(gammaMul(base, multiplier))
+    return gammaNum.floor(gammaNum.mul(base, multiplier))
 end
 
 return ClickCalculationManager

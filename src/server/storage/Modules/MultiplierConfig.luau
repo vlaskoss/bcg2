@@ -56,7 +56,7 @@ return {
     -- BASE sources  (added together to form the base click value)
     ---------------------------------------------------------------------------
 
-    ["LevelBonus"] = {
+    ["Level"] = {
         Type         = "PerStat",
         Category     = "Base",
         Stat         = "Level",
@@ -92,52 +92,43 @@ return {
     
     },
 
-    ["TimePlayedMultiplier"] = {
+    ["TimePlayed"] = {
     Type            = "TimePlayed",
     Category        = "Final",
-    Stat            = "TotalTime",
-    RequiredUpgrade = "TimePlayed", 
     },
 
-    ["RebirthMultiplier"] = {
+    ["Rebirths"] = {
         Type                 = "Rebirth",
         Category             = "Final",
-        MultiplierPerRebirth = 2,   -- 2^rebirths
     },
 
-    ["RecursionMultiplier"] = {
+    ["Recursion"] = {
         Type = "Recursion",
         Category = "Final",
-        Upgrade = "Recursion"
     },
 
-    ["Base2Multiplier"] = {
+    ["Base2"] = {
         Type = "Base2",
         Category = "Base",
-        Upgrade = "Base2",
     },
 
-    ["ExponentsMultiplier"] = {
+    ["Exponents"] = {
         Type = "Exponents",
         Category = "Exponent",
-        Upgrade = "Exponents"
     },
 
-    ["PyramidSchemeMultiplier"] = {
+    ["PyramidScheme"] = {
         Type = "PyramidScheme",
         Category = "Exponent",
-        Upgrade = "PyramidScheme"
     },
 
-    ["ExponentRecursionMultiplier"] = {
+    ["ExponentRecursion"] = {
         Type = "ExponentRecursion",
         Category = "Exponent",
-        Upgrade = "ExponentRecursion"
     },
 
-    ["ServerAgeMultiplier"] = {
+    ["ServerAge"] = {
         Type = "ServerAge",
         Category = "Final",
-        Upgrade = "ServerAge"
     }
     }
