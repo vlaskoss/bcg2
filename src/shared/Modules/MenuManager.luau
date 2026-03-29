@@ -3,12 +3,16 @@ local MenuManager = {}
 local TweenService = game:GetService("TweenService")
 
 local debounce = false
+local menuTweenDuration = 0.3
+local fadeTweenDuration = 0.3
+local menuCloseWait = 0.35
 
-local function tween(obj, goal, duration, delay: number?)
-    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut, 0, false, delay or 0)
+local function tween(obj, goal, duration, delay)
+    local tweenInfo = TweenInfo.new(duration or menuTweenDuration, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut, 0, false, delay or 0)
     local newTween = TweenService:Create(obj, tweenInfo, goal)
     newTween:Play()
-return newTween end
+    return newTween
+end
 
 local function fadeDescendants(parentMenu, target, duration)
     for _, child in pairs(parentMenu:GetDescendants()) do
@@ -51,16 +55,16 @@ function MenuManager:AnimateMenuOpen(menuFrame)
     menuFrame.BackgroundTransparency = 1
     fadeDescendants(menuFrame, 1, 0)
     menuFrame.Visible = true
-    tween(menuFrame, {BackgroundTransparency = 0}, 0.3)
-    fadeDescendants(menuFrame, 0 , 0.3)
+    tween(menuFrame, {BackgroundTransparency = 0}, menuTweenDuration)
+    fadeDescendants(menuFrame, 0, fadeTweenDuration)
 end
 
 function MenuManager:AnimateMenuClose(menuFrame)
-    tween(menuFrame, {BackgroundTransparency = 1}, 0.3)
-    fadeDescendants(menuFrame, 1, 0.3)
+    tween(menuFrame, {BackgroundTransparency = 1}, menuTweenDuration)
+    fadeDescendants(menuFrame, 1, fadeTweenDuration)
 
     task.spawn(function()
-        task.wait(0.3)
+        task.wait(menuTweenDuration)
         menuFrame.Visible = false
     end)
 end
@@ -80,7 +84,7 @@ function MenuManager:DisableAllButtons(buttonsFolder)
         if button:IsA("ImageButton") then
             button.Active = false
             button.Interactable = false
-            tween(button, {BackgroundTransparency = 1, ImageTransparency = 1}, 0.3)
+            tween(button, {BackgroundTransparency = 1, ImageTransparency = 1}, menuTweenDuration)
         end
     end
 end
@@ -90,7 +94,7 @@ function MenuManager:EnableAllButtons(buttonsFolder)
         if button:IsA("ImageButton") then
             button.Active = true
             button.Interactable = true
-            tween(button, {BackgroundTransparency = 0, ImageTransparency = 0}, 0.3)
+            tween(button, {BackgroundTransparency = 0, ImageTransparency = 0}, menuTweenDuration)
         end
     end
 end
@@ -102,7 +106,7 @@ function MenuManager:SetupButton(button, targetFrame)
 		debounce = true
 		if targetFrame.Visible then
 			self:AnimateMenuClose(targetFrame)
-			task.wait(0.35)
+			task.wait(menuCloseWait)
 			debounce = false
 			return
 		end
@@ -117,10 +121,10 @@ function MenuManager:SetupButton(button, targetFrame)
 			end
 		end
 		if wasAnyOpen then
-			task.wait(0.35)
+			task.wait(menuCloseWait)
 		end
 		self:AnimateMenuOpen(targetFrame)
-		task.wait(0.3)
+		task.wait(menuTweenDuration)
 		debounce = false
 	end)
 end
