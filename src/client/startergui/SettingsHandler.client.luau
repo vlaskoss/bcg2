@@ -12,32 +12,30 @@ local settingsFolder = settingsFrame.Holder.Settings
 
 local gameUtils = require(modulesFolder.GameUtils)
 
+local enabledImage = "rbxassetid://11419719540"
+local disabledImage = "rbxassetid://11419709766"
+local enabledColour = Color3.fromRGB(21, 126, 255)
+local disabledColour = Color3.fromRGB(255, 17, 25)
+
 local function toggleButton(button, setting)
-    if not button then return end
-    if button.Interactable == false then return end
-    if button.Image == "rbxassetid://11419719540" then
-        settingUpdateEvent:FireServer(setting, false)
-        button.Interactable = false
-        gameUtils:Tween(button, {ImageTransparency = 1, ImageColor3 = Color3.fromRGB(255,255,255)}, 0.1)
-        task.wait(0.1)
-        button.Visible = false
-        button.Image = "rbxassetid://11419709766"
-        button.Visible = true
-        gameUtils:Tween(button, {ImageTransparency = 0, ImageColor3 = Color3.fromRGB(255, 17, 25)}, 0.1)
-        task.wait(0.1)
-        button.Interactable = true
-    elseif button.Image == "rbxassetid://11419709766" then   
-        settingUpdateEvent:FireServer(setting, true)
-        button.Interactable = false
-        gameUtils:Tween(button, {ImageTransparency = 1, ImageColor3 = Color3.fromRGB(255,255,255)}, 0.1)
-        task.wait(0.1)
-        button.Visible = false
-        button.Image = "rbxassetid://11419719540"
-        button.Visible = true
-        gameUtils:Tween(button, {ImageTransparency = 0, ImageColor3 = Color3.fromRGB(21, 126, 255)}, 0.1)
-        task.wait(0.1)
-        button.Interactable = true
-    end
+    if not button or button.Interactable == false then return end
+    
+    local isEnabled = button.Image == enabledImage
+    local newState = not isEnabled
+    local targetImage = newState and enabledImage or disabledImage
+    local targetColor = newState and enabledColour or disabledColour
+    
+    settingUpdateEvent:FireServer(setting, newState)
+    button.Interactable = false
+    
+    gameUtils:Tween(button, {ImageTransparency = 1}, 0.1)
+    task.wait(0.1)
+    button.Visible = false
+    button.Image = targetImage
+    button.Visible = true
+    gameUtils:Tween(button, {ImageTransparency = 0, ImageColor3 = targetColor}, 0.1)
+    task.wait(0.1)
+    button.Interactable = true
 end
 
 
