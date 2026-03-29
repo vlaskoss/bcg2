@@ -57,11 +57,15 @@ local function meetsRequirements(player, config)
     return true
 end
 
-local function isMaxed(config, currentTier)
-    if config.Type == "Single" and dataManager:GetUpgrade(nil, nil) then return true end
-    if config.Type == "Finite"   and currentTier >= (config.MaxLevel or math.huge) then return true end
-    if config.Type == "Tiered"   and currentTier >= (config.MaxTier or (config.Tiers and #config.Tiers) or math.huge) then return true end
-    return false
+local function canPurchaseUpgrade(config, currentTier)
+    if config.Type == "Single" then
+        return currentTier ~= true
+    elseif config.Type == "Finite" then
+        return currentTier < (config.MaxLevel or math.huge)
+    elseif config.Type == "Tiered" then
+        return currentTier < (config.MaxTier or (config.Tiers and #config.Tiers) or math.huge)
+    end
+    return true
 end
 
 upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
@@ -81,14 +85,7 @@ upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
 
     local currentTier = getCurrentTier(player, upgradeKey, config)
     
-    if config.Type == "Single" then
-        local existing = dataManager:GetUpgrade(player, upgradeKey)
-        if existing == true then
-            warn(`[UpgradesHandler]: {player.Name} tried to buy already-owned boolean upgrade {upgradeKey}`)
-            upgradeReturnEvent:FireClient(player, upgradeKey, false, "maxed")
-            return
-        end
-    elseif isMaxed(config, currentTier) then
+    if not canPurchaseUpgrade(config, currentTier) then
         warn(`[UpgradesHandler]: {player.Name} tried to buy maxed upgrade {upgradeKey}`)
         upgradeReturnEvent:FireClient(player, upgradeKey, false, "maxed")
         return

@@ -84,13 +84,22 @@ local function PlayerAdded(player: Player)
 			dataInitBindable:Fire(player)
 			dataInitEvent:FireClient(player, profile.Data)
 
-			while dataInitReturnTable[player.UserId] == false do
-				dataInitEvent:FireClient(player, profile.Data)
-				task.wait(0.5)
-			end
-
-			dataInitReturnEvent.OnServerEvent:Connect(function(player)
-				dataInitReturnTable[player.UserId] = true
+			local returnConnection
+			returnConnection = dataInitReturnEvent.OnServerEvent:Connect(function(returnPlayer)
+				if returnPlayer == player then
+					dataInitReturnTable[player.UserId] = true
+					returnConnection:Disconnect()
+				end
+			end)
+			
+			-- Resend event every 0.5s until client confirms
+			task.spawn(function()
+				while dataInitReturnTable[player.UserId] == false and player.Parent do
+					task.wait(0.5)
+					if dataInitReturnTable[player.UserId] == false then
+						dataInitEvent:FireClient(player, profile.Data)
+					end
+				end
 			end)
 			
 			
