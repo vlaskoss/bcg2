@@ -30,6 +30,7 @@ local dataInitialised = PlayersService.LocalPlayer:WaitForChild("DataInitialised
 
 local upgradeState: {[string]: number} = {}
 local reduceLevelCost
+local cardConnections = {} -- Track connections for cleanup
 
 local function getCost(upgradeKey, config, currentTier)
     if config.CostFormula then
@@ -93,50 +94,32 @@ local function collectTransparencies(root)
     return targets
 end
 
-local function fadeInCard(upgradeUI)
-    local function getGoal(obj, prop)
-        if prop == "TextTransparency" then return 0 end
-        if prop == "ImageTransparency" then return 0 end
-        if prop == "BackgroundTransparency" then
-            if obj:IsA("TextButton") or obj:IsA("ImageButton") or obj:IsA("ImageLabel") then
-                return 0
-            end
-            return 1
+local function getTransparencyGoal(obj, prop, isVisible)
+    if not isVisible then return 1 end
+    if prop == "TextTransparency" or prop == "ImageTransparency" then return 0 end
+    if prop == "BackgroundTransparency" then
+        if obj:IsA("TextButton") or obj:IsA("ImageButton") or obj:IsA("ImageLabel") then
+            return 0
         end
-        return 0
+        return 1
     end
+    return 0
+end
 
+local function fadeCard(upgradeUI, isVisible)
     local targets = collectTransparencies(upgradeUI)
-    local tweens  = {}
-
+    local tweens = {}
+    
     for _, entry in ipairs(targets) do
-        local goal = getGoal(entry.obj, entry.prop)
-        entry.obj[entry.prop] = 1
-        if goal < 1 then 
+        local goal = getTransparencyGoal(entry.obj, entry.prop, isVisible)
+        if isVisible then
+            entry.obj[entry.prop] = 1
+        end
+        if goal < 1 or not isVisible then
             tweens[#tweens + 1] = TweenService:Create(entry.obj, fadeTweenInfo, { [entry.prop] = goal })
         end
     end
-
-    for _, tween in ipairs(tweens) do tween:Play() end
-end
-
-local function fadeOutCard(upgradeUI)
-    local function getGoal(obj, prop)
-        if prop == "TextTransparency" then return 1 end
-        if prop == "ImageTransparency" then return 1 end
-        if prop == "BackgroundTransparency" then return 1 end 
-        return 1
-    end
-
-    local targets = collectTransparencies(upgradeUI)
-    local tweens = {}
-
-    for _, entry in ipairs(targets) do
-        local goal = getGoal(entry.obj, entry.prop)
-        local tween = TweenService:Create(entry.obj, fadeTweenInfo, { [entry.prop] = goal })
-        tweens[#tweens + 1] = tween
-    end
-
+    
     for _, tween in ipairs(tweens) do tween:Play() end
 end
 
@@ -194,7 +177,13 @@ local function refreshCard(upgradeKey, config)
     local existing = upgradesFrame:FindFirstChild(upgradeKey)
 
     if not unlocked then
-        if existing then existing:Destroy() end
+        if existing then 
+            if cardConnections[upgradeKey] then
+                cardConnections[upgradeKey]:Disconnect()
+                cardConnections[upgradeKey] = nil
+            end
+            existing:Destroy() 
+        end
         return
     end
 
@@ -205,9 +194,13 @@ local function refreshCard(upgradeKey, config)
             local btn = cardToRemove:FindFirstChild("PurchaseButton")
             if btn then btn.Interactable = false end
             task.spawn(function()
-                fadeOutCard(cardToRemove)
+                fadeCard(cardToRemove, false)
                 task.wait(0.5)
                 if cardToRemove.Parent then
+                    if cardConnections[upgradeKey] then
+                        cardConnections[upgradeKey]:Disconnect()
+                        cardConnections[upgradeKey] = nil
+                    end
                     cardToRemove:Destroy()
                 end
             end)
@@ -221,9 +214,12 @@ local function refreshCard(upgradeKey, config)
         upgradeUI.LayoutOrder = tonumber(config.Priority) or 100
         upgradeUI.Visible     = true
         upgradeUI.Parent      = upgradesFrame
-        fadeInCard(upgradeUI)
+        fadeCard(upgradeUI, true)
 
-        upgradeUI.PurchaseButton.MouseButton1Down:Connect(function()
+        if cardConnections[upgradeKey] then
+            cardConnections[upgradeKey]:Disconnect()
+        end
+        cardConnections[upgradeKey] = upgradeUI.PurchaseButton.MouseButton1Down:Connect(function()
             upgradeUI.PurchaseButton.Interactable = false
             upgradeEvent:FireServer(upgradeKey)
             task.wait(0.1)
