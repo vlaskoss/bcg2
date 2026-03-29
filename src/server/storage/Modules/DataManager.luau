@@ -17,18 +17,18 @@ DataManager.Profiles = {}
 local function getProfile(profiles, player)
 	local profile = profiles[player]
 	if not profile then
-		warn("[DataManager]: No profile for", player.Name)
+		warn(`[DataManager]: No profile for {player.Name}`)
 	end
 	return profile
 end
 
 local function updateLeaderstat(profile, player, currency)
-	local ls = player:FindFirstChild("leaderstats")
-	if not ls then
-		warn("[DataManager]: Player", player.Name, "has no leaderstats")
+	local leaderstats = player:FindFirstChild("leaderstats")
+	if not leaderstats then
+		warn(`[DataManager]: Player {player.Name} has no leaderstats`)
 		return
 	end
-	local stat = ls:FindFirstChild(currency)
+	local stat = leaderstats:FindFirstChild(currency)
 	if not stat then return end
 	local value = profile.Data[currency]
 	stat.Value = (currency == "Clicks") and gameUtils:FormatNum(value) or value
@@ -42,27 +42,27 @@ local function toGamma(value)
 end
 
 -- util function for all main currency changes
-local function mutateCurrency(self, player, currency, amount, op)
+local function mutateCurrency(self, player, currency, amount, operation)
 	local profile = getProfile(self.Profiles, player)
 	if not profile then return end
 	if profile.Data[currency] == nil then
-		return warn("[DataManager]: Currency", currency, "does not exist.")
+		return warn(`[DataManager]: Currency {currency} does not exist.`)
 	end
 
 	local current = profile.Data[currency]
 
 	if currency == "Clicks" then
 		local g = toGamma(amount)
-		if     op == "add" then gammaNum.addeq(current, g)
-		elseif op == "sub" then gammaNum.subeq(current, g)
-		elseif op == "mul" then gammaNum.muleq(current, g)
-		elseif op == "set" then profile.Data[currency] = g
+		if     operation == "add" then gammaNum.addeq(current, g)
+		elseif operation == "sub" then gammaNum.subeq(current, g)
+		elseif operation == "mul" then gammaNum.muleq(current, g)
+		elseif operation == "set" then profile.Data[currency] = g
 		end
 	else
-		if     op == "add" then profile.Data[currency] += amount
-		elseif op == "sub" then profile.Data[currency] -= amount
-		elseif op == "mul" then profile.Data[currency] *= amount
-		elseif op == "set" then profile.Data[currency] = amount
+		if     operation == "add" then profile.Data[currency] += amount
+		elseif operation == "sub" then profile.Data[currency] -= amount
+		elseif operation == "mul" then profile.Data[currency] *= amount
+		elseif operation == "set" then profile.Data[currency] = amount
 		end
 	end
 
@@ -85,7 +85,7 @@ end
 function DataManager:SetCurrency(player, currency, amount)
 	mutateCurrency(self, player, currency, amount, "set")
 	if not amount or amount == 0 then
-		warn("[DataManager]:", gameUtils:MakePossessive(player.Name), currency, "balance cleared.")
+		warn(`[DataManager]: {gameUtils:MakePossessive(player.Name)} {currency} balance cleared.`)
 	end
 end
 
@@ -106,7 +106,7 @@ local function makeAccessors(key)
 			local profile = getProfile(self.Profiles, player)
 			if not profile then return end
 			if not profile.Data[key] then
-				return warn("[DataManager]:", key, "data does not exist.")
+				return warn(`[DataManager]: {key} data does not exist.`)
 			end
 			return profile.Data[key][field]
 		end,
@@ -114,7 +114,7 @@ local function makeAccessors(key)
 			local profile = getProfile(self.Profiles, player)
 			if not profile then return end
 			if not profile.Data[key] then
-				return warn("[DataManager]:", key, "data does not exist.")
+				return warn(`[DataManager]: {key} data does not exist.`)
 			end
 			profile.Data[key][field] = value
 			dataUpdateBindable:Fire(player, profile.Data, field, key:lower())
