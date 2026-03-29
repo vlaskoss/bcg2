@@ -44,7 +44,7 @@ end
 
 dataInitEvent.Event:Connect(updateUI)
 dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
-    if updatedCurrency == "Level" or "Rebirths" then
+    if updatedCurrency == "Level" or updatedCurrency == "Rebirths" then
         updateUI(data)
     end
 end)

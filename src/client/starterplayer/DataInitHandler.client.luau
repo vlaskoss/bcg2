@@ -20,7 +20,7 @@ dataInitialisedValue.Parent = PlayersService.LocalPlayer
 local dataInitialised
 
 dataInitEvent.OnClientEvent:Connect(function(data)
-    if dataInitialised == true then return end
+    if dataInitialised then return end
     dataInitialised = true
     dataInitReturnEvent:FireServer()
     if not game:IsLoaded() then
