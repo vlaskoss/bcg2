@@ -13,13 +13,14 @@ local dataUpdateEvent = remotesFolder.DataUpdateEvent
 local dataUpdateBindable = bindablesFolder.DataUpdateBindable
 
 local dataManager = require(modulesFolder.DataManager)
+local debugUtils = require(ReplicatedStorage.Shared.Modules.DebugUtils)
 
 dataUpdateBindable.Event:Connect(function(player, data, updatedCurrency, currencyType)
     dataUpdateEvent:FireClient(player, data, updatedCurrency, currencyType)
 end)
 
 remoteDataFunction.OnServerInvoke = function(player, dataType, key)
-    print(`[DataBroker]: Data requested by {player}, type {dataType}, key {key}`)
+    debugUtils:Log(`[DataBroker]: Data requested by {player}, type {dataType}, key {key}`)
     if key ~= nil then
         if dataType == "Upgrade" then
             return dataManager:GetUpgrade(player, key)
