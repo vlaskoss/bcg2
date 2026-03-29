@@ -23,6 +23,7 @@ local buildLabel, uptimeLabel, versionLabel = versionFrame.BuildLabel, versionFr
 local dataInitialised = PlayersService.LocalPlayer:WaitForChild("DataInitialised")
 local isOpen = false
 local debounce = false
+local uptimeUpdateThread
 
 local function tweenText(parent, value)
     for _, child in pairs(parent:GetDescendants()) do
@@ -32,11 +33,36 @@ local function tweenText(parent, value)
     end
 end
 
+local function updateUptime()
+    if dataInitialised.Value == true then
+        local uptime = gameUtils:GetUptime()
+        uptimeLabel.Text = "Server uptime: "  .. uptime
+    end
+end
+
+local function startUptimeUpdates()
+    if uptimeUpdateThread then return end
+    uptimeUpdateThread = task.spawn(function()
+        while isOpen and dataInitialised.Value do
+            updateUptime()
+            task.wait(1)
+        end
+        uptimeUpdateThread = nil
+    end)
+end
+
+local function stopUptimeUpdates()
+    if uptimeUpdateThread then
+        uptimeUpdateThread = nil
+    end
+end
+
 local function toggleFrame()
     if not debounce then
         if dataInitialised.Value == true then
             debounce = true
             if isOpen then
+                stopUptimeUpdates()
                 autoClickButton.Interactable = true
                 clickButton.Interactable = true
                 menuManager:EnableAllButtons(buttonsFolder)
@@ -64,6 +90,7 @@ local function toggleFrame()
                 gameUtils:Tween(clickButton, {BackgroundTransparency = 1, ImageTransparency = 1}, 0.3)
                 gameUtils:Tween(autoClickButton, {BackgroundTransparency = 1, TextTransparency = 1}, 0.3)
                 gameUtils:Tween(coverFrame, {BackgroundTransparency = 0.1}, 0.3)
+                startUptimeUpdates()
             end
             isOpen = not isOpen
             task.wait(0.5)
@@ -96,11 +123,9 @@ end)
 
 versionButton.MouseButton1Click:Connect(toggleFrame)
 
-while task.wait(1) do
-    if dataInitialised.Value == true then
-        local uptime = gameUtils:GetUptime()
-        uptimeLabel.Text = "Server uptime: "  .. uptime
-    end
-end
+-- Initial uptime display when data is loaded
+dataInitBindable.Event:Connect(function()
+    updateUptime()
+end)
 
 
