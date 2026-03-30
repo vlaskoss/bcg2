@@ -243,7 +243,7 @@ function ClickCalculationManager:UpdateMultiplier(player)
         Total = total,
     }
 
-    print(`[ClickCalculationManager]: {gameUtils:MakePossessive(player.Name)} multiplier - Base {baseTotal} x Final {finalTotal} ^ Exponent {exponentTotal} = {total}`)
+    print(`[ClickCalculationManager]: {gameUtils:MakePossessive(player.Name)} multiplier - Base {gammaNum.toSuffix(baseTotal)} x Final {gammaNum.toSuffix(finalTotal)} ^ Exponent {gammaNum.toSuffix(exponentTotal)} = {gammaNum.toSuffix(total)}`)
 end
 
 function ClickCalculationManager:GetMultiplier(player)     return getCached(player, "Total",    ONE)  end
