@@ -22,7 +22,7 @@ return {
 	ClickMultiplier  = exponential(100, 100),
 	Exponents        = exponential(1000000, 1000),
 	Recursion        = exponential(10000, 50),
-	ReduceLevelCost      = exponential(1000, 1000),
+	ReduceLevelCost  = exponential(1000, 1000),
 	TimePlayed       = exponential(5000, 100),
 
 	-- level formula uses a dynamic exponent
