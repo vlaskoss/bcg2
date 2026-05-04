@@ -46,8 +46,8 @@ local function awardBadge(player, badgeId, badgeName)
     if earnedBadges[userId][badgeId] or pendingBadges[userId][badgeId] then return end
     pendingBadges[userId][badgeId] = true
 
-    local awarded = pcall(BadgeService.AwardBadgeAsync, BadgeService, userId, badgeId)
-    if awarded then
+    local success = pcall(BadgeService.AwardBadgeAsync, BadgeService, userId, badgeId)
+    if success then
         print(`[BadgeHandler]: Awarded badge {badgeName} to {player.Name}`)
         earnedBadges[userId][badgeId] = true
     else

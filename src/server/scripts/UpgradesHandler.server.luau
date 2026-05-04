@@ -14,16 +14,15 @@ local upgradeReturnEvent = remotesFolder.UpgradeReturnEvent
 
 local dataManager   = require(modulesFolder.DataManager)
 local upgradeConfig = require(sharedModulesFolder.UpgradeConfig)
+local upgradeFormulas = require(sharedModulesFolder.UpgradeFormulas)
 local gameUtils     = require(sharedModulesFolder.GameUtils)
 local gammaNum      = require(sharedModulesFolder.GammaNum)
 
-local upgradeFormulas = sharedModulesFolder.UpgradeFormulas
-
-local function getUpgradeCost(config, currentTier)
+local function getUpgradeCost(upgradeKey, config, currentTier)
     if config.CostFormula then
-        local formulaModule = upgradeFormulas:FindFirstChild(config.CostFormula)
-        if formulaModule then
-            return require(formulaModule)(currentTier)
+        local formula = upgradeFormulas[upgradeKey]
+        if formula then 
+            return formula(currentTier)
         end
     end
     return gameUtils:EnsureGammaNum(config.Cost or 0)
@@ -58,11 +57,15 @@ local function meetsRequirements(player, config)
     return true
 end
 
-local function isMaxed(config, currentTier)
-    if config.Type == "Single" and dataManager:GetUpgrade(nil, nil) then return true end
-    if config.Type == "Finite"   and currentTier >= (config.MaxLevel or math.huge) then return true end
-    if config.Type == "Tiered"   and currentTier >= (config.MaxTier or (config.Tiers and #config.Tiers) or math.huge) then return true end
-    return false
+local function canPurchaseUpgrade(config, currentTier)
+    if config.Type == "Single" then
+        return currentTier ~= true
+    elseif config.Type == "Finite" then
+        return currentTier < (config.MaxLevel or math.huge)
+    elseif config.Type == "Tiered" then
+        return currentTier < (config.MaxTier or (config.Tiers and #config.Tiers) or math.huge)
+    end
+    return true
 end
 
 upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
@@ -82,20 +85,13 @@ upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
 
     local currentTier = getCurrentTier(player, upgradeKey, config)
     
-    if config.Type == "Single" then
-        local existing = dataManager:GetUpgrade(player, upgradeKey)
-        if existing == true then
-            warn(`[UpgradesHandler]: {player.Name} tried to buy already-owned boolean upgrade {upgradeKey}`)
-            upgradeReturnEvent:FireClient(player, upgradeKey, false, "maxed")
-            return
-        end
-    elseif isMaxed(config, currentTier) then
+    if not canPurchaseUpgrade(config, currentTier) then
         warn(`[UpgradesHandler]: {player.Name} tried to buy maxed upgrade {upgradeKey}`)
         upgradeReturnEvent:FireClient(player, upgradeKey, false, "maxed")
         return
     end
 
-    local cost = getUpgradeCost(config, currentTier)
+    local cost = getUpgradeCost(upgradeKey, config, currentTier)
 
     if upgradeKey == "Level" then
         local reduction = dataManager:GetUpgrade(player, "ReduceLevelCost") or 0

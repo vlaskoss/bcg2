@@ -11,6 +11,7 @@ local remotesFolder = ReplicatedStorage.Shared.Remotes
 local autoClickManager = require(modulesFolder.AutoClickManager)
 local dataManager = require(modulesFolder.DataManager)
 local clickCalculationManager = require(modulesFolder.ClickCalculationManager)
+local debugUtils = require(ReplicatedStorage.Shared.Modules.DebugUtils)
 
 local autoClickEvent = remotesFolder.AutoClickEvent
 local clickFXEvent = remotesFolder.ClickFXEvent
@@ -47,7 +48,7 @@ autoClickEvent.OnServerEvent:Connect(function(player, action)
             if autoClickManager:StartAutoClick(userId, level) then
                 task.spawn(runAutoClicker, player, level)
             else
-                warn("[AutoClickHandler]: Player requested to autoclick, but does not have it unlocked")
+                debugUtils:Warn("[AutoClickHandler]: Player requested to autoclick, but does not have it unlocked")
             end
         end
     elseif action == "stop" then

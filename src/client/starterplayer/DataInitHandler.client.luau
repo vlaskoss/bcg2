@@ -20,16 +20,12 @@ dataInitialisedValue.Parent = PlayersService.LocalPlayer
 local dataInitialised
 
 dataInitEvent.OnClientEvent:Connect(function(data)
-    if dataInitialised == true then return end
+    if dataInitialised then return end
     dataInitialised = true
-    dataInitReturnEvent:FireServer()
     if not game:IsLoaded() then
         game.Loaded:Wait()
-    end
-    if RunService:IsStudio() then
-        task.wait(3.5)
-    end
-    
+    end    
+    dataInitReturnEvent:FireServer()
     dataInitBindable:Fire(data)
     dataInitialisedValue.Value = true
 end)

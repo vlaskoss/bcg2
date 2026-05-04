@@ -79,7 +79,7 @@ stopSfxEvent.Event:Connect(function(soundTag)
 end)
 
 dataUpdateEvent.OnClientEvent:Connect(function(data, updatedCurrency)
-    if updatedCurrency == "BGMusic" or "SFX" then
+    if updatedCurrency == "BGMusic" or updatedCurrency == "SFX" then
         sfxEnabled = data.Settings.SFX
         bgMusicEnabled = data.Settings.BGMusic
         if updatedCurrency == "BGMusic" then

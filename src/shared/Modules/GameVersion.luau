@@ -1,4 +1,4 @@
 return {
-	FullName = "v0.6.5 beta",
-	AbbrName = "v0.6.5b"
+	FullName = "v0.6.6 beta",
+	AbbrName = "v0.6.6b"
 }

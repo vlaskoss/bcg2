@@ -19,10 +19,14 @@ local debounce = false
 local removeClickDebounce
 
 local originalSize = mainUI.ClickButton.Size
-local tweenInfo = TweenInfo.new(0.05, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, true)
+local tweenDuration = 0.05
+local clickWait = 0.1
+local buttonScale = 1.05
+local tweenInfo = TweenInfo.new(tweenDuration, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, true)
 
 local gameUtils = require(modulesFolder.GameUtils)
 local clickFXManager = require(modulesFolder.ClickFXManager)
+local debugUtils = require(modulesFolder.DebugUtils)
 
 local vfxEnabled 
 
@@ -32,7 +36,7 @@ end
 
 dataInitEvent.Event:Connect(function(data)
     task.wait(0.5)
-    print("[ClicksHandler]: Click-related functions are now enabled")
+    debugUtils:Log("[ClicksHandler]: Click-related functions are now enabled")
     dataInitialised = true
     updateText(data.Clicks)
     vfxEnabled = data.Settings.VFX
@@ -48,7 +52,7 @@ mainUI.ClickButton.MouseButton1Click:Connect(function()
             clickEvent:FireServer()
             task.spawn(function()
                 if not removeClickDebounce then
-                    local tween = TweenService:Create(mainUI.ClickButton, tweenInfo, {Size = UDim2.new(originalSize.X.Scale* 1.05, 0, originalSize.Y.Scale * 1.05, 0)})
+                    local tween = TweenService:Create(mainUI.ClickButton, tweenInfo, {Size = UDim2.new(originalSize.X.Scale * buttonScale, 0, originalSize.Y.Scale * buttonScale, 0)})
                     tween:Play()
                 end
                 if vfxEnabled then
@@ -56,11 +60,11 @@ mainUI.ClickButton.MouseButton1Click:Connect(function()
                 end
                 sfxEvent:Fire(soundsFolder.Interactive.ClickSound, 2)
             end)
-            task.wait(0.1)
+            task.wait(clickWait)
             debounce = false
         end
     else
-        warn("[ClicksHandler]: Data not initalised? im sure this is impossible lol")
+        debugUtils:Warn("[ClicksHandler]: Data not initalised? im sure this is impossible lol")
     end
 end)
 

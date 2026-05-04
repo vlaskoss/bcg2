@@ -18,10 +18,9 @@ local purchaseSound = soundsFolder.Interactive.PurchaseSuccess
 local errorSound = soundsFolder.Interactive.PurchaseUnsuccessful
 
 local upgradeConfig = require(modulesFolder.UpgradeConfig)
+local upgradeFormulas = require(modulesFolder.UpgradeFormulas)
 local gameUtils = require(modulesFolder.GameUtils)
 local gammaNum = require(modulesFolder.GammaNum)
-
-local formulaFolder = modulesFolder.UpgradeFormulas
 
 local mainFrame = script.Parent.MainUI.MainFrame
 local upgradesFrame = mainFrame.Menus.UpgradesFrame.Holder
@@ -31,12 +30,13 @@ local dataInitialised = PlayersService.LocalPlayer:WaitForChild("DataInitialised
 
 local upgradeState: {[string]: number} = {}
 local reduceLevelCost
+local cardConnections = {} -- Track connections for cleanup
 
-local function getCost(config, currentTier)
+local function getCost(upgradeKey, config, currentTier)
     if config.CostFormula then
-        local module = formulaFolder:FindFirstChild(config.CostFormula)
-        if module then
-            return require(module)(currentTier)
+        local formula = upgradeFormulas[upgradeKey]
+        if formula then 
+            return formula(currentTier)
         end
     end
     if config.Type == "Tiered" and config.Tiers then
@@ -94,50 +94,32 @@ local function collectTransparencies(root)
     return targets
 end
 
-local function fadeInCard(upgradeUI)
-    local function getGoal(obj, prop)
-        if prop == "TextTransparency" then return 0 end
-        if prop == "ImageTransparency" then return 0 end
-        if prop == "BackgroundTransparency" then
-            if obj:IsA("TextButton") or obj:IsA("ImageButton") or obj:IsA("ImageLabel") then
-                return 0
-            end
-            return 1
+local function getTransparencyGoal(obj, prop, isVisible)
+    if not isVisible then return 1 end
+    if prop == "TextTransparency" or prop == "ImageTransparency" then return 0 end
+    if prop == "BackgroundTransparency" then
+        if obj:IsA("TextButton") or obj:IsA("ImageButton") or obj:IsA("ImageLabel") then
+            return 0
         end
-        return 0
+        return 1
     end
+    return 0
+end
 
+local function fadeCard(upgradeUI, isVisible)
     local targets = collectTransparencies(upgradeUI)
-    local tweens  = {}
-
+    local tweens = {}
+    
     for _, entry in ipairs(targets) do
-        local goal = getGoal(entry.obj, entry.prop)
-        entry.obj[entry.prop] = 1
-        if goal < 1 then 
+        local goal = getTransparencyGoal(entry.obj, entry.prop, isVisible)
+        if isVisible then
+            entry.obj[entry.prop] = 1
+        end
+        if goal < 1 or not isVisible then
             tweens[#tweens + 1] = TweenService:Create(entry.obj, fadeTweenInfo, { [entry.prop] = goal })
         end
     end
-
-    for _, tween in ipairs(tweens) do tween:Play() end
-end
-
-local function fadeOutCard(upgradeUI)
-    local function getGoal(obj, prop)
-        if prop == "TextTransparency" then return 1 end
-        if prop == "ImageTransparency" then return 1 end
-        if prop == "BackgroundTransparency" then return 1 end 
-        return 1
-    end
-
-    local targets = collectTransparencies(upgradeUI)
-    local tweens = {}
-
-    for _, entry in ipairs(targets) do
-        local goal = getGoal(entry.obj, entry.prop)
-        local tween = TweenService:Create(entry.obj, fadeTweenInfo, { [entry.prop] = goal })
-        tweens[#tweens + 1] = tween
-    end
-
+    
     for _, tween in ipairs(tweens) do tween:Play() end
 end
 
@@ -171,7 +153,7 @@ local function updateUI(upgradeUI, upgradeKey, config)
     local nextTier    = currentTier + 1
     local maxed       = isMaxed(config, currentTier)
 
-    local cost = getCost(config, currentTier)
+    local cost = getCost(upgradeKey, config, currentTier)
     local finalCost
 
     if upgradeKey == "Level" then
@@ -195,7 +177,13 @@ local function refreshCard(upgradeKey, config)
     local existing = upgradesFrame:FindFirstChild(upgradeKey)
 
     if not unlocked then
-        if existing then existing:Destroy() end
+        if existing then 
+            if cardConnections[upgradeKey] then
+                cardConnections[upgradeKey]:Disconnect()
+                cardConnections[upgradeKey] = nil
+            end
+            existing:Destroy() 
+        end
         return
     end
 
@@ -206,9 +194,13 @@ local function refreshCard(upgradeKey, config)
             local btn = cardToRemove:FindFirstChild("PurchaseButton")
             if btn then btn.Interactable = false end
             task.spawn(function()
-                fadeOutCard(cardToRemove)
+                fadeCard(cardToRemove, false)
                 task.wait(0.5)
                 if cardToRemove.Parent then
+                    if cardConnections[upgradeKey] then
+                        cardConnections[upgradeKey]:Disconnect()
+                        cardConnections[upgradeKey] = nil
+                    end
                     cardToRemove:Destroy()
                 end
             end)
@@ -222,9 +214,12 @@ local function refreshCard(upgradeKey, config)
         upgradeUI.LayoutOrder = tonumber(config.Priority) or 100
         upgradeUI.Visible     = true
         upgradeUI.Parent      = upgradesFrame
-        fadeInCard(upgradeUI)
+        fadeCard(upgradeUI, true)
 
-        upgradeUI.PurchaseButton.MouseButton1Down:Connect(function()
+        if cardConnections[upgradeKey] then
+            cardConnections[upgradeKey]:Disconnect()
+        end
+        cardConnections[upgradeKey] = upgradeUI.PurchaseButton.MouseButton1Down:Connect(function()
             upgradeUI.PurchaseButton.Interactable = false
             upgradeEvent:FireServer(upgradeKey)
             task.wait(0.1)
@@ -270,10 +265,13 @@ end)
  
 dataUpdateEvent.OnClientEvent:Connect(function(newData, updatedStat, updateType)
     if not dataInitialised then return end
-
-    if updateType == "upgrade" or updatedStat == "Rebirths" or updatedStat == "Level" then
-        if updatedStat == "Level" and newData and newData.Level then
-            upgradeState["Level"] = newData.Level
+    if updateType == "upgrade" then
+        if newData and newData.Upgrades and newData.Upgrades[updatedStat] then
+            upgradeState[updatedStat] = newData.Upgrades[updatedStat]
+            local config = upgradeConfig[updatedStat]
+            if config and config.RelatedStat then
+                upgradeState[config.RelatedStat] = newData.Upgrades[updatedStat]
+            end
         end
 
         if updatedStat == "ReduceLevelCost" then
@@ -295,12 +293,17 @@ dataUpdateEvent.OnClientEvent:Connect(function(newData, updatedStat, updateType)
         for upgradeKey, config in pairs(upgradeConfig) do
             refreshCard(upgradeKey, config)
         end
-    elseif updatedStat == "Clicks" then
-        for _, child in ipairs(upgradesFrame:GetChildren()) do
-            if child:IsA("Frame") and child ~= upgradeTemplate then
-                local config = upgradeConfig[child.Name]
-                if config then updateUI(child, child.Name, config) end
-            end
+    elseif updateType == "currency" then
+        if updatedStat == "Level" and newData and newData.Level then
+            upgradeState["Level"] = newData.Level
+        elseif updatedStat == "Clicks" and newData and newData.Clicks then
+            upgradeState["Clicks"] = newData.Clicks
+        elseif updatedStat == "Rebirths" and newData and newData.Rebirths then
+            upgradeState["Rebirths"] = newData.Rebirths
+        end
+        
+        for upgradeKey, config in pairs(upgradeConfig) do
+            refreshCard(upgradeKey, config)
         end
     end
 end)
