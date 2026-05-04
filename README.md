@@ -5,6 +5,8 @@ basic clicking game / bcg is a Roblox game made in Luau inspired by games like C
 
 Use it as a template or anything, really. I'm using this repo to learn more about versioning in Git.
 
+Most recent update: v0.6.6 beta
+
 ## table of contents
 - [features](#features)
 - [planned updates](#planned-updates)
