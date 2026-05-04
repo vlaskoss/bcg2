@@ -117,7 +117,8 @@ local function makeAccessors(key)
 				return warn(`[DataManager]: {key} data does not exist.`)
 			end
 			profile.Data[key][field] = value
-			dataUpdateBindable:Fire(player, profile.Data, field, key:lower())
+			local updateType = key == "Upgrades" and "upgrade" or key:lower()
+			dataUpdateBindable:Fire(player, profile.Data, field, updateType)
 		end
 end
 

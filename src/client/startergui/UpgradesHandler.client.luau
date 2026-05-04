@@ -265,10 +265,13 @@ end)
  
 dataUpdateEvent.OnClientEvent:Connect(function(newData, updatedStat, updateType)
     if not dataInitialised then return end
-
-    if updateType == "upgrade" or updatedStat == "Rebirths" or updatedStat == "Level" then
-        if updatedStat == "Level" and newData and newData.Level then
-            upgradeState["Level"] = newData.Level
+    if updateType == "upgrade" then
+        if newData and newData.Upgrades and newData.Upgrades[updatedStat] then
+            upgradeState[updatedStat] = newData.Upgrades[updatedStat]
+            local config = upgradeConfig[updatedStat]
+            if config and config.RelatedStat then
+                upgradeState[config.RelatedStat] = newData.Upgrades[updatedStat]
+            end
         end
 
         if updatedStat == "ReduceLevelCost" then
@@ -290,12 +293,17 @@ dataUpdateEvent.OnClientEvent:Connect(function(newData, updatedStat, updateType)
         for upgradeKey, config in pairs(upgradeConfig) do
             refreshCard(upgradeKey, config)
         end
-    elseif updatedStat == "Clicks" then
-        for _, child in ipairs(upgradesFrame:GetChildren()) do
-            if child:IsA("Frame") and child ~= upgradeTemplate then
-                local config = upgradeConfig[child.Name]
-                if config then updateUI(child, child.Name, config) end
-            end
+    elseif updateType == "currency" then
+        if updatedStat == "Level" and newData and newData.Level then
+            upgradeState["Level"] = newData.Level
+        elseif updatedStat == "Clicks" and newData and newData.Clicks then
+            upgradeState["Clicks"] = newData.Clicks
+        elseif updatedStat == "Rebirths" and newData and newData.Rebirths then
+            upgradeState["Rebirths"] = newData.Rebirths
+        end
+        
+        for upgradeKey, config in pairs(upgradeConfig) do
+            refreshCard(upgradeKey, config)
         end
     end
 end)
