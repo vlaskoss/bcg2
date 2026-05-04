@@ -7,6 +7,8 @@ Use it as a template or anything, really. I'm using this repo to learn more abou
 
 ## table of contents
 - [features](#features)
+- [planned updates](#planned-updates)
+- [limitations](#limitations)
 - [build instructions](#how-to-build)
 - [key formulas](#key-formulas)
     - [levels](#levels)
@@ -22,6 +24,15 @@ Use it as a template or anything, really. I'm using this repo to learn more abou
 - modify players' currency securely and easily with integrated Cmdr
 - efficient click calculation handling with caching
 - serverside debounce
+
+## planned updates
+- auto-purchasing upgrade (auto-buys either the cheapest upgrade or another implementation)
+- multi-buy upgrade (adds buttons to buy more of that upgrade, etc. 10x, 100x)
+- better debug/verbose logs
+- detailed total statistics
+
+## limitations
+- server to client data replication via dataUpdateEvent is inefficient, sending the whole data table sometimes multiple times a second
 
 ## how to build
 to build the place from scratch, use:
