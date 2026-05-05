@@ -9,6 +9,7 @@ local remotesFolder = ReplicatedStorage.Shared.Remotes
 local dataManager = require(modulesFolder.DataManager)
 local debounceManager = require(modulesFolder.DebounceManager)
 local clickCalculationManager = require(modulesFolder.ClickCalculationManager)
+local totalClicksManager = require(modulesFolder.TotalClicksManager)
 
 local clickEvent = remotesFolder.ClickEvent
 
@@ -24,6 +25,7 @@ clickEvent.OnServerEvent:Connect(function(player)
     local baseAmount = 1
     local amountToGive = clickCalculationManager:Calculate(player, baseAmount)
     dataManager:AddCurrency(player, "Clicks", amountToGive)
+    totalClicksManager:UpdateClicksStatistic(player, amountToGive)
     
     task.delay(0.1, function()
         debounceManager:RemovePlayerDebounce(userId)

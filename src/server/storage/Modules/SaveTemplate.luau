@@ -30,6 +30,7 @@ return {
     },
     Statistics = {
         TotalTime = 0,
-        TotalClicks = 0,
+        TotalClicks = gammaNum.fromNumber(10),
+        TotalClicked = 0,
     }
 } 
