@@ -26,6 +26,7 @@ clickEvent.OnServerEvent:Connect(function(player)
     local amountToGive = clickCalculationManager:Calculate(player, baseAmount)
     dataManager:AddCurrency(player, "Clicks", amountToGive)
     totalClicksManager:UpdateClicksStatistic(player, amountToGive)
+    totalClicksManager:UpdateClickedStatistic(player)
     
     task.delay(0.1, function()
         debounceManager:RemovePlayerDebounce(userId)

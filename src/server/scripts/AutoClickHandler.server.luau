@@ -11,6 +11,7 @@ local remotesFolder = ReplicatedStorage.Shared.Remotes
 local autoClickManager = require(modulesFolder.AutoClickManager)
 local dataManager = require(modulesFolder.DataManager)
 local clickCalculationManager = require(modulesFolder.ClickCalculationManager)
+local totalClicksManager = require(modulesFolder.TotalClicksManager)
 local debugUtils = require(ReplicatedStorage.Shared.Modules.DebugUtils)
 
 local autoClickEvent = remotesFolder.AutoClickEvent
@@ -29,6 +30,8 @@ local function runAutoClicker(player, level)
         local amountToGive = clickCalculationManager:Calculate(player, baseAmount)
         dataManager:AddCurrency(player, "Clicks", amountToGive)
         clickFXEvent:FireClient(player)
+        totalClicksManager:UpdateClicksStatistic(player, amountToGive)
+        totalClicksManager:UpdateAutoClickedStatistic(player)
         if data.rate and data.rate > 0 then
             task.wait(1 / data.rate)
         else

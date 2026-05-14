@@ -17,4 +17,20 @@ function TotalClicksManager:UpdateClicksStatistic(player, amountToIncrease)
     newTotal = nil
 end
 
+function TotalClicksManager:UpdateClickedStatistic(player)
+    local previousTotal = dataManager:GetStatistic(player, "TotalClicked")
+    local newTotal = previousTotal + 1
+    dataManager:SetStatistic(player, "TotalClicked", newTotal)
+    previousTotal = nil
+    newTotal = nil
+end
+
+function TotalClicksManager:UpdateAutoClickedStatistic(player)
+    local previousTotal = dataManager:GetStatistic(player, "TotalAutoClicked")
+    local newTotal = previousTotal + 1
+    dataManager:SetStatistic(player, "TotalAutoClicked", newTotal)
+    previousTotal = nil
+    newTotal = nil
+end
+
 return TotalClicksManager
