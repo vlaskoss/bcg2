@@ -33,5 +33,6 @@ return {
         TotalClicks = gammaNum.fromNumber(10),
         TotalClicked = 0,
         TotalAutoClicked = 0,
+        TotalUpgrades = 0,
     }
 } 

@@ -128,5 +128,12 @@ upgradeEvent.OnServerEvent:Connect(function(player, upgradeKey)
         config.OnUpgrade(player, newTier)
     end
     upgradeReturnEvent:FireClient(player, upgradeKey, true, newTier)
+
+    local previousTotal = dataManager:GetStatistic(player, "TotalUpgrades")
+    local newTotal = previousTotal + 1
+    dataManager:SetStatistic(player, "TotalUpgrades", newTotal)
+    previousTotal = nil
+    newTotal = nil
+    
     print(`[UpgradesHandler]: {player.Name} purchased {upgradeKey} -> {tostring(newTier)}`)
 end)
