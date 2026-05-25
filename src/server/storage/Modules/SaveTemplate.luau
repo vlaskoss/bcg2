@@ -21,6 +21,7 @@ return {
         LevelMultibuy = false,
         PyramidScheme = false,
         ExponentRecursion = false,
+        UpgradesBoost = false,
         
     },
     Settings = {
