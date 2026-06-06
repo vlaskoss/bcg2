@@ -255,6 +255,17 @@ return {
         RequiredLevel = 40,
     },
 
+    ["UpgradesBoost"] = {
+        Type        = "Single",
+        Priority    = 16,
+        StatType    = "Upgrade",
+        RelatedStat = "UpgradesBoost",
+        CostFormula = true,
+        DisplayName = "Return on Investment",
+        Description   = "Multiplies clicks by 0.01x per purchased upgrade, backdated!",
+        IsPermanent   = true,
+        RequiredLevel = 200,
+    },
     -- TBA: Level Multibuy
 
 }

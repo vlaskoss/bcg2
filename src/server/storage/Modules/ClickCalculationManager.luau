@@ -61,6 +61,19 @@ function Handlers.Base2(player)
     return perUpgrade
 end
 
+function Handlers.UpgradesBoost(player)
+    local tier = dataManager:GetUpgrade(player, "UpgradesBoost")
+    if not tier or tier < 1 then return nil end
+
+    local totalUpgrades = dataManager:GetStatistic(player, "TotalUpgrades") 
+    if not totalUpgrades then return nil end
+
+    local total      = toGamma(totalUpgrades)
+    local perUpgrade = toGamma(0.01)
+    local totalMultiplier = gammaNum.mul(perUpgrade, total)
+    return totalMultiplier
+end
+
 function Handlers.ServerAge(player)
     local tier = dataManager:GetUpgrade(player, "ServerAge")
     if not tier or tier == false then return nil end
